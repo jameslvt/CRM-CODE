@@ -1,0 +1,2249 @@
+openapi: 3.0.3
+info:
+  title: CRM 系统 API - 业务模块
+  description: 企业级 CRM 系统 L2C 业务模块 API
+  version: 1.0.0
+
+servers:
+  - url: /api
+    description: API 基础路径
+
+tags:
+  - name: 线索管理
+    description: 线索 CRUD 和转化接口
+  - name: 客户管理
+    description: 客户 CRUD 和公海池接口
+  - name: 联系人管理
+    description: 联系人 CRUD 接口
+  - name: 商机管理
+    description: 商机 CRUD 和阶段推进接口
+  - name: 产品管理
+    description: 产品 CRUD 接口
+  - name: 合同管理
+    description: 合同 CRUD 和状态流转接口
+  - name: 回款管理
+    description: 回款计划和记录接口
+  - name: 跟进记录
+    description: 跟进活动记录接口
+
+paths:
+  # ==================== 线索管理 ====================
+  /leads:
+    get:
+      tags: [线索管理]
+      summary: 线索列表
+      operationId: listLeads
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/pageNum'
+        - $ref: '#/components/parameters/pageSize'
+        - name: name
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: integer
+        - name: source
+          in: query
+          schema:
+            type: string
+        - name: ownerId
+          in: query
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadPageResponse'
+
+    post:
+      tags: [线索管理]
+      summary: 创建线索
+      operationId: createLead
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeadCreateRequest'
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadResponse'
+
+  /leads/{id}:
+    get:
+      tags: [线索管理]
+      summary: 线索详情
+      operationId: getLead
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadResponse'
+
+    put:
+      tags: [线索管理]
+      summary: 更新线索
+      operationId: updateLead
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeadUpdateRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadResponse'
+
+    delete:
+      tags: [线索管理]
+      summary: 删除线索
+      operationId: deleteLead
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+
+  /leads/{id}/convert:
+    post:
+      tags: [线索管理]
+      summary: 转化为客户
+      operationId: convertLead
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeadConvertRequest'
+      responses:
+        '200':
+          description: 转化成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+
+  /leads/{id}/status:
+    put:
+      tags: [线索管理]
+      summary: 更新线索状态
+      operationId: updateLeadStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: integer
+                  description: "1-新建, 2-跟进中, 3-已转化, 4-已关闭"
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+
+  /leads/{id}/assign:
+    post:
+      tags: [线索管理]
+      summary: 分配线索
+      operationId: assignLead
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ownerId]
+              properties:
+                ownerId:
+                  type: integer
+                  format: int64
+      responses:
+        '200':
+          description: 分配成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+
+  # ==================== 客户管理 ====================
+  /customers:
+    get:
+      tags: [客户管理]
+      summary: 客户列表
+      operationId: listCustomers
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/pageNum'
+        - $ref: '#/components/parameters/pageSize'
+        - name: name
+          in: query
+          schema:
+            type: string
+        - name: industry
+          in: query
+          schema:
+            type: string
+        - name: level
+          in: query
+          schema:
+            type: string
+        - name: ownerId
+          in: query
+          schema:
+            type: integer
+            format: int64
+        - name: isPublicPool
+          in: query
+          schema:
+            type: boolean
+            description: 是否查询公海客户
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerPageResponse'
+
+    post:
+      tags: [客户管理]
+      summary: 创建客户
+      operationId: createCustomer
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerCreateRequest'
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+
+  /customers/{id}:
+    get:
+      tags: [客户管理]
+      summary: 客户详情
+      operationId: getCustomer
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+
+    put:
+      tags: [客户管理]
+      summary: 更新客户
+      operationId: updateCustomer
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerUpdateRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+
+    delete:
+      tags: [客户管理]
+      summary: 删除客户
+      operationId: deleteCustomer
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+
+  /customers/{id}/360:
+    get:
+      tags: [客户管理]
+      summary: 客户360度视图
+      operationId: getCustomer360
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer360Response'
+
+  /customers/{id}/acquire:
+    post:
+      tags: [客户管理]
+      summary: 领取公海客户
+      operationId: acquireCustomer
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 领取成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+
+  /customers/{id}/release:
+    post:
+      tags: [客户管理]
+      summary: 释放客户到公海
+      operationId: releaseCustomer
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: 释放成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+
+  # ==================== 联系人管理 ====================
+  /contacts:
+    get:
+      tags: [联系人管理]
+      summary: 联系人列表
+      operationId: listContacts
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/pageNum'
+        - $ref: '#/components/parameters/pageSize'
+        - name: customerId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: name
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactPageResponse'
+
+    post:
+      tags: [联系人管理]
+      summary: 创建联系人
+      operationId: createContact
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactCreateRequest'
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactResponse'
+
+  /contacts/{id}:
+    get:
+      tags: [联系人管理]
+      summary: 联系人详情
+      operationId: getContact
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactResponse'
+
+    put:
+      tags: [联系人管理]
+      summary: 更新联系人
+      operationId: updateContact
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactUpdateRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactResponse'
+
+    delete:
+      tags: [联系人管理]
+      summary: 删除联系人
+      operationId: deleteContact
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+
+  /contacts/{id}/set-primary:
+    post:
+      tags: [联系人管理]
+      summary: 设为主要联系人
+      operationId: setPrimaryContact
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 设置成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+
+  # ==================== 商机管理 ====================
+  /opportunities:
+    get:
+      tags: [商机管理]
+      summary: 商机列表
+      operationId: listOpportunities
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/pageNum'
+        - $ref: '#/components/parameters/pageSize'
+        - name: name
+          in: query
+          schema:
+            type: string
+        - name: customerId
+          in: query
+          schema:
+            type: integer
+            format: int64
+        - name: stage
+          in: query
+          schema:
+            type: string
+        - name: ownerId
+          in: query
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OpportunityPageResponse'
+
+    post:
+      tags: [商机管理]
+      summary: 创建商机
+      operationId: createOpportunity
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OpportunityCreateRequest'
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OpportunityResponse'
+
+  /opportunities/{id}:
+    get:
+      tags: [商机管理]
+      summary: 商机详情
+      operationId: getOpportunity
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OpportunityDetailResponse'
+
+    put:
+      tags: [商机管理]
+      summary: 更新商机
+      operationId: updateOpportunity
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OpportunityUpdateRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OpportunityResponse'
+
+    delete:
+      tags: [商机管理]
+      summary: 删除商机
+      operationId: deleteOpportunity
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+
+  /opportunities/{id}/advance:
+    post:
+      tags: [商机管理]
+      summary: 推进商机阶段
+      operationId: advanceOpportunityStage
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [stage]
+              properties:
+                stage:
+                  type: string
+                  description: 目标阶段
+                reason:
+                  type: string
+                  description: 阶段变更原因
+      responses:
+        '200':
+          description: 推进成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OpportunityResponse'
+
+  /opportunities/{id}/products:
+    get:
+      tags: [商机管理]
+      summary: 商机产品列表
+      operationId: getOpportunityProducts
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OpportunityProductListResponse'
+
+    put:
+      tags: [商机管理]
+      summary: 更新商机产品
+      operationId: updateOpportunityProducts
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                products:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/OpportunityProductItem'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+
+  /opportunities/{id}/to-contract:
+    post:
+      tags: [商机管理]
+      summary: 转化为合同
+      operationId: convertToContract
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContractCreateRequest'
+      responses:
+        '200':
+          description: 转化成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContractResponse'
+
+  # ==================== 产品管理 ====================
+  /products:
+    get:
+      tags: [产品管理]
+      summary: 产品列表
+      operationId: listProducts
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/pageNum'
+        - $ref: '#/components/parameters/pageSize'
+        - name: name
+          in: query
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductPageResponse'
+
+    post:
+      tags: [产品管理]
+      summary: 创建产品
+      operationId: createProduct
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreateRequest'
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+
+  /products/{id}:
+    get:
+      tags: [产品管理]
+      summary: 产品详情
+      operationId: getProduct
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+
+    put:
+      tags: [产品管理]
+      summary: 更新产品
+      operationId: updateProduct
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductUpdateRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+
+    delete:
+      tags: [产品管理]
+      summary: 删除产品
+      operationId: deleteProduct
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+
+  # ==================== 合同管理 ====================
+  /contracts:
+    get:
+      tags: [合同管理]
+      summary: 合同列表
+      operationId: listContracts
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/pageNum'
+        - $ref: '#/components/parameters/pageSize'
+        - name: contractNo
+          in: query
+          schema:
+            type: string
+        - name: customerId
+          in: query
+          schema:
+            type: integer
+            format: int64
+        - name: status
+          in: query
+          schema:
+            type: integer
+        - name: ownerId
+          in: query
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContractPageResponse'
+
+    post:
+      tags: [合同管理]
+      summary: 创建合同
+      operationId: createContract
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContractCreateRequest'
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContractResponse'
+
+  /contracts/{id}:
+    get:
+      tags: [合同管理]
+      summary: 合同详情
+      operationId: getContract
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContractDetailResponse'
+
+    put:
+      tags: [合同管理]
+      summary: 更新合同
+      operationId: updateContract
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContractUpdateRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContractResponse'
+
+    delete:
+      tags: [合同管理]
+      summary: 删除合同
+      operationId: deleteContract
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+
+  /contracts/{id}/status:
+    put:
+      tags: [合同管理]
+      summary: 更新合同状态
+      operationId: updateContractStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: integer
+                  description: "1-草稿, 2-审批中, 3-执行中, 4-已完成, 5-已终止"
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+
+  /contracts/{id}/upload:
+    post:
+      tags: [合同管理]
+      summary: 上传合同文件
+      operationId: uploadContractFile
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: 上传成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+
+  # ==================== 回款管理 ====================
+  /contracts/{contractId}/payment-plans:
+    get:
+      tags: [回款管理]
+      summary: 回款计划列表
+      operationId: getPaymentPlans
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: contractId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentPlanListResponse'
+
+    post:
+      tags: [回款管理]
+      summary: 创建回款计划
+      operationId: createPaymentPlan
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: contractId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentPlanCreateRequest'
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentPlanResponse'
+
+  /payment-plans/{id}:
+    put:
+      tags: [回款管理]
+      summary: 更新回款计划
+      operationId: updatePaymentPlan
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentPlanUpdateRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentPlanResponse'
+
+    delete:
+      tags: [回款管理]
+      summary: 删除回款计划
+      operationId: deletePaymentPlan
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+
+  /payment-plans/{planId}/records:
+    get:
+      tags: [回款管理]
+      summary: 回款记录列表
+      operationId: getPaymentRecords
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentRecordListResponse'
+
+    post:
+      tags: [回款管理]
+      summary: 记录回款
+      operationId: createPaymentRecord
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRecordCreateRequest'
+      responses:
+        '200':
+          description: 记录成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentRecordResponse'
+
+  # ==================== 跟进记录 ====================
+  /activities:
+    get:
+      tags: [跟进记录]
+      summary: 跟进记录列表
+      operationId: listActivities
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/pageNum'
+        - $ref: '#/components/parameters/pageSize'
+        - name: targetType
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [lead, customer, opportunity]
+        - name: targetId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivityPageResponse'
+
+    post:
+      tags: [跟进记录]
+      summary: 创建跟进记录
+      operationId: createActivity
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivityCreateRequest'
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivityResponse'
+
+  /activities/{id}:
+    delete:
+      tags: [跟进记录]
+      summary: 删除跟进记录
+      operationId: deleteActivity
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    pageNum:
+      name: pageNum
+      in: query
+      schema:
+        type: integer
+        default: 1
+    pageSize:
+      name: pageSize
+      in: query
+      schema:
+        type: integer
+        default: 10
+
+  schemas:
+    Result:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        msg:
+          type: string
+          example: 操作成功
+        data:
+          type: object
+        timestamp:
+          type: integer
+          format: int64
+
+    PageResult:
+      type: object
+      properties:
+        records:
+          type: array
+          items: {}
+        total:
+          type: integer
+          format: int64
+        pageNum:
+          type: integer
+          format: int64
+        pageSize:
+          type: integer
+          format: int64
+        pages:
+          type: integer
+          format: int64
+
+    # ==================== 线索 ====================
+    LeadCreateRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        source:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        company:
+          type: string
+        position:
+          type: string
+        industry:
+          type: string
+        address:
+          type: string
+        remark:
+          type: string
+
+    LeadUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        source:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        company:
+          type: string
+        position:
+          type: string
+        industry:
+          type: string
+        address:
+          type: string
+        remark:
+          type: string
+
+    LeadConvertRequest:
+      type: object
+      properties:
+        customerName:
+          type: string
+          description: 客户名称（默认使用线索公司名称）
+        createOpportunity:
+          type: boolean
+          default: false
+          description: 是否同时创建商机
+
+    Lead:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        source:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        company:
+          type: string
+        position:
+          type: string
+        industry:
+          type: string
+        address:
+          type: string
+        status:
+          type: integer
+        statusName:
+          type: string
+        ownerId:
+          type: integer
+          format: int64
+        ownerName:
+          type: string
+        customerId:
+          type: integer
+          format: int64
+        remark:
+          type: string
+        createTime:
+          type: string
+          format: date-time
+        updateTime:
+          type: string
+          format: date-time
+
+    LeadResponse:
+      allOf:
+        - $ref: '#/components/schemas/Result'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/Lead'
+
+    LeadPageResponse:
+      allOf:
+        - $ref: '#/components/schemas/Result'
+        - type: object
+          properties:
+            data:
+              allOf:
+                - $ref: '#/components/schemas/PageResult'
+                - type: object
+                  properties:
+                    records:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Lead'
+
+    # ==================== 客户 ====================
+    CustomerCreateRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        shortName:
+          type: string
+        industry:
+          type: string
+        scale:
+          type: string
+        source:
+          type: string
+        level:
+          type: string
+        phone:
+          type: string
+        website:
+          type: string
+        address:
+          type: string
+        remark:
+          type: string
+
+    CustomerUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        shortName:
+          type: string
+        industry:
+          type: string
+        scale:
+          type: string
+        level:
+          type: string
+        phone:
+          type: string
+        website:
+          type: string
+        address:
+          type: string
+        remark:
+          type: string
+
+    Customer:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        shortName:
+          type: string
+        code:
+          type: string
+        industry:
+          type: string
+        scale:
+          type: string
+        source:
+          type: string
+        level:
+          type: string
+        phone:
+          type: string
+        website:
+          type: string
+        address:
+          type: string
+        ownerId:
+          type: integer
+          format: int64
+        ownerName:
+          type: string
+        status:
+          type: integer
+        remark:
+          type: string
+        createTime:
+          type: string
+          format: date-time
+
+    CustomerResponse:
+      allOf:
+        - $ref: '#/components/schemas/Result'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/Customer'
+
+    CustomerPageResponse:
+      allOf:
+        - $ref: '#/components/schemas/Result'
+        - type: object
+          properties:
+            data:
+              allOf:
+                - $ref: '#/components/schemas/PageResult'
+                - type: object
+                  properties:
+                    records:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Customer'
+
+    Customer360Response:
+      allOf:
+        - $ref: '#/components/schemas/Result'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                basicInfo:
+                  $ref: '#/components/schemas/Customer'
+                contacts:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Contact'
+                opportunities:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Opportunity'
+                contracts:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Contract'
+                activities:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Activity'
+                statistics:
+                  type: object
+                  properties:
+                    totalOpportunityAmount:
+                      type: number
+                    totalContractAmount:
+                      type: number
+                    totalPaymentReceived:
+                      type: number
+                    opportunityCount:
+                      type: integer
+                    contractCount:
+                      type: integer
+
+    # ==================== 联系人 ====================
+    ContactCreateRequest:
+      type: object
+      required: [customerId, name]
+      properties:
+        customerId:
+          type: integer
+          format: int64
+        name:
+          type: string
+        gender:
+          type: integer
+        position:
+          type: string
+        department:
+          type: string
+        phone:
+          type: string
+        mobile:
+          type: string
+        email:
+          type: string
+        wechat:
+          type: string
+        isPrimary:
+          type: boolean
+          default: false
+        birthday:
+          type: string
+          format: date
+        remark:
+          type: string
+
+    ContactUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        gender:
+          type: integer
+        position:
+          type: string
+        department:
+          type: string
+        phone:
+          type: string
+        mobile:
+          type: string
+        email:
+          type: string
+        wechat:
+          type: string
+        birthday:
+          type: string
+          format: date
+        remark:
+          type: string
+
+    Contact:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        customerId:
+          type: integer
+          format: int64
+        name:
+          type: string
+        gender:
+          type: integer
+        position:
+          type: string
+        department:
+          type: string
+        phone:
+          type: string
+        mobile:
+          type: string
+        email:
+          type: string
+        wechat:
+          type: string
+        isPrimary:
+          type: boolean
+        birthday:
+          type: string
+          format: date
+        remark:
+          type: string
+        createTime:
+          type: string
+          format: date-time
+
+    ContactResponse:
+      allOf:
+        - $ref: '#/components/schemas/Result'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/Contact'
+
+    ContactPageResponse:
+      allOf:
+        - $ref: '#/components/schemas/Result'
+        - type: object
+          properties:
+            data:
+              allOf:
+                - $ref: '#/components/schemas/PageResult'
+                - type: object
+                  properties:
+                    records:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Contact'
+
+    # ==================== 商机 ====================
+    OpportunityCreateRequest:
+      type: object
+      required: [name, customerId]
+      properties:
+        name:
+          type: string
+        customerId:
+          type: integer
+          format: int64
+        contactId:
+          type: integer
+          format: int64
+        amount:
+          type: number
+        stage:
+          type: string
+          default: 需求确认
+        expectedDate:
+          type: string
+          format: date
+        source:
+          type: string
+        remark:
+          type: string
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/OpportunityProductItem'
+
+    OpportunityUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        contactId:
+          type: integer
+          format: int64
+        amount:
+          type: number
+        expectedDate:
+          type: string
+          format: date
+        source:
+          type: string
+        remark:
+          type: string
+
+    OpportunityProductItem:
+      type: object
+      required: [productId, quantity, price]
+      properties:
+        productId:
+          type: integer
+          format: int64
+        quantity:
+          type: integer
+        price:
+          type: number
+        discount:
+          type: number
+          default: 100
+
+    Opportunity:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        customerId:
+          type: integer
+          format: int64
+        customerName:
+          type: string
+        contactId:
+          type: integer
+          format: int64
+        contactName:
+          type: string
+        amount:
+          type: number
+        stage:
+          type: string
+        probability:
+          type: integer
+        expectedDate:
+          type: string
+          format: date
+        ownerId:
+          type: integer
+          format: int64
+        ownerName:
+          type: string
+        source:
+          type: string
+        remark:
+          type: string
+        createTime:
+          type: string
+          format: date-time
+
+    OpportunityResponse:
+      allOf:
+        - $ref: '#/components/schemas/Result'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/Opportunity'
+
+    OpportunityDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/Result'
+        - type: object
+          properties:
+            data:
+              allOf:
+                - $ref: '#/components/schemas/Opportunity'
+                - type: object
+                  properties:
+                    products:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/OpportunityProduct'
+
+    OpportunityPageResponse:
+      allOf:
+        - $ref: '#/components/schemas/Result'
+        - type: object
+          properties:
+            data:
+              allOf:
+                - $ref: '#/components/schemas/PageResult'
+                - type: object
+                  properties:
+                    records:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Opportunity'
+
+    OpportunityProduct:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        productId:
+          type: integer
+          format: int64
+        productName:
+          type: string
+        quantity:
+          type: integer
+        price:
+          type: number
+        discount:
+          type: number
+        amount:
+          type: number
+
+    OpportunityProductListResponse:
+      allOf:
+        - $ref: '#/components/schemas/Result'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/OpportunityProduct'
+
+    # ==================== 产品 ====================
+    ProductCreateRequest:
+      type: object
+      required: [name, price]
+      properties:
+        name:
+          type: string
+        code:
+          type: string
+        category:
+          type: string
+        unit:
+          type: string
+        price:
+          type: number
+        description:
+          type: string
+
+    ProductUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        code:
+          type: string
+        category:
+          type: string
+        unit:
+          type: string
+        price:
+          type: number
+        description:
+          type: string
+        status:
+          type: integer
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        code:
+          type: string
+        category:
+          type: string
+        unit:
+          type: string
+        price:
+          type: number
+        description:
+          type: string
+        status:
+          type: integer
+        createTime:
+          type: string
+          format: date-time
+
+    ProductResponse:
+      allOf:
+        - $ref: '#/components/schemas/Result'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/Product'
+
+    ProductPageResponse:
+      allOf:
+        - $ref: '#/components/schemas/Result'
+        - type: object
+          properties:
+            data:
+              allOf:
+                - $ref: '#/components/schemas/PageResult'
+                - type: object
+                  properties:
+                    records:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Product'
+
+    # ==================== 合同 ====================
+    ContractCreateRequest:
+      type: object
+      required: [name, customerId, amount]
+      properties:
+        name:
+          type: string
+        customerId:
+          type: integer
+          format: int64
+        opportunityId:
+          type: integer
+          format: int64
+        amount:
+          type: number
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        signDate:
+          type: string
+          format: date
+        remark:
+          type: string
+
+    ContractUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        amount:
+          type: number
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        signDate:
+          type: string
+          format: date
+        remark:
+          type: string
+
+    Contract:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        contractNo:
+          type: string
+        name:
+          type: string
+        customerId:
+          type: integer
+          format: int64
+        customerName:
+          type: string
+        opportunityId:
+          type: integer
+          format: int64
+        amount:
+          type: number
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        signDate:
+          type: string
+          format: date
+        status:
+          type: integer
+        statusName:
+          type: string
+        ownerId:
+          type: integer
+          format: int64
+        ownerName:
+          type: string
+        fileUrl:
+          type: string
+        remark:
+          type: string
+        createTime:
+          type: string
+          format: date-time
+
+    ContractResponse:
+      allOf:
+        - $ref: '#/components/schemas/Result'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/Contract'
+
+    ContractDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/Result'
+        - type: object
+          properties:
+            data:
+              allOf:
+                - $ref: '#/components/schemas/Contract'
+                - type: object
+                  properties:
+                    paymentPlans:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/PaymentPlan'
+                    paymentStatistics:
+                      type: object
+                      properties:
+                        totalPlanAmount:
+                          type: number
+                        totalReceivedAmount:
+                          type: number
+                        receivedRate:
+                          type: number
+
+    ContractPageResponse:
+      allOf:
+        - $ref: '#/components/schemas/Result'
+        - type: object
+          properties:
+            data:
+              allOf:
+                - $ref: '#/components/schemas/PageResult'
+                - type: object
+                  properties:
+                    records:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Contract'
+
+    # ==================== 回款 ====================
+    PaymentPlanCreateRequest:
+      type: object
+      required: [planAmount, planDate]
+      properties:
+        period:
+          type: integer
+        planAmount:
+          type: number
+        planDate:
+          type: string
+          format: date
+        remark:
+          type: string
+
+    PaymentPlanUpdateRequest:
+      type: object
+      properties:
+        planAmount:
+          type: number
+        planDate:
+          type: string
+          format: date
+        remark:
+          type: string
+
+    PaymentPlan:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        contractId:
+          type: integer
+          format: int64
+        period:
+          type: integer
+        planAmount:
+          type: number
+        planDate:
+          type: string
+          format: date
+        actualAmount:
+          type: number
+        actualDate:
+          type: string
+          format: date
+        status:
+          type: integer
+        statusName:
+          type: string
+        remark:
+          type: string
+        createTime:
+          type: string
+          format: date-time
+
+    PaymentPlanResponse:
+      allOf:
+        - $ref: '#/components/schemas/Result'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/PaymentPlan'
+
+    PaymentPlanListResponse:
+      allOf:
+        - $ref: '#/components/schemas/Result'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/PaymentPlan'
+
+    PaymentRecordCreateRequest:
+      type: object
+      required: [amount, paymentDate]
+      properties:
+        amount:
+          type: number
+        paymentDate:
+          type: string
+          format: date
+        paymentMethod:
+          type: string
+        remark:
+          type: string
+
+    PaymentRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        planId:
+          type: integer
+          format: int64
+        amount:
+          type: number
+        paymentDate:
+          type: string
+          format: date
+        paymentMethod:
+          type: string
+        remark:
+          type: string
+        createTime:
+          type: string
+          format: date-time
+        createBy:
+          type: integer
+          format: int64
+        createByName:
+          type: string
+
+    PaymentRecordResponse:
+      allOf:
+        - $ref: '#/components/schemas/Result'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/PaymentRecord'
+
+    PaymentRecordListResponse:
+      allOf:
+        - $ref: '#/components/schemas/Result'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/PaymentRecord'
+
+    # ==================== 跟进记录 ====================
+    ActivityCreateRequest:
+      type: object
+      required: [type, content, targetType, targetId]
+      properties:
+        type:
+          type: string
+          enum: [电话, 拜访, 邮件, 会议, 其他]
+        content:
+          type: string
+        targetType:
+          type: string
+          enum: [lead, customer, opportunity]
+        targetId:
+          type: integer
+          format: int64
+        nextTime:
+          type: string
+          format: date-time
+
+    Activity:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        type:
+          type: string
+        content:
+          type: string
+        targetType:
+          type: string
+        targetId:
+          type: integer
+          format: int64
+        nextTime:
+          type: string
+          format: date-time
+        createTime:
+          type: string
+          format: date-time
+        createBy:
+          type: integer
+          format: int64
+        createByName:
+          type: string
+
+    ActivityResponse:
+      allOf:
+        - $ref: '#/components/schemas/Result'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/Activity'
+
+    ActivityPageResponse:
+      allOf:
+        - $ref: '#/components/schemas/Result'
+        - type: object
+          properties:
+            data:
+              allOf:
+                - $ref: '#/components/schemas/PageResult'
+                - type: object
+                  properties:
+                    records:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Activity'
