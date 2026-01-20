@@ -23,14 +23,14 @@
 
 **目的**: 项目初始化和基本结构
 
-- [ ] T001 创建 Maven 多模块项目结构 `backend/pom.xml`（父 POM）
-- [ ] T002 [P] 创建 `backend/crm-common/pom.xml` 公共模块
-- [ ] T003 [P] 创建 `backend/crm-system/pom.xml` 系统模块
-- [ ] T004 [P] 创建 `backend/crm-business/pom.xml` 业务模块
-- [ ] T005 [P] 创建 `backend/crm-admin/pom.xml` 启动模块
-- [ ] T006 创建 Vue 3 项目 `frontend/package.json`（Vite + TypeScript + Naive UI + Pinia）
-- [ ] T007 [P] 配置后端代码检查 `backend/.editorconfig` 和 Checkstyle
-- [ ] T008 [P] 配置前端代码检查 `frontend/.eslintrc.js` 和 Prettier
+- [x] T001 创建 Maven 多模块项目结构 `backend/pom.xml`（父 POM）
+- [x] T002 [P] 创建 `backend/crm-common/pom.xml` 公共模块
+- [x] T003 [P] 创建 `backend/crm-system/pom.xml` 系统模块
+- [x] T004 [P] 创建 `backend/crm-business/pom.xml` 业务模块
+- [x] T005 [P] 创建 `backend/crm-admin/pom.xml` 启动模块
+- [x] T006 创建 Vue 3 项目 `frontend/package.json`（Vite + TypeScript + Naive UI + Pinia）
+- [x] T007 [P] 配置后端代码检查 `backend/.editorconfig` 和 Checkstyle
+- [x] T008 [P] 配置前端代码检查 `frontend/.eslintrc.js` 和 Prettier
 
 ---
 
@@ -42,62 +42,62 @@
 
 ### 2.1 数据库初始化
 
-- [ ] T009 创建数据库初始化脚本 `backend/sql/init.sql`（创建数据库和字符集配置）
-- [ ] T010 创建系统模块表结构 `backend/sql/schema-system.sql`（crm_user, crm_role, crm_permission, crm_department 等）
-- [ ] T011 创建业务模块表结构 `backend/sql/schema-business.sql`（crm_lead, crm_customer, crm_contact 等）
-- [ ] T012 创建初始数据脚本 `backend/sql/init-data.sql`（管理员账号、基础角色、字典数据）
+- [x] T009 创建数据库初始化脚本 `backend/sql/init.sql`（创建数据库和字符集配置）
+- [x] T010 创建系统模块表结构 `backend/sql/schema-system.sql`（crm_user, crm_role, crm_permission, crm_department 等）
+- [x] T011 创建业务模块表结构 `backend/sql/schema-business.sql`（crm_lead, crm_customer, crm_contact 等）
+- [x] T012 创建初始数据脚本 `backend/sql/init-data.sql`（管理员账号、基础角色、字典数据）
 
 ### 2.2 公共模块 (crm-common)
 
-- [ ] T013 [P] 创建统一响应封装 `backend/crm-common/src/main/java/com/crm/common/result/Result.java`
-- [ ] T014 [P] 创建分页结果封装 `backend/crm-common/src/main/java/com/crm/common/result/PageResult.java`
-- [ ] T015 [P] 创建全局异常类 `backend/crm-common/src/main/java/com/crm/common/exception/BusinessException.java`
-- [ ] T016 [P] 创建全局异常处理器 `backend/crm-common/src/main/java/com/crm/common/exception/GlobalExceptionHandler.java`
-- [ ] T017 [P] 创建基础实体类 `backend/crm-common/src/main/java/com/crm/common/entity/BaseEntity.java`（id, createTime, updateTime, deleted）
-- [ ] T018 [P] 创建 MyBatis Plus 配置 `backend/crm-common/src/main/java/com/crm/common/config/MybatisPlusConfig.java`（分页插件、自动填充）
-- [ ] T019 [P] 创建 Redis 配置 `backend/crm-common/src/main/java/com/crm/common/config/RedisConfig.java`
-- [ ] T020 [P] 创建雪花算法 ID 生成器 `backend/crm-common/src/main/java/com/crm/common/utils/IdGenerator.java`
+- [x] T013 [P] 创建统一响应封装 `backend/crm-common/src/main/java/com/crm/common/result/Result.java`
+- [x] T014 [P] 创建分页结果封装 `backend/crm-common/src/main/java/com/crm/common/result/PageResult.java`
+- [x] T015 [P] 创建全局异常类 `backend/crm-common/src/main/java/com/crm/common/exception/BusinessException.java`
+- [x] T016 [P] 创建全局异常处理器 `backend/crm-common/src/main/java/com/crm/common/exception/GlobalExceptionHandler.java`
+- [x] T017 [P] 创建基础实体类 `backend/crm-common/src/main/java/com/crm/common/entity/BaseEntity.java`（id, createTime, updateTime, deleted）
+- [x] T018 [P] 创建 MyBatis Plus 配置 `backend/crm-common/src/main/java/com/crm/common/config/MybatisPlusConfig.java`（分页插件、自动填充）
+- [x] T019 [P] 创建 Redis 配置 `backend/crm-common/src/main/java/com/crm/common/config/RedisConfig.java`
+- [x] T020 [P] 创建雪花算法 ID 生成器 `backend/crm-common/src/main/java/com/crm/common/utils/IdGenerator.java`
 
 ### 2.3 安全框架
 
-- [ ] T021 创建 JWT 工具类 `backend/crm-common/src/main/java/com/crm/common/utils/JwtUtils.java`
-- [ ] T022 创建 Spring Security 配置 `backend/crm-admin/src/main/java/com/crm/config/SecurityConfig.java`
-- [ ] T023 创建 JWT 认证过滤器 `backend/crm-admin/src/main/java/com/crm/security/JwtAuthenticationFilter.java`
-- [ ] T024 创建权限校验服务 `backend/crm-admin/src/main/java/com/crm/security/PermissionService.java`
+- [x] T021 创建 JWT 工具类 `backend/crm-common/src/main/java/com/crm/common/utils/JwtUtils.java`
+- [x] T022 创建 Spring Security 配置 `backend/crm-admin/src/main/java/com/crm/config/SecurityConfig.java`
+- [x] T023 创建 JWT 认证过滤器 `backend/crm-admin/src/main/java/com/crm/security/JwtAuthenticationFilter.java`
+- [x] T024 创建权限校验服务 `backend/crm-admin/src/main/java/com/crm/security/PermissionService.java`
 
 ### 2.4 启动模块配置
 
-- [ ] T025 创建主启动类 `backend/crm-admin/src/main/java/com/crm/CrmApplication.java`
-- [ ] T026 创建应用配置文件 `backend/crm-admin/src/main/resources/application.yml`
-- [ ] T027 创建本地开发配置 `backend/crm-admin/src/main/resources/application-local.yml.example`
-- [ ] T028 配置 Knife4j/Swagger `backend/crm-admin/src/main/java/com/crm/config/SwaggerConfig.java`
+- [x] T025 创建主启动类 `backend/crm-admin/src/main/java/com/crm/CrmApplication.java`
+- [x] T026 创建应用配置文件 `backend/crm-admin/src/main/resources/application.yml`
+- [x] T027 创建本地开发配置 `backend/crm-admin/src/main/resources/application-local.yml.example`
+- [x] T028 配置 Knife4j/Swagger `backend/crm-admin/src/main/java/com/crm/config/SwaggerConfig.java`
 
 ### 2.5 前端基础架构
 
-- [ ] T029 [P] 创建 Axios 请求封装 `frontend/src/api/request.ts`（拦截器、错误处理、Token 刷新）
-- [ ] T030 [P] 创建路由配置 `frontend/src/router/index.ts`
-- [ ] T031 [P] 创建主布局组件 `frontend/src/layouts/MainLayout.vue`（侧边栏、顶栏、内容区）
-- [ ] T032 [P] 创建用户状态管理 `frontend/src/stores/user.ts`（登录状态、用户信息、权限）
-- [ ] T033 [P] 创建应用状态管理 `frontend/src/stores/app.ts`（侧边栏折叠、主题）
-- [ ] T034 [P] 创建 TypeScript 通用类型 `frontend/src/types/common.ts`（Result、PageResult、分页参数）
+- [x] T029 [P] 创建 Axios 请求封装 `frontend/src/api/request.ts`（拦截器、错误处理、Token 刷新）
+- [x] T030 [P] 创建路由配置 `frontend/src/router/index.ts`
+- [x] T031 [P] 创建主布局组件 `frontend/src/layouts/MainLayout.vue`（侧边栏、顶栏、内容区）
+- [x] T032 [P] 创建用户状态管理 `frontend/src/stores/user.ts`（登录状态、用户信息、权限）
+- [x] T033 [P] 创建应用状态管理 `frontend/src/stores/app.ts`（侧边栏折叠、主题）
+- [x] T034 [P] 创建 TypeScript 通用类型 `frontend/src/types/common.ts`（Result、PageResult、分页参数）
 
 ### 2.6 字典管理
 
-- [ ] T035 [P] 创建字典类型实体 `backend/crm-system/src/main/java/com/crm/system/entity/DictType.java`
-- [ ] T036 [P] 创建字典数据实体 `backend/crm-system/src/main/java/com/crm/system/entity/DictData.java`
-- [ ] T037 [P] 创建字典类型 Mapper `backend/crm-system/src/main/java/com/crm/system/mapper/DictTypeMapper.java`
-- [ ] T038 [P] 创建字典数据 Mapper `backend/crm-system/src/main/java/com/crm/system/mapper/DictDataMapper.java`
-- [ ] T039 创建字典服务 `backend/crm-system/src/main/java/com/crm/system/service/DictService.java`
-- [ ] T040 创建字典控制器 `backend/crm-system/src/main/java/com/crm/system/controller/DictController.java`
-- [ ] T041 创建字典状态管理 `frontend/src/stores/dict.ts`（字典缓存）
+- [x] T035 [P] 创建字典类型实体 `backend/crm-system/src/main/java/com/crm/system/entity/DictType.java`
+- [x] T036 [P] 创建字典数据实体 `backend/crm-system/src/main/java/com/crm/system/entity/DictData.java`
+- [x] T037 [P] 创建字典类型 Mapper `backend/crm-system/src/main/java/com/crm/system/mapper/DictTypeMapper.java`
+- [x] T038 [P] 创建字典数据 Mapper `backend/crm-system/src/main/java/com/crm/system/mapper/DictDataMapper.java`
+- [x] T039 创建字典服务 `backend/crm-system/src/main/java/com/crm/system/service/DictService.java`
+- [x] T040 创建字典控制器 `backend/crm-system/src/main/java/com/crm/system/controller/DictController.java`
+- [x] T041 创建字典状态管理 `frontend/src/stores/dict.ts`（字典缓存）
 
 ### 2.7 商机阶段配置
 
-- [ ] T042 [P] 创建商机阶段配置实体 `backend/crm-system/src/main/java/com/crm/system/entity/OpportunityStage.java`
-- [ ] T043 [P] 创建商机阶段 Mapper `backend/crm-system/src/main/java/com/crm/system/mapper/OpportunityStageMapper.java`
-- [ ] T044 创建商机阶段配置服务 `backend/crm-system/src/main/java/com/crm/system/service/OpportunityStageService.java`（CRUD、排序）
-- [ ] T045 创建商机阶段配置控制器 `backend/crm-system/src/main/java/com/crm/system/controller/OpportunityStageController.java`
-- [ ] T046 创建商机阶段配置页面 `frontend/src/views/system/config/opportunity-stage.vue`
+- [x] T042 [P] 创建商机阶段配置实体 `backend/crm-system/src/main/java/com/crm/system/entity/OpportunityStage.java`
+- [x] T043 [P] 创建商机阶段 Mapper `backend/crm-system/src/main/java/com/crm/system/mapper/OpportunityStageMapper.java`
+- [x] T044 创建商机阶段配置服务 `backend/crm-system/src/main/java/com/crm/system/service/OpportunityStageService.java`（CRUD、排序）
+- [x] T045 创建商机阶段配置控制器 `backend/crm-system/src/main/java/com/crm/system/controller/OpportunityStageController.java`
+- [x] T046 创建商机阶段配置页面 `frontend/src/views/system/config/opportunity-stage.vue`
 
 **检查点**: 基础就绪 - 现在可以开始并行实施用户故事
 
@@ -111,63 +111,63 @@
 
 ### 3.1 后端 - 实体层
 
-- [ ] T049 [P] [US1] 创建用户实体 `backend/crm-system/src/main/java/com/crm/system/entity/User.java`
-- [ ] T050 [P] [US1] 创建角色实体 `backend/crm-system/src/main/java/com/crm/system/entity/Role.java`
-- [ ] T051 [P] [US1] 创建权限实体 `backend/crm-system/src/main/java/com/crm/system/entity/Permission.java`
-- [ ] T052 [P] [US1] 创建部门实体 `backend/crm-system/src/main/java/com/crm/system/entity/Department.java`
-- [ ] T053 [P] [US1] 创建用户角色关联实体 `backend/crm-system/src/main/java/com/crm/system/entity/UserRole.java`
-- [ ] T054 [P] [US1] 创建角色权限关联实体 `backend/crm-system/src/main/java/com/crm/system/entity/RolePermission.java`
+- [x] T049 [P] [US1] 创建用户实体 `backend/crm-system/src/main/java/com/crm/system/entity/User.java`
+- [x] T050 [P] [US1] 创建角色实体 `backend/crm-system/src/main/java/com/crm/system/entity/Role.java`
+- [x] T051 [P] [US1] 创建权限实体 `backend/crm-system/src/main/java/com/crm/system/entity/Permission.java`
+- [x] T052 [P] [US1] 创建部门实体 `backend/crm-system/src/main/java/com/crm/system/entity/Department.java`
+- [x] T053 [P] [US1] 创建用户角色关联实体 `backend/crm-system/src/main/java/com/crm/system/entity/UserRole.java`
+- [x] T054 [P] [US1] 创建角色权限关联实体 `backend/crm-system/src/main/java/com/crm/system/entity/RolePermission.java`
 
 ### 3.2 后端 - DTO 层
 
-- [ ] T048 [P] [US1] 创建登录请求 DTO `backend/crm-system/src/main/java/com/crm/system/dto/LoginRequest.java`
-- [ ] T049 [P] [US1] 创建登录响应 DTO `backend/crm-system/src/main/java/com/crm/system/dto/LoginResponse.java`
-- [ ] T050 [P] [US1] 创建用户 DTO `backend/crm-system/src/main/java/com/crm/system/dto/UserDTO.java`
-- [ ] T051 [P] [US1] 创建角色 DTO `backend/crm-system/src/main/java/com/crm/system/dto/RoleDTO.java`
-- [ ] T052 [P] [US1] 创建部门 DTO `backend/crm-system/src/main/java/com/crm/system/dto/DepartmentDTO.java`
+- [x] T048 [P] [US1] 创建登录请求 DTO `backend/crm-system/src/main/java/com/crm/system/dto/LoginRequest.java`
+- [x] T049 [P] [US1] 创建登录响应 DTO `backend/crm-system/src/main/java/com/crm/system/dto/LoginResponse.java`
+- [x] T050 [P] [US1] 创建用户 DTO `backend/crm-system/src/main/java/com/crm/system/dto/UserDTO.java`
+- [x] T051 [P] [US1] 创建角色 DTO `backend/crm-system/src/main/java/com/crm/system/dto/RoleDTO.java`
+- [x] T052 [P] [US1] 创建部门 DTO `backend/crm-system/src/main/java/com/crm/system/dto/DepartmentDTO.java`
 
 ### 3.3 后端 - Mapper 层
 
-- [ ] T053 [P] [US1] 创建用户 Mapper `backend/crm-system/src/main/java/com/crm/system/mapper/UserMapper.java`
-- [ ] T054 [P] [US1] 创建角色 Mapper `backend/crm-system/src/main/java/com/crm/system/mapper/RoleMapper.java`
-- [ ] T055 [P] [US1] 创建权限 Mapper `backend/crm-system/src/main/java/com/crm/system/mapper/PermissionMapper.java`
-- [ ] T056 [P] [US1] 创建部门 Mapper `backend/crm-system/src/main/java/com/crm/system/mapper/DepartmentMapper.java`
+- [x] T053 [P] [US1] 创建用户 Mapper `backend/crm-system/src/main/java/com/crm/system/mapper/UserMapper.java`
+- [x] T054 [P] [US1] 创建角色 Mapper `backend/crm-system/src/main/java/com/crm/system/mapper/RoleMapper.java`
+- [x] T055 [P] [US1] 创建权限 Mapper `backend/crm-system/src/main/java/com/crm/system/mapper/PermissionMapper.java`
+- [x] T056 [P] [US1] 创建部门 Mapper `backend/crm-system/src/main/java/com/crm/system/mapper/DepartmentMapper.java`
 
 ### 3.4 后端 - Service 层
 
-- [ ] T057 [US1] 创建认证服务 `backend/crm-system/src/main/java/com/crm/system/service/AuthService.java`（登录、登出、Token 刷新）
-- [ ] T058 [US1] 创建用户服务 `backend/crm-system/src/main/java/com/crm/system/service/UserService.java`（CRUD、分配角色）
-- [ ] T059 [US1] 创建角色服务 `backend/crm-system/src/main/java/com/crm/system/service/RoleService.java`（CRUD、分配权限）
-- [ ] T060 [US1] 创建权限服务 `backend/crm-system/src/main/java/com/crm/system/service/PermissionService.java`（CRUD、权限树）
-- [ ] T061 [US1] 创建部门服务 `backend/crm-system/src/main/java/com/crm/system/service/DepartmentService.java`（CRUD、部门树）
+- [x] T057 [US1] 创建认证服务 `backend/crm-system/src/main/java/com/crm/system/service/AuthService.java`（登录、登出、Token 刷新）
+- [x] T058 [US1] 创建用户服务 `backend/crm-system/src/main/java/com/crm/system/service/UserService.java`（CRUD、分配角色）
+- [x] T059 [US1] 创建角色服务 `backend/crm-system/src/main/java/com/crm/system/service/RoleService.java`（CRUD、分配权限）
+- [x] T060 [US1] 创建权限服务 `backend/crm-system/src/main/java/com/crm/system/service/PermissionService.java`（CRUD、权限树）
+- [x] T061 [US1] 创建部门服务 `backend/crm-system/src/main/java/com/crm/system/service/DepartmentService.java`（CRUD、部门树）
 
 ### 3.5 后端 - Controller 层
 
-- [ ] T062 [US1] 创建认证控制器 `backend/crm-system/src/main/java/com/crm/system/controller/AuthController.java`
-- [ ] T063 [US1] 创建用户控制器 `backend/crm-system/src/main/java/com/crm/system/controller/UserController.java`
-- [ ] T064 [US1] 创建角色控制器 `backend/crm-system/src/main/java/com/crm/system/controller/RoleController.java`
-- [ ] T065 [US1] 创建权限控制器 `backend/crm-system/src/main/java/com/crm/system/controller/PermissionController.java`
-- [ ] T066 [US1] 创建部门控制器 `backend/crm-system/src/main/java/com/crm/system/controller/DepartmentController.java`
+- [x] T062 [US1] 创建认证控制器 `backend/crm-system/src/main/java/com/crm/system/controller/AuthController.java`
+- [x] T063 [US1] 创建用户控制器 `backend/crm-system/src/main/java/com/crm/system/controller/UserController.java`
+- [x] T064 [US1] 创建角色控制器 `backend/crm-system/src/main/java/com/crm/system/controller/RoleController.java`
+- [x] T065 [US1] 创建权限控制器 `backend/crm-system/src/main/java/com/crm/system/controller/PermissionController.java`
+- [x] T066 [US1] 创建部门控制器 `backend/crm-system/src/main/java/com/crm/system/controller/DepartmentController.java`
 
 ### 3.6 前端 - API 层
 
-- [ ] T067 [P] [US1] 创建认证 API `frontend/src/api/system/auth.ts`
-- [ ] T068 [P] [US1] 创建用户 API `frontend/src/api/system/user.ts`
-- [ ] T069 [P] [US1] 创建角色 API `frontend/src/api/system/role.ts`
-- [ ] T070 [P] [US1] 创建权限 API `frontend/src/api/system/permission.ts`
-- [ ] T071 [P] [US1] 创建部门 API `frontend/src/api/system/department.ts`
+- [x] T067 [P] [US1] 创建认证 API `frontend/src/api/system/auth.ts`
+- [x] T068 [P] [US1] 创建用户 API `frontend/src/api/system/user.ts`
+- [x] T069 [P] [US1] 创建角色 API `frontend/src/api/system/role.ts`
+- [x] T070 [P] [US1] 创建权限 API `frontend/src/api/system/permission.ts`
+- [x] T071 [P] [US1] 创建部门 API `frontend/src/api/system/department.ts`
 
 ### 3.7 前端 - 类型定义
 
-- [ ] T072 [P] [US1] 创建系统模块类型 `frontend/src/types/system.ts`（User、Role、Permission、Department）
+- [x] T072 [P] [US1] 创建系统模块类型 `frontend/src/types/system.ts`（User、Role、Permission、Department）
 
 ### 3.8 前端 - 页面
 
-- [ ] T073 [US1] 创建登录页面 `frontend/src/views/login/index.vue`
-- [ ] T074 [US1] 创建用户管理页面 `frontend/src/views/system/user/index.vue`（列表、新增/编辑弹窗）
-- [ ] T075 [US1] 创建角色管理页面 `frontend/src/views/system/role/index.vue`（列表、权限分配）
-- [ ] T076 [US1] 创建部门管理页面 `frontend/src/views/system/department/index.vue`（树形结构）
-- [ ] T077 [US1] 创建权限管理页面 `frontend/src/views/system/permission/index.vue`（菜单树）
+- [x] T073 [US1] 创建登录页面 `frontend/src/views/login/index.vue`
+- [x] T074 [US1] 创建用户管理页面 `frontend/src/views/system/user/index.vue`（列表、新增/编辑弹窗）
+- [x] T075 [US1] 创建角色管理页面 `frontend/src/views/system/role/index.vue`（列表、权限分配）
+- [x] T076 [US1] 创建部门管理页面 `frontend/src/views/system/department/index.vue`（树形结构）
+- [x] T077 [US1] 创建权限管理页面 `frontend/src/views/system/permission/index.vue`（菜单树）
 
 **检查点**: 用户故事 1 完成 - 系统管理员可以管理用户、角色、部门和权限
 
@@ -181,40 +181,40 @@
 
 ### 4.1 后端 - 实体与 DTO
 
-- [ ] T078 [P] [US2] 创建线索实体 `backend/crm-business/src/main/java/com/crm/business/entity/Lead.java`
-- [ ] T079 [P] [US2] 创建线索 DTO `backend/crm-business/src/main/java/com/crm/business/dto/LeadDTO.java`
-- [ ] T080 [P] [US2] 创建线索查询 DTO `backend/crm-business/src/main/java/com/crm/business/dto/LeadQueryDTO.java`
-- [ ] T081 [P] [US2] 创建线索转化 DTO `backend/crm-business/src/main/java/com/crm/business/dto/LeadConvertDTO.java`
+- [x] T078 [P] [US2] 创建线索实体 `backend/crm-business/src/main/java/com/crm/business/entity/Lead.java`
+- [x] T079 [P] [US2] 创建线索 DTO `backend/crm-business/src/main/java/com/crm/business/dto/LeadDTO.java`
+- [x] T080 [P] [US2] 创建线索查询 DTO `backend/crm-business/src/main/java/com/crm/business/dto/LeadQueryDTO.java`
+- [x] T081 [P] [US2] 创建线索转化 DTO `backend/crm-business/src/main/java/com/crm/business/dto/LeadConvertDTO.java`
 
 ### 4.2 后端 - Mapper 与 Service
 
-- [ ] T082 [US2] 创建线索 Mapper `backend/crm-business/src/main/java/com/crm/business/mapper/LeadMapper.java`
-- [ ] T083 [US2] 创建线索服务 `backend/crm-business/src/main/java/com/crm/business/service/LeadService.java`（CRUD、状态流转、转化）
-- [ ] T084 [US2] 创建线索转化事件 `backend/crm-business/src/main/java/com/crm/business/event/LeadConvertedEvent.java`
+- [x] T082 [US2] 创建线索 Mapper `backend/crm-business/src/main/java/com/crm/business/mapper/LeadMapper.java`
+- [x] T083 [US2] 创建线索服务 `backend/crm-business/src/main/java/com/crm/business/service/LeadService.java`（CRUD、状态流转、转化）
+- [x] T084 [US2] 创建线索转化事件 `backend/crm-business/src/main/java/com/crm/business/event/LeadConvertedEvent.java`
 
 ### 4.3 后端 - Controller
 
-- [ ] T085 [US2] 创建线索控制器 `backend/crm-business/src/main/java/com/crm/business/controller/LeadController.java`
+- [x] T085 [US2] 创建线索控制器 `backend/crm-business/src/main/java/com/crm/business/controller/LeadController.java`
 
 ### 4.4 前端 - API 与类型
 
-- [ ] T086 [P] [US2] 创建线索 API `frontend/src/api/business/lead.ts`
-- [ ] T087 [P] [US2] 创建线索类型 `frontend/src/types/business/lead.ts`
+- [x] T086 [P] [US2] 创建线索 API `frontend/src/api/business/lead.ts`
+- [x] T087 [P] [US2] 创建线索类型 `frontend/src/types/business/lead.ts`
 
 ### 4.5 前端 - 页面
 
-- [ ] T088 [US2] 创建线索列表页面 `frontend/src/views/business/lead/index.vue`
-- [ ] T089 [US2] 创建线索详情页面 `frontend/src/views/business/lead/detail.vue`
-- [ ] T090 [US2] 创建线索表单组件 `frontend/src/components/business/LeadForm.vue`
-- [ ] T091 [US2] 创建线索转化弹窗 `frontend/src/components/business/LeadConvertDialog.vue`
+- [x] T088 [US2] 创建线索列表页面 `frontend/src/views/business/lead/index.vue`
+- [x] T089 [US2] 创建线索详情页面 `frontend/src/views/business/lead/detail.vue`
+- [x] T090 [US2] 创建线索表单组件 `frontend/src/components/business/LeadForm.vue`
+- [x] T091 [US2] 创建线索转化弹窗 `frontend/src/components/business/LeadConvertDialog.vue`
 
 ### 4.6 批量导入导出
 
-- [ ] T092 [P] [US2] 创建 Excel 导入导出工具类 `backend/crm-common/src/main/java/com/crm/common/utils/ExcelUtils.java`（支持 WPS）
-- [ ] T093 [US2] 在线索服务中添加批量导入方法 `backend/crm-business/src/main/java/com/crm/business/service/LeadService.java`
-- [ ] T094 [US2] 在线索服务中添加批量导出方法 `backend/crm-business/src/main/java/com/crm/business/service/LeadService.java`
-- [ ] T095 [US2] 在线索控制器中添加导入导出端点 `backend/crm-business/src/main/java/com/crm/business/controller/LeadController.java`
-- [ ] T096 [US2] 创建导入导出组件 `frontend/src/components/business/LeadImportExport.vue`
+- [x] T092 [P] [US2] 创建 Excel 导入导出工具类 `backend/crm-common/src/main/java/com/crm/common/utils/ExcelUtils.java`（支持 WPS）
+- [x] T093 [US2] 在线索服务中添加批量导入方法 `backend/crm-business/src/main/java/com/crm/business/service/LeadService.java`
+- [x] T094 [US2] 在线索服务中添加批量导出方法 `backend/crm-business/src/main/java/com/crm/business/service/LeadService.java`
+- [x] T095 [US2] 在线索控制器中添加导入导出端点 `backend/crm-business/src/main/java/com/crm/business/controller/LeadController.java`
+- [x] T096 [US2] 创建导入导出组件 `frontend/src/components/business/LeadImportExport.vue`
 
 **检查点**: 用户故事 2 完成 - 销售人员可以管理线索全生命周期（含批量导入导出）
 

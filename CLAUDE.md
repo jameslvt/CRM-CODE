@@ -7,8 +7,97 @@
 
 ## 项目结构
 ```
-src/
-tests/
+# 后端 - 模块化单体架构 (Maven 多模块)
+backend/
+├── pom.xml                          # 父 POM
+├── crm-common/                      # 公共模块
+│   └── src/main/java/
+│       └── com/crm/common/
+│           ├── config/              # 通用配置
+│           ├── utils/               # 工具类
+│           ├── exception/           # 异常定义
+│           └── result/              # Result<T> 封装
+├── crm-system/                      # 系统模块
+│   └── src/main/java/
+│       └── com/crm/system/
+│           ├── controller/          # 用户、角色、部门 API
+│           ├── service/             # 业务逻辑
+│           ├── mapper/              # MyBatis Mapper
+│           ├── entity/              # 实体类
+│           └── dto/                 # 数据传输对象
+├── crm-business/                    # 核心业务模块
+│   └── src/main/java/
+│       └── com/crm/business/
+│           ├── controller/          # 线索、客户、商机、合同、回款 API
+│           ├── service/
+│           ├── mapper/
+│           ├── entity/
+│           ├── dto/
+│           └── event/               # 业务事件
+├── crm-ai/                          # AI 模块 (P2, 初期可不启动)
+│   └── src/main/java/
+│       └── com/crm/ai/
+│           ├── controller/
+│           ├── service/
+│           └── mcp/                 # MCP Server 实现
+└── crm-admin/                       # 启动模块
+    └── src/main/java/
+        └── com/crm/
+            └── CrmApplication.java  # 主启动类
+
+# 后端测试
+backend/
+├── crm-system/src/test/
+├── crm-business/src/test/
+└── crm-admin/src/test/
+    └── java/com/crm/
+        ├── integration/             # 集成测试
+        └── unit/                    # 单元测试
+
+# 前端 - Vue 3 + TypeScript
+frontend/
+├── package.json
+├── vite.config.ts
+├── tsconfig.json
+└── src/
+    ├── main.ts                      # 入口
+    ├── App.vue
+    ├── router/                      # 路由配置
+    ├── stores/                      # Pinia 状态管理
+    │   ├── user.ts
+    │   ├── lead.ts
+    │   ├── customer.ts
+    │   └── opportunity.ts
+    ├── api/                         # API 调用封装
+    │   ├── request.ts               # Axios 封装
+    │   ├── system/                  # 系统模块 API
+    │   └── business/                # 业务模块 API
+    ├── components/                  # 通用组件
+    │   ├── common/                  # 基础组件
+    │   └── business/                # 业务组件
+    ├── views/                       # 页面视图
+    │   ├── system/                  # 系统管理页面
+    │   │   ├── user/
+    │   │   ├── role/
+    │   │   └── department/
+    │   └── business/                # 业务页面
+    │       ├── lead/                # 线索管理
+    │       ├── customer/            # 客户管理
+    │       ├── contact/             # 联系人管理
+    │       ├── opportunity/         # 商机管理
+    │       ├── product/             # 产品管理
+    │       ├── contract/            # 合同管理
+    │       ├── payment/             # 回款管理
+    │       └── dashboard/           # 仪表盘
+    ├── layouts/                     # 布局组件
+    ├── utils/                       # 工具函数
+    └── types/                       # TypeScript 类型定义
+
+# 前端测试
+frontend/
+└── tests/
+    ├── unit/                        # 单元测试
+    └── e2e/                         # 端到端测试
 ```
 
 ## 命令
@@ -51,7 +140,7 @@ tests/
 - **工具链**: Maven, Lombok
 
 **前端 (Frontend)**:
-- **框架**: Vue.js 3 (Composition API)
+- **框架**: Vue.js 3 (Composition API),前端在设计开发时，使用skills技能（ui-ux-pro-max-skill）
 - **UI 组件库**: Naive UI
 - **状态管理**: Pinia
 - **语言**: TypeScript

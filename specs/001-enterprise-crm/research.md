@@ -83,7 +83,7 @@
 - 使用 `ref` 和 `reactive` 管理响应式状态
 - 使用组合式函数 (Composables) 复用逻辑
 
-### 2.2 Naive UI
+### 2.2 Naive UI，使用skills技能（ui-ux-pro-max-skill）
 
 **决策**: 使用 Naive UI 作为 UI 组件库
 

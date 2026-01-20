@@ -1,4 +1,4 @@
-# AI-Native CRM (Based on CordysCRM)
+# AI-Native CRM
 
 [![Java 8](https://img.shields.io/badge/JDK-1.8-green)](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.7.x-blue)](https://spring.io/projects/spring-boot)
