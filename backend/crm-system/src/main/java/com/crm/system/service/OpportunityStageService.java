@@ -43,7 +43,7 @@ public class OpportunityStageService extends ServiceImpl<OpportunityStageMapper,
     public boolean saveStage(OpportunityStage stage) {
         // 检查阶段编码是否重复
         LambdaQueryWrapper<OpportunityStage> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(OpportunityStage::getStageCode, stage.getStageCode());
+        wrapper.eq(OpportunityStage::getStageKey, stage.getStageKey());
         if (count(wrapper) > 0) {
             throw new BusinessException("阶段编码已存在");
         }
@@ -60,7 +60,7 @@ public class OpportunityStageService extends ServiceImpl<OpportunityStageMapper,
     public boolean updateStage(OpportunityStage stage) {
         // 检查阶段编码是否重复（排除自己）
         LambdaQueryWrapper<OpportunityStage> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(OpportunityStage::getStageCode, stage.getStageCode())
+        wrapper.eq(OpportunityStage::getStageKey, stage.getStageKey())
                 .ne(OpportunityStage::getId, stage.getId());
         if (count(wrapper) > 0) {
             throw new BusinessException("阶段编码已存在");

@@ -1,50 +1,78 @@
 package com.crm.system.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.crm.common.entity.BaseEntity;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
-import java.math.BigDecimal;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * 商机阶段配置实体
+ * 对应数据库表 crm_opportunity_stage
+ * 注意：此表没有 deleted 字段，不继承 BaseEntity
  *
  * @author CRM System
- * @since 2026-01-20
+ * @since 1.0.0
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @TableName("crm_opportunity_stage")
-public class OpportunityStage extends BaseEntity {
+public class OpportunityStage implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 主键 ID
+     */
+    @TableId("id")
+    private Long id;
 
     /**
      * 阶段名称
      */
-    private String stageName;
+    @TableField("name")
+    private String name;
 
     /**
-     * 阶段编码（唯一标识）
+     * 阶段标识（唯一）
      */
-    private String stageCode;
+    @TableField("stage_key")
+    private String stageKey;
 
     /**
-     * 赢单概率（0-100）
+     * 默认赢单概率 (%)
      */
-    private BigDecimal winRate;
+    @TableField("probability")
+    private Integer probability;
 
     /**
      * 排序号
      */
+    @TableField("sort")
     private Integer sort;
 
     /**
-     * 状态：0-停用，1-正常
+     * 状态：0-禁用，1-正常
      */
+    @TableField("status")
     private Integer status;
 
     /**
      * 备注
      */
+    @TableField("remark")
     private String remark;
+
+    /**
+     * 创建时间
+     */
+    @TableField("create_time")
+    private LocalDateTime createTime;
+
+    /**
+     * 更新时间
+     */
+    @TableField("update_time")
+    private LocalDateTime updateTime;
 }

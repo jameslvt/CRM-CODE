@@ -35,14 +35,14 @@ export const useUserStore = defineStore('user', () => {
 
   // ========== 计算属性 ==========
 
-  /** 是否已登录 */
-  const isLoggedIn = computed(() => !!getToken() && !!userInfo.value)
+  /** 是否已登录（只检查 token 是否存在） */
+  const isLoggedIn = computed(() => !!getToken())
 
   /** 用户名 */
   const username = computed(() => userInfo.value?.username || '')
 
-  /** 真实姓名 */
-  const realName = computed(() => userInfo.value?.realName || '')
+  /** 昵称 */
+  const nickname = computed(() => userInfo.value?.nickname || userInfo.value?.username || '')
 
   /** 头像 */
   const avatar = computed(() => userInfo.value?.avatar || '')
@@ -66,8 +66,8 @@ export const useUserStore = defineStore('user', () => {
 
       // 保存用户信息
       userInfo.value = result.data.userInfo
-      roles.value = result.data.userInfo.roles
-      permissions.value = result.data.userInfo.permissions
+      roles.value = result.data.roles || []
+      permissions.value = result.data.permissions || []
     } catch (error) {
       console.error('登录失败:', error)
       throw error
@@ -98,10 +98,15 @@ export const useUserStore = defineStore('user', () => {
    */
   async function getUserInfo(): Promise<void> {
     try {
-      const result = await request.get<UserInfo>('/auth/userinfo')
+      const result = await request.get<UserInfo>('/auth/current-user')
       userInfo.value = result.data
-      roles.value = result.data.roles
-      permissions.value = result.data.permissions
+      // 获取角色和权限
+      const [rolesResult, permissionsResult] = await Promise.all([
+        request.get<string[]>('/auth/current-roles'),
+        request.get<string[]>('/auth/current-permissions')
+      ])
+      roles.value = rolesResult.data || []
+      permissions.value = permissionsResult.data || []
     } catch (error) {
       console.error('获取用户信息失败:', error)
       // 获取失败，清除 Token
@@ -222,7 +227,7 @@ export const useUserStore = defineStore('user', () => {
     // 计算属性
     isLoggedIn,
     username,
-    realName,
+    nickname,
     avatar,
     isAdmin,
 

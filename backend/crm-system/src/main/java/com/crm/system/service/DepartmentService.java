@@ -153,13 +153,13 @@ public class DepartmentService {
         LambdaQueryWrapper<Department> queryWrapper = new LambdaQueryWrapper<>();
 
         if (StringUtils.hasText(deptName)) {
-            queryWrapper.like(Department::getDeptName, deptName);
+            queryWrapper.like(Department::getName, deptName);
         }
         if (status != null) {
             queryWrapper.eq(Department::getStatus, status);
         }
 
-        queryWrapper.orderByAsc(Department::getSortOrder);
+        queryWrapper.orderByAsc(Department::getSort);
 
         IPage<Department> departmentPage = departmentMapper.selectPage(pageParam, queryWrapper);
 
@@ -182,7 +182,7 @@ public class DepartmentService {
         List<Department> allDepartments = departmentMapper.selectList(
                 new LambdaQueryWrapper<Department>()
                         .eq(Department::getStatus, 1)
-                        .orderByAsc(Department::getSortOrder)
+                        .orderByAsc(Department::getSort)
         );
 
         return buildDepartmentTree(allDepartments, 0L);

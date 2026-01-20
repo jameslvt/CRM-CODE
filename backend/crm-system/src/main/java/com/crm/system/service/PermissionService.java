@@ -156,16 +156,16 @@ public class PermissionService {
         LambdaQueryWrapper<Permission> queryWrapper = new LambdaQueryWrapper<>();
 
         if (StringUtils.hasText(permissionName)) {
-            queryWrapper.like(Permission::getPermissionName, permissionName);
+            queryWrapper.like(Permission::getName, permissionName);
         }
         if (permissionType != null) {
-            queryWrapper.eq(Permission::getPermissionType, permissionType);
+            queryWrapper.eq(Permission::getType, permissionType);
         }
         if (status != null) {
             queryWrapper.eq(Permission::getStatus, status);
         }
 
-        queryWrapper.orderByAsc(Permission::getSortOrder);
+        queryWrapper.orderByAsc(Permission::getSort);
 
         IPage<Permission> permissionPage = permissionMapper.selectPage(pageParam, queryWrapper);
 
@@ -188,7 +188,7 @@ public class PermissionService {
         List<Permission> allPermissions = permissionMapper.selectList(
                 new LambdaQueryWrapper<Permission>()
                         .eq(Permission::getStatus, 1)
-                        .orderByAsc(Permission::getSortOrder)
+                        .orderByAsc(Permission::getSort)
         );
 
         return buildPermissionTree(allPermissions, 0L);
@@ -249,7 +249,19 @@ public class PermissionService {
      */
     private PermissionDTO convertToDTO(Permission permission) {
         PermissionDTO dto = new PermissionDTO();
-        BeanUtils.copyProperties(permission, dto);
+        dto.setId(permission.getId());
+        dto.setParentId(permission.getParentId());
+        dto.setPermissionName(permission.getName());
+        dto.setPermissionCode(permission.getPermissionKey());
+        dto.setPermissionType(permission.getType());
+        dto.setPath(permission.getPath());
+        dto.setComponent(permission.getComponent());
+        dto.setIcon(permission.getIcon());
+        dto.setSortOrder(permission.getSort());
+        dto.setVisible(permission.getVisible());
+        dto.setStatus(permission.getStatus());
+        dto.setCreateTime(permission.getCreateTime());
+        dto.setUpdateTime(permission.getUpdateTime());
         return dto;
     }
 }

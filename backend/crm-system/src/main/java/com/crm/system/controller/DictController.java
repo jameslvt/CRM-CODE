@@ -47,10 +47,10 @@ public class DictController {
         LambdaQueryWrapper<DictType> wrapper = new LambdaQueryWrapper<>();
 
         if (StringUtils.hasText(dictName)) {
-            wrapper.like(DictType::getDictName, dictName);
+            wrapper.like(DictType::getName, dictName);
         }
         if (StringUtils.hasText(dictType)) {
-            wrapper.like(DictType::getDictType, dictType);
+            wrapper.like(DictType::getType, dictType);
         }
         if (status != null) {
             wrapper.eq(DictType::getStatus, status);
@@ -129,13 +129,13 @@ public class DictController {
             wrapper.eq(DictData::getDictType, dictType);
         }
         if (StringUtils.hasText(dictLabel)) {
-            wrapper.like(DictData::getDictLabel, dictLabel);
+            wrapper.like(DictData::getLabel, dictLabel);
         }
         if (status != null) {
             wrapper.eq(DictData::getStatus, status);
         }
 
-        wrapper.orderByAsc(DictData::getDictSort);
+        wrapper.orderByAsc(DictData::getSort);
         Page<DictData> result = dictDataMapper.selectPage(page, wrapper);
 
         return Result.success(PageResult.of(result));

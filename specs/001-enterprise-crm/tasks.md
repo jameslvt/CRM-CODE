@@ -228,30 +228,30 @@
 
 ### 5.1 后端 - 实体与 DTO
 
-- [ ] T097 [P] [US3] 创建客户实体 `backend/crm-business/src/main/java/com/crm/business/entity/Customer.java`
-- [ ] T098 [P] [US3] 创建联系人实体 `backend/crm-business/src/main/java/com/crm/business/entity/Contact.java`
-- [ ] T099 [P] [US3] 创建客户 DTO `backend/crm-business/src/main/java/com/crm/business/dto/CustomerDTO.java`
-- [ ] T100 [P] [US3] 创建联系人 DTO `backend/crm-business/src/main/java/com/crm/business/dto/ContactDTO.java`
-- [ ] T101 [P] [US3] 创建客户 360 度视图 DTO `backend/crm-business/src/main/java/com/crm/business/dto/Customer360DTO.java`
+- [x] T097 [P] [US3] 创建客户实体 `backend/crm-business/src/main/java/com/crm/business/entity/Customer.java`
+- [x] T098 [P] [US3] 创建联系人实体 `backend/crm-business/src/main/java/com/crm/business/entity/Contact.java`
+- [x] T099 [P] [US3] 创建客户 DTO `backend/crm-business/src/main/java/com/crm/business/dto/CustomerDTO.java`
+- [x] T100 [P] [US3] 创建联系人 DTO `backend/crm-business/src/main/java/com/crm/business/dto/ContactDTO.java`
+- [x] T101 [P] [US3] 创建客户 360 度视图 DTO `backend/crm-business/src/main/java/com/crm/business/dto/Customer360DTO.java`
 
 ### 5.2 后端 - Mapper 与 Service
 
-- [ ] T102 [P] [US3] 创建客户 Mapper `backend/crm-business/src/main/java/com/crm/business/mapper/CustomerMapper.java`
-- [ ] T103 [P] [US3] 创建联系人 Mapper `backend/crm-business/src/main/java/com/crm/business/mapper/ContactMapper.java`
-- [ ] T104 [US3] 创建客户服务 `backend/crm-business/src/main/java/com/crm/business/service/CustomerService.java`（CRUD、公海池、360视图）
-- [ ] T105 [US3] 创建联系人服务 `backend/crm-business/src/main/java/com/crm/business/service/ContactService.java`（CRUD、设置主联系人）
+- [x] T102 [P] [US3] 创建客户 Mapper `backend/crm-business/src/main/java/com/crm/business/mapper/CustomerMapper.java`
+- [x] T103 [P] [US3] 创建联系人 Mapper `backend/crm-business/src/main/java/com/crm/business/mapper/ContactMapper.java`
+- [x] T104 [US3] 创建客户服务 `backend/crm-business/src/main/java/com/crm/business/service/CustomerService.java`（CRUD、公海池、360视图）
+- [x] T105 [US3] 创建联系人服务 `backend/crm-business/src/main/java/com/crm/business/service/ContactService.java`（CRUD、设置主联系人）
 
 ### 5.3 后端 - Controller
 
-- [ ] T106 [US3] 创建客户控制器 `backend/crm-business/src/main/java/com/crm/business/controller/CustomerController.java`
-- [ ] T107 [US3] 创建联系人控制器 `backend/crm-business/src/main/java/com/crm/business/controller/ContactController.java`
+- [x] T106 [US3] 创建客户控制器 `backend/crm-business/src/main/java/com/crm/business/controller/CustomerController.java`
+- [x] T107 [US3] 创建联系人控制器 `backend/crm-business/src/main/java/com/crm/business/controller/ContactController.java`
 
 ### 5.4 前端 - API 与类型
 
-- [ ] T108 [P] [US3] 创建客户 API `frontend/src/api/business/customer.ts`
-- [ ] T109 [P] [US3] 创建联系人 API `frontend/src/api/business/contact.ts`
-- [ ] T110 [P] [US3] 创建客户类型 `frontend/src/types/business/customer.ts`
-- [ ] T111 [P] [US3] 创建联系人类型 `frontend/src/types/business/contact.ts`
+- [x] T108 [P] [US3] 创建客户 API `frontend/src/api/business/customer.ts`
+- [x] T109 [P] [US3] 创建联系人 API `frontend/src/api/business/contact.ts`
+- [x] T110 [P] [US3] 创建客户类型 `frontend/src/types/business/customer.ts`
+- [x] T111 [P] [US3] 创建联系人类型 `frontend/src/types/business/contact.ts`
 
 ### 5.5 前端 - 页面
 
@@ -264,11 +264,11 @@
 
 ### 5.6 客户分类与标签
 
-- [ ] T118 [P] [US3] 创建客户标签实体 `backend/crm-business/src/main/java/com/crm/business/entity/CustomerTag.java`
-- [ ] T119 [P] [US3] 创建客户标签关联实体 `backend/crm-business/src/main/java/com/crm/business/entity/CustomerTagRelation.java`
-- [ ] T120 [US3] 创建客户标签 Mapper `backend/crm-business/src/main/java/com/crm/business/mapper/CustomerTagMapper.java`
-- [ ] T121 [US3] 创建客户标签服务 `backend/crm-business/src/main/java/com/crm/business/service/CustomerTagService.java`（CRUD、标签关联）
-- [ ] T122 [US3] 在客户控制器中添加标签管理端点 `backend/crm-business/src/main/java/com/crm/business/controller/CustomerController.java`
+- [x] T118 [P] [US3] 创建客户标签实体 `backend/crm-business/src/main/java/com/crm/business/entity/CustomerTag.java`
+- [x] T119 [P] [US3] 创建客户标签关联实体 `backend/crm-business/src/main/java/com/crm/business/entity/CustomerTagRelation.java`
+- [x] T120 [US3] 创建客户标签 Mapper `backend/crm-business/src/main/java/com/crm/business/mapper/CustomerTagMapper.java`
+- [x] T121 [US3] 创建客户标签服务 `backend/crm-business/src/main/java/com/crm/business/service/CustomerTagService.java`（CRUD、标签关联）
+- [x] T122 [US3] 创建客户标签控制器 `backend/crm-business/src/main/java/com/crm/business/controller/CustomerTagController.java`
 - [ ] T123 [US3] 创建客户标签管理组件 `frontend/src/components/business/CustomerTagManager.vue`
 
 **检查点**: 用户故事 3 完成 - 销售人员可以管理客户和联系人，查看 360 度视图（含标签管理）
@@ -283,22 +283,22 @@
 
 ### 6.1 后端 - 实体与 DTO
 
-- [ ] T124 [P] [US4] 创建商机实体 `backend/crm-business/src/main/java/com/crm/business/entity/Opportunity.java`
-- [ ] T125 [P] [US4] 创建商机产品关联实体 `backend/crm-business/src/main/java/com/crm/business/entity/OpportunityProduct.java`
-- [ ] T126 [P] [US4] 创建商机 DTO `backend/crm-business/src/main/java/com/crm/business/dto/OpportunityDTO.java`
-- [ ] T127 [P] [US4] 创建商机产品 DTO `backend/crm-business/src/main/java/com/crm/business/dto/OpportunityProductDTO.java`
-- [ ] T128 [P] [US4] 创建阶段推进 DTO `backend/crm-business/src/main/java/com/crm/business/dto/StageAdvanceDTO.java`
+- [x] T124 [P] [US4] 创建商机实体 `backend/crm-business/src/main/java/com/crm/business/entity/Opportunity.java`
+- [x] T125 [P] [US4] 创建商机产品关联实体 `backend/crm-business/src/main/java/com/crm/business/entity/OpportunityProduct.java`
+- [x] T126 [P] [US4] 创建商机 DTO `backend/crm-business/src/main/java/com/crm/business/dto/OpportunityDTO.java`
+- [x] T127 [P] [US4] 创建商机产品 DTO `backend/crm-business/src/main/java/com/crm/business/dto/OpportunityProductDTO.java`
+- [x] T128 [P] [US4] 创建阶段推进 DTO `backend/crm-business/src/main/java/com/crm/business/dto/StageAdvanceDTO.java`
 
 ### 6.2 后端 - Mapper 与 Service
 
-- [ ] T129 [P] [US4] 创建商机 Mapper `backend/crm-business/src/main/java/com/crm/business/mapper/OpportunityMapper.java`
-- [ ] T130 [P] [US4] 创建商机产品 Mapper `backend/crm-business/src/main/java/com/crm/business/mapper/OpportunityProductMapper.java`
-- [ ] T131 [US4] 创建商机服务 `backend/crm-business/src/main/java/com/crm/business/service/OpportunityService.java`（CRUD、阶段推进、金额计算）
-- [ ] T132 [US4] 创建商机赢单事件 `backend/crm-business/src/main/java/com/crm/business/event/OpportunityWonEvent.java`
+- [x] T129 [P] [US4] 创建商机 Mapper `backend/crm-business/src/main/java/com/crm/business/mapper/OpportunityMapper.java`
+- [x] T130 [P] [US4] 创建商机产品 Mapper `backend/crm-business/src/main/java/com/crm/business/mapper/OpportunityProductMapper.java`
+- [x] T131 [US4] 创建商机服务 `backend/crm-business/src/main/java/com/crm/business/service/OpportunityService.java`（CRUD、阶段推进、金额计算）
+- [x] T132 [US4] 创建商机赢单事件 `backend/crm-business/src/main/java/com/crm/business/event/OpportunityWonEvent.java`
 
 ### 6.3 后端 - Controller
 
-- [ ] T133 [US4] 创建商机控制器 `backend/crm-business/src/main/java/com/crm/business/controller/OpportunityController.java`
+- [x] T133 [US4] 创建商机控制器 `backend/crm-business/src/main/java/com/crm/business/controller/OpportunityController.java`
 
 ### 6.4 前端 - API 与类型
 
@@ -326,17 +326,17 @@
 
 ### 7.1 后端 - 实体与 DTO
 
-- [ ] T142 [P] [US5] 创建产品实体 `backend/crm-business/src/main/java/com/crm/business/entity/Product.java`
-- [ ] T143 [P] [US5] 创建产品 DTO `backend/crm-business/src/main/java/com/crm/business/dto/ProductDTO.java`
+- [x] T142 [P] [US5] 创建产品实体 `backend/crm-business/src/main/java/com/crm/business/entity/Product.java`
+- [x] T143 [P] [US5] 创建产品 DTO `backend/crm-business/src/main/java/com/crm/business/dto/ProductDTO.java`
 
 ### 7.2 后端 - Mapper 与 Service
 
-- [ ] T144 [US5] 创建产品 Mapper `backend/crm-business/src/main/java/com/crm/business/mapper/ProductMapper.java`
-- [ ] T145 [US5] 创建产品服务 `backend/crm-business/src/main/java/com/crm/business/service/ProductService.java`（CRUD、启用/停用）
+- [x] T144 [US5] 创建产品 Mapper `backend/crm-business/src/main/java/com/crm/business/mapper/ProductMapper.java`
+- [x] T145 [US5] 创建产品服务 `backend/crm-business/src/main/java/com/crm/business/service/ProductService.java`（CRUD、启用/停用）
 
 ### 7.3 后端 - Controller
 
-- [ ] T146 [US5] 创建产品控制器 `backend/crm-business/src/main/java/com/crm/business/controller/ProductController.java`
+- [x] T146 [US5] 创建产品控制器 `backend/crm-business/src/main/java/com/crm/business/controller/ProductController.java`
 
 ### 7.4 前端 - API 与类型
 
@@ -361,19 +361,19 @@
 
 ### 8.1 后端 - 实体与 DTO
 
-- [ ] T152 [P] [US6] 创建合同实体 `backend/crm-business/src/main/java/com/crm/business/entity/Contract.java`
-- [ ] T153 [P] [US6] 创建合同 DTO `backend/crm-business/src/main/java/com/crm/business/dto/ContractDTO.java`
+- [x] T152 [P] [US6] 创建合同实体 `backend/crm-business/src/main/java/com/crm/business/entity/Contract.java`
+- [x] T153 [P] [US6] 创建合同 DTO `backend/crm-business/src/main/java/com/crm/business/dto/ContractDTO.java`
 
 ### 8.2 后端 - Mapper 与 Service
 
-- [ ] T154 [US6] 创建合同 Mapper `backend/crm-business/src/main/java/com/crm/business/mapper/ContractMapper.java`
-- [ ] T155 [US6] 创建合同服务 `backend/crm-business/src/main/java/com/crm/business/service/ContractService.java`（CRUD、状态流转、文件上传）
+- [x] T154 [US6] 创建合同 Mapper `backend/crm-business/src/main/java/com/crm/business/mapper/ContractMapper.java`
+- [x] T155 [US6] 创建合同服务 `backend/crm-business/src/main/java/com/crm/business/service/ContractService.java`（CRUD、状态流转、文件上传）
 - [ ] T156 [US6] 创建文件上传服务 `backend/crm-common/src/main/java/com/crm/common/service/FileService.java`
-- [ ] T157 [US6] 创建合同签署事件 `backend/crm-business/src/main/java/com/crm/business/event/ContractSignedEvent.java`
+- [x] T157 [US6] 创建合同签署事件 `backend/crm-business/src/main/java/com/crm/business/event/ContractSignedEvent.java`
 
 ### 8.3 后端 - Controller
 
-- [ ] T158 [US6] 创建合同控制器 `backend/crm-business/src/main/java/com/crm/business/controller/ContractController.java`
+- [x] T158 [US6] 创建合同控制器 `backend/crm-business/src/main/java/com/crm/business/controller/ContractController.java`
 
 ### 8.4 前端 - API 与类型
 
@@ -399,22 +399,20 @@
 
 ### 9.1 后端 - 实体与 DTO
 
-- [ ] T165 [P] [US7] 创建回款计划实体 `backend/crm-business/src/main/java/com/crm/business/entity/PaymentPlan.java`
-- [ ] T166 [P] [US7] 创建回款记录实体 `backend/crm-business/src/main/java/com/crm/business/entity/PaymentRecord.java`
-- [ ] T167 [P] [US7] 创建回款计划 DTO `backend/crm-business/src/main/java/com/crm/business/dto/PaymentPlanDTO.java`
-- [ ] T168 [P] [US7] 创建回款记录 DTO `backend/crm-business/src/main/java/com/crm/business/dto/PaymentRecordDTO.java`
+- [x] T165 [P] [US7] 创建回款计划实体 `backend/crm-business/src/main/java/com/crm/business/entity/PaymentPlan.java`
+- [x] T166 [P] [US7] 创建回款记录实体 `backend/crm-business/src/main/java/com/crm/business/entity/PaymentRecord.java`
+- [x] T167 [P] [US7] 创建回款计划 DTO `backend/crm-business/src/main/java/com/crm/business/dto/PaymentPlanDTO.java`
+- [x] T168 [P] [US7] 创建回款记录 DTO `backend/crm-business/src/main/java/com/crm/business/dto/PaymentRecordDTO.java`
 
 ### 9.2 后端 - Mapper 与 Service
 
-- [ ] T169 [P] [US7] 创建回款计划 Mapper `backend/crm-business/src/main/java/com/crm/business/mapper/PaymentPlanMapper.java`
-- [ ] T170 [P] [US7] 创建回款记录 Mapper `backend/crm-business/src/main/java/com/crm/business/mapper/PaymentRecordMapper.java`
-- [ ] T171 [US7] 创建回款计划服务 `backend/crm-business/src/main/java/com/crm/business/service/PaymentPlanService.java`（CRUD、状态更新、逾期检查）
-- [ ] T172 [US7] 创建回款记录服务 `backend/crm-business/src/main/java/com/crm/business/service/PaymentRecordService.java`（CRUD、自动更新计划状态）
+- [x] T169 [P] [US7] 创建回款计划 Mapper `backend/crm-business/src/main/java/com/crm/business/mapper/PaymentPlanMapper.java`
+- [x] T170 [P] [US7] 创建回款记录 Mapper `backend/crm-business/src/main/java/com/crm/business/mapper/PaymentRecordMapper.java`
+- [x] T171 [US7] 创建回款服务 `backend/crm-business/src/main/java/com/crm/business/service/PaymentService.java`（CRUD、状态更新、逾期检查）
 
 ### 9.3 后端 - Controller
 
-- [ ] T173 [US7] 创建回款计划控制器 `backend/crm-business/src/main/java/com/crm/business/controller/PaymentPlanController.java`
-- [ ] T174 [US7] 创建回款记录控制器 `backend/crm-business/src/main/java/com/crm/business/controller/PaymentRecordController.java`
+- [x] T174 [US7] 创建回款控制器 `backend/crm-business/src/main/java/com/crm/business/controller/PaymentController.java`
 
 ### 9.4 前端 - API 与类型
 
@@ -440,17 +438,17 @@
 
 ### 10.1 后端 - 实体与 DTO
 
-- [ ] T181 [P] [US8] 创建跟进记录实体 `backend/crm-business/src/main/java/com/crm/business/entity/Activity.java`
-- [ ] T182 [P] [US8] 创建跟进记录 DTO `backend/crm-business/src/main/java/com/crm/business/dto/ActivityDTO.java`
+- [x] T181 [P] [US8] 创建跟进记录实体 `backend/crm-business/src/main/java/com/crm/business/entity/Activity.java`
+- [x] T182 [P] [US8] 创建跟进记录 DTO `backend/crm-business/src/main/java/com/crm/business/dto/ActivityDTO.java`
 
 ### 10.2 后端 - Mapper 与 Service
 
-- [ ] T183 [US8] 创建跟进记录 Mapper `backend/crm-business/src/main/java/com/crm/business/mapper/ActivityMapper.java`
-- [ ] T184 [US8] 创建跟进记录服务 `backend/crm-business/src/main/java/com/crm/business/service/ActivityService.java`（CRUD、按对象查询）
+- [x] T183 [US8] 创建跟进记录 Mapper `backend/crm-business/src/main/java/com/crm/business/mapper/ActivityMapper.java`
+- [x] T184 [US8] 创建跟进记录服务 `backend/crm-business/src/main/java/com/crm/business/service/ActivityService.java`（CRUD、按对象查询）
 
 ### 10.3 后端 - Controller
 
-- [ ] T185 [US8] 创建跟进记录控制器 `backend/crm-business/src/main/java/com/crm/business/controller/ActivityController.java`
+- [x] T185 [US8] 创建跟进记录控制器 `backend/crm-business/src/main/java/com/crm/business/controller/ActivityController.java`
 
 ### 10.4 前端 - API 与类型
 
@@ -476,15 +474,15 @@
 
 ### 11.1 后端 - DTO 与 Service
 
-- [ ] T192 [P] [US9] 创建仪表盘数据 DTO `backend/crm-business/src/main/java/com/crm/business/dto/DashboardDTO.java`
-- [ ] T193 [P] [US9] 创建销售漏斗 DTO `backend/crm-business/src/main/java/com/crm/business/dto/SalesFunnelDTO.java`
-- [ ] T194 [P] [US9] 创建业绩趋势 DTO `backend/crm-business/src/main/java/com/crm/business/dto/PerformanceTrendDTO.java`
-- [ ] T195 [US9] 创建仪表盘服务 `backend/crm-business/src/main/java/com/crm/business/service/DashboardService.java`（汇总统计、漏斗、趋势）
+- [x] T192 [P] [US9] 创建仪表盘数据 DTO `backend/crm-business/src/main/java/com/crm/business/dto/DashboardDTO.java`
+- [x] T193 [P] [US9] 创建销售漏斗 DTO `backend/crm-business/src/main/java/com/crm/business/dto/SalesFunnelDTO.java`
+- [x] T194 [P] [US9] 创建业绩趋势 DTO `backend/crm-business/src/main/java/com/crm/business/dto/PerformanceTrendDTO.java`
+- [x] T195 [US9] 创建仪表盘服务 `backend/crm-business/src/main/java/com/crm/business/service/DashboardService.java`（汇总统计、漏斗、趋势）
 - [ ] T196 [US9] 创建报表导出服务 `backend/crm-business/src/main/java/com/crm/business/service/ReportExportService.java`
 
 ### 11.2 后端 - Controller
 
-- [ ] T197 [US9] 创建仪表盘控制器 `backend/crm-business/src/main/java/com/crm/business/controller/DashboardController.java`
+- [x] T197 [US9] 创建仪表盘控制器 `backend/crm-business/src/main/java/com/crm/business/controller/DashboardController.java`
 
 ### 11.3 前端 - API 与类型
 
@@ -513,21 +511,21 @@
 
 ### 12.1 后端 - AI 模块
 
-- [ ] T205 [P] [US10] 创建 AI 模块 POM `backend/crm-ai/pom.xml`
-- [ ] T206 [P] [US10] 创建 OpenAI 客户端封装 `backend/crm-ai/src/main/java/com/crm/ai/client/OpenAIClient.java`
-- [ ] T207 [P] [US10] 创建 AI 服务接口 `backend/crm-ai/src/main/java/com/crm/ai/service/AiService.java`
-- [ ] T208 [US10] 创建智能创建服务 `backend/crm-ai/src/main/java/com/crm/ai/service/SmartCreateService.java`
-- [ ] T209 [US10] 创建智能查重服务 `backend/crm-ai/src/main/java/com/crm/ai/service/DuplicateCheckService.java`
-- [ ] T210 [US10] 创建自然语言查询服务 `backend/crm-ai/src/main/java/com/crm/ai/service/NLQueryService.java`
+- [x] T205 [P] [US10] 创建 AI 模块 POM `backend/crm-ai/pom.xml`
+- [x] T206 [P] [US10] 创建 OpenAI 客户端封装 `backend/crm-ai/src/main/java/com/crm/ai/client/OpenAIClient.java`
+- [x] T207 [P] [US10] 创建 AI 服务接口 `backend/crm-ai/src/main/java/com/crm/ai/service/AiService.java`
+- [x] T208 [US10] 创建智能创建服务 `backend/crm-ai/src/main/java/com/crm/ai/service/SmartCreateService.java`
+- [x] T209 [US10] 创建智能查重服务 `backend/crm-ai/src/main/java/com/crm/ai/service/DuplicateCheckService.java`
+- [x] T210 [US10] 创建自然语言查询服务 `backend/crm-ai/src/main/java/com/crm/ai/service/NLQueryService.java`
 
 ### 12.2 后端 - MCP Server（预留）
 
-- [ ] T211 [US10] 创建 MCP 工具定义 `backend/crm-ai/src/main/java/com/crm/ai/mcp/CrmTools.java`
-- [ ] T212 [US10] 创建 MCP Server 端点 `backend/crm-ai/src/main/java/com/crm/ai/mcp/McpServerController.java`
+- [x] T211 [US10] 创建 MCP 工具定义 `backend/crm-ai/src/main/java/com/crm/ai/mcp/CrmTools.java`
+- [x] T212 [US10] 创建 MCP Server 端点 `backend/crm-ai/src/main/java/com/crm/ai/mcp/McpServerController.java`
 
 ### 12.3 后端 - Controller
 
-- [ ] T213 [US10] 创建 AI 控制器 `backend/crm-ai/src/main/java/com/crm/ai/controller/AiController.java`
+- [x] T213 [US10] 创建 AI 控制器 `backend/crm-ai/src/main/java/com/crm/ai/controller/AiController.java`
 
 ### 12.4 前端 - API 与类型
 

@@ -3,13 +3,13 @@ package com.crm.business.dto;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 /**
  * 线索表单数据
+ * 对应数据库表 crm_lead
  *
  * @author CRM System
- * @since 2026-01-20
+ * @since 1.0.0
  */
 @Data
 public class LeadFormData {
@@ -26,15 +26,13 @@ public class LeadFormData {
     private String name;
 
     /**
-     * 联系人姓名
+     * 来源: 官网、广告、转介绍等
      */
-    @NotBlank(message = "联系人姓名不能为空")
-    private String contactName;
+    private String source;
 
     /**
      * 联系电话
      */
-    @NotBlank(message = "联系电话不能为空")
     private String phone;
 
     /**
@@ -53,32 +51,9 @@ public class LeadFormData {
     private String position;
 
     /**
-     * 线索来源
+     * 行业
      */
-    @NotNull(message = "线索来源不能为空")
-    private Integer source;
-
-    /**
-     * 线索状态
-     */
-    @NotNull(message = "线索状态不能为空")
-    private Integer status;
-
-    /**
-     * 线索评级
-     */
-    private Integer rating;
-
-    /**
-     * 预计金额（元）
-     */
-    private Long estimatedAmount;
-
-    /**
-     * 负责人ID
-     */
-    @NotNull(message = "负责人不能为空")
-    private Long ownerId;
+    private String industry;
 
     /**
      * 地址
@@ -86,9 +61,14 @@ public class LeadFormData {
     private String address;
 
     /**
-     * 行业
+     * 状态: 1-新建, 2-跟进中, 3-已转化, 4-已关闭
      */
-    private String industry;
+    private Integer status;
+
+    /**
+     * 负责人ID
+     */
+    private Long ownerId;
 
     /**
      * 备注

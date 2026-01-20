@@ -6,30 +6,25 @@ import lombok.Data;
  * 线索查询参数
  *
  * @author CRM System
- * @since 2026-01-20
+ * @since 1.0.0
  */
 @Data
 public class LeadQueryParams {
 
     /**
-     * 关键词（线索名称、联系人、公司名称）
+     * 关键词（线索名称、公司名称、电话）
      */
     private String keyword;
 
     /**
-     * 线索来源
+     * 来源
      */
-    private Integer source;
+    private String source;
 
     /**
-     * 线索状态
+     * 状态: 1-新建, 2-跟进中, 3-已转化, 4-已关闭
      */
     private Integer status;
-
-    /**
-     * 线索评级
-     */
-    private Integer rating;
 
     /**
      * 负责人ID

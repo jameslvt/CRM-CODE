@@ -2,11 +2,14 @@ package com.crm.business.dto;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 /**
  * 线索DTO
+ * 对应数据库表 crm_lead
  *
  * @author CRM System
- * @since 2026-01-20
+ * @since 1.0.0
  */
 @Data
 public class LeadDTO {
@@ -22,9 +25,9 @@ public class LeadDTO {
     private String name;
 
     /**
-     * 联系人姓名
+     * 来源: 官网、广告、转介绍等
      */
-    private String contactName;
+    private String source;
 
     /**
      * 联系电话
@@ -47,49 +50,9 @@ public class LeadDTO {
     private String position;
 
     /**
-     * 线索来源：1-网站，2-电话，3-推荐，4-展会，5-其他
+     * 行业
      */
-    private Integer source;
-
-    /**
-     * 线索来源名称
-     */
-    private String sourceName;
-
-    /**
-     * 线索状态：1-新建，2-跟进中，3-已转化，4-已失效
-     */
-    private Integer status;
-
-    /**
-     * 线索状态名称
-     */
-    private String statusName;
-
-    /**
-     * 线索评级：1-A（高），2-B（中），3-C（低）
-     */
-    private Integer rating;
-
-    /**
-     * 线索评级名称
-     */
-    private String ratingName;
-
-    /**
-     * 预计金额（元）
-     */
-    private Long estimatedAmount;
-
-    /**
-     * 负责人ID
-     */
-    private Long ownerId;
-
-    /**
-     * 负责人姓名
-     */
-    private String ownerName;
+    private String industry;
 
     /**
      * 地址
@@ -97,19 +60,24 @@ public class LeadDTO {
     private String address;
 
     /**
-     * 行业
+     * 状态: 1-新建, 2-跟进中, 3-已转化, 4-已关闭
      */
-    private String industry;
+    private Integer status;
 
     /**
-     * 备注
+     * 状态名称
      */
-    private String remark;
+    private String statusName;
 
     /**
-     * 转化时间
+     * 负责人ID
      */
-    private String convertTime;
+    private Long ownerId;
+
+    /**
+     * 负责人姓名（关联查询）
+     */
+    private String ownerName;
 
     /**
      * 转化后的客户ID
@@ -117,12 +85,27 @@ public class LeadDTO {
     private Long customerId;
 
     /**
+     * 备注
+     */
+    private String remark;
+
+    /**
+     * 创建人
+     */
+    private Long createBy;
+
+    /**
+     * 更新人
+     */
+    private Long updateBy;
+
+    /**
      * 创建时间
      */
-    private String createTime;
+    private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
-    private String updateTime;
+    private LocalDateTime updateTime;
 }

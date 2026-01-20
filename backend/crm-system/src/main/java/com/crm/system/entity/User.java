@@ -27,22 +27,16 @@ public class User extends BaseEntity {
     private String username;
 
     /**
-     * 密码（加密存储）
+     * 密码（BCrypt 加密存储）
      */
     @TableField("password")
     private String password;
 
     /**
-     * 真实姓名
+     * 昵称
      */
-    @TableField("real_name")
-    private String realName;
-
-    /**
-     * 手机号码
-     */
-    @TableField("phone")
-    private String phone;
+    @TableField("nickname")
+    private String nickname;
 
     /**
      * 邮箱
@@ -51,10 +45,10 @@ public class User extends BaseEntity {
     private String email;
 
     /**
-     * 性别（0: 未知, 1: 男, 2: 女）
+     * 手机号
      */
-    @TableField("gender")
-    private Integer gender;
+    @TableField("phone")
+    private String phone;
 
     /**
      * 头像 URL
@@ -63,38 +57,14 @@ public class User extends BaseEntity {
     private String avatar;
 
     /**
-     * 部门 ID
+     * 所属部门 ID
      */
-    @TableField("department_id")
-    private Long departmentId;
+    @TableField("dept_id")
+    private Long deptId;
 
     /**
-     * 职位
-     */
-    @TableField("position")
-    private String position;
-
-    /**
-     * 状态（0: 禁用, 1: 启用）
+     * 状态（0: 禁用, 1: 正常）
      */
     @TableField("status")
     private Integer status;
-
-    /**
-     * 备注
-     */
-    @TableField("remark")
-    private String remark;
-
-    /**
-     * 最后登录时间
-     */
-    @TableField("last_login_time")
-    private java.time.LocalDateTime lastLoginTime;
-
-    /**
-     * 最后登录 IP
-     */
-    @TableField("last_login_ip")
-    private String lastLoginIp;
 }

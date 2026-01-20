@@ -145,7 +145,7 @@ public class RoleService {
             queryWrapper.eq(Role::getStatus, status);
         }
 
-        queryWrapper.orderByAsc(Role::getSortOrder);
+        queryWrapper.orderByAsc(Role::getSort);
 
         IPage<Role> rolePage = roleMapper.selectPage(pageParam, queryWrapper);
 
@@ -168,7 +168,7 @@ public class RoleService {
         List<Role> roles = roleMapper.selectList(
                 new LambdaQueryWrapper<Role>()
                         .eq(Role::getStatus, 1)
-                        .orderByAsc(Role::getSortOrder)
+                        .orderByAsc(Role::getSort)
         );
 
         return roles.stream()
@@ -233,7 +233,14 @@ public class RoleService {
      */
     private RoleDTO convertToDTO(Role role) {
         RoleDTO dto = new RoleDTO();
-        BeanUtils.copyProperties(role, dto);
+        dto.setId(role.getId());
+        dto.setRoleName(role.getRoleName());
+        dto.setRoleCode(role.getRoleKey());
+        dto.setSortOrder(role.getSort());
+        dto.setStatus(role.getStatus());
+        dto.setRemark(role.getRemark());
+        dto.setCreateTime(role.getCreateTime());
+        dto.setUpdateTime(role.getUpdateTime());
         return dto;
     }
 }

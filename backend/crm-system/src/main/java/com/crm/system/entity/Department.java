@@ -28,16 +28,10 @@ public class Department extends BaseEntity {
     private Long parentId;
 
     /**
-     * 部门编码（唯一标识）
-     */
-    @TableField("dept_code")
-    private String deptCode;
-
-    /**
      * 部门名称
      */
-    @TableField("dept_name")
-    private String deptName;
+    @TableField("name")
+    private String name;
 
     /**
      * 部门负责人 ID
@@ -46,32 +40,14 @@ public class Department extends BaseEntity {
     private Long leaderId;
 
     /**
-     * 联系电话
-     */
-    @TableField("phone")
-    private String phone;
-
-    /**
-     * 邮箱
-     */
-    @TableField("email")
-    private String email;
-
-    /**
      * 排序号（数字越小越靠前）
      */
-    @TableField("sort_order")
-    private Integer sortOrder;
+    @TableField("sort")
+    private Integer sort;
 
     /**
-     * 状态（0: 禁用, 1: 启用）
+     * 状态（0: 禁用, 1: 正常）
      */
     @TableField("status")
     private Integer status;
-
-    /**
-     * 备注
-     */
-    @TableField("remark")
-    private String remark;
 }

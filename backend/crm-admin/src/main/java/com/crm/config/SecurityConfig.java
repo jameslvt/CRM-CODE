@@ -76,9 +76,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 配置请求授权规则
                 .authorizeRequests()
                 // 放行登录接口
-                .antMatchers("/api/system/auth/login").permitAll()
-                .antMatchers("/api/system/auth/register").permitAll()
-                .antMatchers("/api/system/auth/captcha").permitAll()
+                .antMatchers("/api/auth/login").permitAll()
+                .antMatchers("/api/auth/register").permitAll()
+                .antMatchers("/api/auth/captcha").permitAll()
+                .antMatchers("/api/auth/refresh").permitAll()
 
                 // 放行 Swagger 文档接口
                 .antMatchers("/doc.html").permitAll()

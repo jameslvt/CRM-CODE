@@ -21,31 +21,31 @@ public class Role extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 角色编码（唯一标识，如 ROLE_ADMIN）
-     */
-    @TableField("role_code")
-    private String roleCode;
-
-    /**
      * 角色名称
      */
     @TableField("role_name")
     private String roleName;
 
     /**
-     * 角色描述
+     * 角色标识（唯一）
      */
-    @TableField("description")
-    private String description;
+    @TableField("role_key")
+    private String roleKey;
 
     /**
-     * 排序号（数字越小越靠前）
+     * 排序号
      */
-    @TableField("sort_order")
-    private Integer sortOrder;
+    @TableField("sort")
+    private Integer sort;
 
     /**
-     * 状态（0: 禁用, 1: 启用）
+     * 数据权限: 1-全部, 2-本部门及下级, 3-本部门, 4-仅本人
+     */
+    @TableField("data_scope")
+    private Integer dataScope;
+
+    /**
+     * 状态（0: 禁用, 1: 正常）
      */
     @TableField("status")
     private Integer status;

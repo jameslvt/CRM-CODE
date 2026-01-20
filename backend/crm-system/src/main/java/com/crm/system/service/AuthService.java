@@ -1,9 +1,12 @@
 package com.crm.system.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.crm.common.exception.BusinessException;
 import com.crm.common.utils.JwtUtils;
 import com.crm.system.dto.LoginRequest;
 import com.crm.system.dto.LoginResponse;
+import com.crm.system.dto.PermissionDTO;
+import com.crm.system.dto.RoleDTO;
 import com.crm.system.dto.UserDTO;
 import com.crm.system.entity.User;
 import com.crm.system.mapper.UserMapper;
@@ -14,8 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * 认证服务实现类
@@ -35,6 +40,12 @@ public class AuthService {
     private UserService userService;
 
     @Resource
+    private RoleService roleService;
+
+    @Resource(name = "permissionManageService")
+    private PermissionService permissionService;
+
+    @Resource
     private PasswordEncoder passwordEncoder;
 
     @Resource
@@ -44,6 +55,11 @@ public class AuthService {
      * Token 在 Redis 中的前缀
      */
     private static final String TOKEN_PREFIX = "crm:token:";
+
+    /**
+     * Redis 中存储用户权限的 Key 前缀
+     */
+    private static final String REDIS_USER_PERMISSION_PREFIX = "user:permission:";
 
     /**
      * Token 过期时间（7 天，单位：秒）
@@ -61,8 +77,10 @@ public class AuthService {
     public LoginResponse login(LoginRequest loginRequest, String ip) {
         log.info("用户登录: {}", loginRequest.getUsername());
 
-        // 查询用户
-        User user = userMapper.selectByUsername(loginRequest.getUsername());
+        // 查询用户（使用 MyBatis Plus LambdaQueryWrapper）
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUsername, loginRequest.getUsername());
+        User user = userMapper.selectOne(queryWrapper);
         if (user == null) {
             throw new BusinessException("用户名或密码错误");
         }
@@ -85,13 +103,6 @@ public class AuthService {
         String tokenKey = TOKEN_PREFIX + user.getId();
         redisTemplate.opsForValue().set(tokenKey, accessToken, TOKEN_EXPIRE_TIME, TimeUnit.SECONDS);
 
-        // 更新最后登录信息
-        userService.updateLastLoginInfo(user.getId(), ip);
-
-        // 查询用户权限和角色
-        List<String> permissions = userMapper.selectPermissionCodesByUserId(user.getId());
-        List<String> roles = userMapper.selectRoleCodesByUserId(user.getId());
-
         // 构建响应
         LoginResponse response = new LoginResponse();
         response.setAccessToken(accessToken);
@@ -102,8 +113,28 @@ public class AuthService {
         // 设置用户信息
         UserDTO userDTO = userService.getUserById(user.getId());
         response.setUserInfo(userDTO);
-        response.setPermissions(permissions);
-        response.setRoles(roles);
+
+        // 查询用户角色列表
+        List<RoleDTO> roles = roleService.getRolesByUserId(user.getId());
+        List<String> roleKeys = roles.stream()
+                .map(RoleDTO::getRoleCode)
+                .collect(Collectors.toList());
+        response.setRoles(roleKeys);
+
+        // 查询用户权限列表
+        List<PermissionDTO> permissions = permissionService.getPermissionsByUserId(user.getId());
+        List<String> permissionKeys = permissions.stream()
+                .map(PermissionDTO::getPermissionCode)
+                .collect(Collectors.toList());
+        response.setPermissions(permissionKeys);
+
+        // 将用户权限存储到 Redis（供 JwtAuthenticationFilter 使用）
+        String permissionKey = REDIS_USER_PERMISSION_PREFIX + user.getId();
+        redisTemplate.delete(permissionKey);
+        if (!permissionKeys.isEmpty()) {
+            redisTemplate.opsForSet().add(permissionKey, permissionKeys.toArray());
+            redisTemplate.expire(permissionKey, TOKEN_EXPIRE_TIME, TimeUnit.SECONDS);
+        }
 
         log.info("用户登录成功: {}", loginRequest.getUsername());
         return response;
@@ -121,6 +152,10 @@ public class AuthService {
         // 从 Redis 中删除 Token
         String tokenKey = TOKEN_PREFIX + userId;
         redisTemplate.delete(tokenKey);
+
+        // 从 Redis 中删除用户权限缓存
+        String permissionKey = REDIS_USER_PERMISSION_PREFIX + userId;
+        redisTemplate.delete(permissionKey);
 
         log.info("用户登出成功");
     }
@@ -225,8 +260,11 @@ public class AuthService {
         if (userId == null) {
             throw new BusinessException("无效的令牌");
         }
-
-        return userMapper.selectPermissionCodesByUserId(userId);
+        // 通过 PermissionService 查询用户权限
+        List<PermissionDTO> permissions = permissionService.getPermissionsByUserId(userId);
+        return permissions.stream()
+                .map(PermissionDTO::getPermissionCode)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -240,7 +278,10 @@ public class AuthService {
         if (userId == null) {
             throw new BusinessException("无效的令牌");
         }
-
-        return userMapper.selectRoleCodesByUserId(userId);
+        // 通过 RoleService 查询用户角色
+        List<RoleDTO> roles = roleService.getRolesByUserId(userId);
+        return roles.stream()
+                .map(RoleDTO::getRoleCode)
+                .collect(Collectors.toList());
     }
 }

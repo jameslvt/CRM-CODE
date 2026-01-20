@@ -18,7 +18,7 @@ import type {
  * @returns 部门树形列表
  */
 export function getDepartmentTree(params?: DepartmentQueryParams): Promise<Result<Department[]>> {
-  return request.get('/system/department/tree', { params })
+  return request.get('/system/departments/tree', { params })
 }
 
 /**
@@ -27,7 +27,7 @@ export function getDepartmentTree(params?: DepartmentQueryParams): Promise<Resul
  * @returns 部门详情
  */
 export function getDepartmentDetail(id: number): Promise<Result<Department>> {
-  return request.get(`/system/department/${id}`)
+  return request.get(`/system/departments/${id}`)
 }
 
 /**
@@ -36,7 +36,7 @@ export function getDepartmentDetail(id: number): Promise<Result<Department>> {
  * @returns 操作结果
  */
 export function createDepartment(data: DepartmentFormData): Promise<Result<void>> {
-  return request.post('/system/department', data)
+  return request.post('/system/departments', data)
 }
 
 /**
@@ -46,7 +46,7 @@ export function createDepartment(data: DepartmentFormData): Promise<Result<void>
  * @returns 操作结果
  */
 export function updateDepartment(id: number, data: DepartmentFormData): Promise<Result<void>> {
-  return request.put(`/system/department/${id}`, data)
+  return request.put(`/system/departments/${id}`, data)
 }
 
 /**
@@ -55,7 +55,7 @@ export function updateDepartment(id: number, data: DepartmentFormData): Promise<
  * @returns 操作结果
  */
 export function deleteDepartment(id: number): Promise<Result<void>> {
-  return request.delete(`/system/department/${id}`)
+  return request.delete(`/system/departments/${id}`)
 }
 
 /**
@@ -70,7 +70,7 @@ export function checkDepartmentDeletable(id: number): Promise<Result<{
   childrenCount: number
   usersCount: number
 }>> {
-  return request.get(`/system/department/${id}/check-deletable`)
+  return request.get(`/system/departments/${id}/check-deletable`)
 }
 
 /**
@@ -80,7 +80,7 @@ export function checkDepartmentDeletable(id: number): Promise<Result<{
  * @returns 操作结果
  */
 export function updateDepartmentStatus(id: number, status: number): Promise<Result<void>> {
-  return request.put(`/system/department/${id}/status`, { status })
+  return request.put(`/system/departments/${id}/status`, { status })
 }
 
 /**
@@ -88,7 +88,7 @@ export function updateDepartmentStatus(id: number, status: number): Promise<Resu
  * @returns 用户列表
  */
 export function getAllUsers(): Promise<Result<User[]>> {
-  return request.get('/system/user/all')
+  return request.get('/system/users/all')
 }
 
 /**
@@ -98,7 +98,7 @@ export function getAllUsers(): Promise<Result<User[]>> {
  * @returns 是否存在
  */
 export function checkDepartmentCodeExists(code: string, excludeId?: number): Promise<Result<boolean>> {
-  return request.get('/system/department/check-code', {
+  return request.get('/system/departments/check-code', {
     params: { code, excludeId }
   })
 }
@@ -109,5 +109,5 @@ export function checkDepartmentCodeExists(code: string, excludeId?: number): Pro
  * @returns 用户列表
  */
 export function getDepartmentUsers(deptId: number): Promise<Result<User[]>> {
-  return request.get(`/system/department/${deptId}/users`)
+  return request.get(`/system/departments/${deptId}/users`)
 }

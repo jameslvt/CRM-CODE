@@ -188,52 +188,41 @@ const mainRoutes: RouteRecordRaw[] = [
         }
       },
 
-      // 系统管理
+      // 系统管理 - 用户管理
       {
-        path: '/system',
-        name: 'System',
-        redirect: '/system/user',
+        path: '/system/user',
+        name: 'SystemUser',
+        component: () => import('@/views/system/user/index.vue'),
         meta: {
-          title: '系统管理',
-          icon: 'system',
+          title: '用户管理',
+          icon: 'user',
           requiresAuth: true,
-          roles: ['admin']
-        },
-        children: [
-          {
-            path: '/system/user',
-            name: 'SystemUser',
-            component: () => import('@/views/system/user/index.vue'),
-            meta: {
-              title: '用户管理',
-              icon: 'user',
-              requiresAuth: true,
-              permissions: ['system:user:view']
-            }
-          },
-          {
-            path: '/system/role',
-            name: 'SystemRole',
-            component: () => import('@/views/system/role/index.vue'),
-            meta: {
-              title: '角色管理',
-              icon: 'role',
-              requiresAuth: true,
-              permissions: ['system:role:view']
-            }
-          },
-          {
-            path: '/system/department',
-            name: 'SystemDepartment',
-            component: () => import('@/views/system/department/index.vue'),
-            meta: {
-              title: '部门管理',
-              icon: 'department',
-              requiresAuth: true,
-              permissions: ['system:dept:view']
-            }
-          }
-        ]
+          permissions: ['system:user:view']
+        }
+      },
+      // 系统管理 - 角色管理
+      {
+        path: '/system/role',
+        name: 'SystemRole',
+        component: () => import('@/views/system/role/index.vue'),
+        meta: {
+          title: '角色管理',
+          icon: 'role',
+          requiresAuth: true,
+          permissions: ['system:role:view']
+        }
+      },
+      // 系统管理 - 部门管理
+      {
+        path: '/system/department',
+        name: 'SystemDepartment',
+        component: () => import('@/views/system/department/index.vue'),
+        meta: {
+          title: '部门管理',
+          icon: 'department',
+          requiresAuth: true,
+          permissions: ['system:dept:view']
+        }
       },
 
       // 个人中心

@@ -1,63 +1,72 @@
 package com.crm.system.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.crm.common.entity.BaseEntity;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * 字典数据实体
+ * 对应数据库表 crm_dict_data
+ * 注意：此表没有 deleted 字段，不继承 BaseEntity
  *
  * @author CRM System
- * @since 2026-01-20
+ * @since 1.0.0
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @TableName("crm_dict_data")
-public class DictData extends BaseEntity {
+public class DictData implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
-     * 字典排序
+     * 主键 ID
      */
-    private Integer dictSort;
-
-    /**
-     * 字典标签
-     */
-    private String dictLabel;
-
-    /**
-     * 字典键值
-     */
-    private String dictValue;
+    @TableId("id")
+    private Long id;
 
     /**
      * 字典类型
      */
+    @TableField("dict_type")
     private String dictType;
 
     /**
-     * 样式属性（如颜色、图标等）
+     * 字典标签
      */
-    private String cssClass;
+    @TableField("label")
+    private String label;
 
     /**
-     * 表格回显样式
+     * 字典值
      */
-    private String listClass;
+    @TableField("value")
+    private String value;
 
     /**
-     * 是否默认：0-否，1-是
+     * 排序
      */
-    private Integer isDefault;
+    @TableField("sort")
+    private Integer sort;
 
     /**
-     * 状态：0-停用，1-正常
+     * 状态：0-禁用，1-正常
      */
+    @TableField("status")
     private Integer status;
 
     /**
-     * 备注
+     * 创建时间
      */
-    private String remark;
+    @TableField("create_time")
+    private LocalDateTime createTime;
+
+    /**
+     * 更新时间
+     */
+    @TableField("update_time")
+    private LocalDateTime updateTime;
 }

@@ -21,7 +21,7 @@ import type {
  * @returns 分页用户列表
  */
 export function getUserList(params: UserQueryParams): Promise<Result<PageResult<User>>> {
-  return request.get('/system/user/list', { params })
+  return request.get('/system/users', { params })
 }
 
 /**
@@ -30,7 +30,7 @@ export function getUserList(params: UserQueryParams): Promise<Result<PageResult<
  * @returns 用户详情
  */
 export function getUserDetail(id: number): Promise<Result<User>> {
-  return request.get(`/system/user/${id}`)
+  return request.get(`/system/users/${id}`)
 }
 
 /**
@@ -39,7 +39,7 @@ export function getUserDetail(id: number): Promise<Result<User>> {
  * @returns 操作结果
  */
 export function createUser(data: UserFormData): Promise<Result<void>> {
-  return request.post('/system/user', data)
+  return request.post('/system/users', data)
 }
 
 /**
@@ -49,7 +49,7 @@ export function createUser(data: UserFormData): Promise<Result<void>> {
  * @returns 操作结果
  */
 export function updateUser(id: number, data: UserFormData): Promise<Result<void>> {
-  return request.put(`/system/user/${id}`, data)
+  return request.put(`/system/users/${id}`, data)
 }
 
 /**
@@ -58,7 +58,7 @@ export function updateUser(id: number, data: UserFormData): Promise<Result<void>
  * @returns 操作结果
  */
 export function deleteUser(id: number): Promise<Result<void>> {
-  return request.delete(`/system/user/${id}`)
+  return request.delete(`/system/users/${id}`)
 }
 
 /**
@@ -67,7 +67,7 @@ export function deleteUser(id: number): Promise<Result<void>> {
  * @returns 操作结果
  */
 export function batchDeleteUsers(ids: number[]): Promise<Result<void>> {
-  return request.post('/system/user/batch-delete', { ids })
+  return request.post('/system/users/batch-delete', { ids })
 }
 
 /**
@@ -76,7 +76,7 @@ export function batchDeleteUsers(ids: number[]): Promise<Result<void>> {
  * @returns 操作结果
  */
 export function assignRoles(params: AssignRolesParams): Promise<Result<void>> {
-  return request.post(`/system/user/${params.userId}/roles`, {
+  return request.post(`/system/users/${params.userId}/roles`, {
     roleIds: params.roleIds
   })
 }
@@ -87,7 +87,7 @@ export function assignRoles(params: AssignRolesParams): Promise<Result<void>> {
  * @returns 角色 ID 列表
  */
 export function getUserRoles(userId: number): Promise<Result<number[]>> {
-  return request.get(`/system/user/${userId}/roles`)
+  return request.get(`/system/users/${userId}/roles`)
 }
 
 /**
@@ -96,7 +96,7 @@ export function getUserRoles(userId: number): Promise<Result<number[]>> {
  * @returns 操作结果
  */
 export function resetPassword(params: ResetPasswordParams): Promise<Result<void>> {
-  return request.post(`/system/user/${params.userId}/reset-password`, {
+  return request.post(`/system/users/${params.userId}/reset-password`, {
     newPassword: params.newPassword
   })
 }
@@ -108,7 +108,7 @@ export function resetPassword(params: ResetPasswordParams): Promise<Result<void>
  * @returns 操作结果
  */
 export function updateUserStatus(id: number, status: number): Promise<Result<void>> {
-  return request.put(`/system/user/${id}/status`, { status })
+  return request.put(`/system/users/${id}/status`, { status })
 }
 
 /**
@@ -116,7 +116,7 @@ export function updateUserStatus(id: number, status: number): Promise<Result<voi
  * @returns 角色列表
  */
 export function getAllRoles(): Promise<Result<Role[]>> {
-  return request.get('/system/role/all')
+  return request.get('/system/roles/all')
 }
 
 /**
@@ -124,5 +124,5 @@ export function getAllRoles(): Promise<Result<Role[]>> {
  * @returns 部门树
  */
 export function getDepartmentTree(): Promise<Result<Department[]>> {
-  return request.get('/system/department/tree')
+  return request.get('/system/departments/tree')
 }

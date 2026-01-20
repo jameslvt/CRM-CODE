@@ -93,8 +93,8 @@
           <n-button text @click="appStore.toggleTheme" class="header-action">
             <template #icon>
               <n-icon size="18">
-                <SunOutlined v-if="!appStore.isDark" />
-                <MoonOutlined v-else />
+                <BulbOutlined v-if="!appStore.isDark" />
+                <BulbFilled v-else />
               </n-icon>
             </template>
           </n-button>
@@ -152,8 +152,8 @@ import {
 } from 'naive-ui'
 import {
   MenuOutlined,
-  SunOutlined,
-  MoonOutlined,
+  BulbOutlined,
+  BulbFilled,
   DashboardOutlined,
   UserOutlined,
   TeamOutlined,

@@ -17,6 +17,7 @@
         <module>crm-common</module>
         <module>crm-system</module>
         <module>crm-business</module>
+        <module>crm-ai</module>
         <module>crm-admin</module>
     </modules>
 
@@ -139,6 +140,12 @@
             <dependency>
                 <groupId>com.crm</groupId>
                 <artifactId>crm-business</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.crm</groupId>
+                <artifactId>crm-ai</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

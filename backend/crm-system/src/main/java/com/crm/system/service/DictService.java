@@ -37,7 +37,7 @@ public class DictService extends ServiceImpl<DictTypeMapper, DictType> {
         LambdaQueryWrapper<DictData> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(DictData::getDictType, dictType)
                 .eq(DictData::getStatus, 1)
-                .orderByAsc(DictData::getDictSort);
+                .orderByAsc(DictData::getSort);
         return dictDataMapper.selectList(wrapper);
     }
 
@@ -79,10 +79,10 @@ public class DictService extends ServiceImpl<DictTypeMapper, DictType> {
             removeById(id);
             // 删除对应的字典数据
             LambdaQueryWrapper<DictData> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(DictData::getDictType, dictType.getDictType());
+            wrapper.eq(DictData::getDictType, dictType.getType());
             dictDataMapper.delete(wrapper);
             // 清除缓存
-            clearDictCache(dictType.getDictType());
+            clearDictCache(dictType.getType());
         }
         return true;
     }

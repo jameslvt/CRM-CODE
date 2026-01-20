@@ -43,11 +43,10 @@ public class UserDTO implements Serializable {
     private String password;
 
     /**
-     * 真实姓名
+     * 昵称
      */
-    @ApiModelProperty(value = "真实姓名", required = true, example = "张三")
-    @NotBlank(message = "真实姓名不能为空")
-    private String realName;
+    @ApiModelProperty(value = "昵称", example = "管理员")
+    private String nickname;
 
     /**
      * 手机号码
@@ -64,12 +63,6 @@ public class UserDTO implements Serializable {
     private String email;
 
     /**
-     * 性别（0: 未知, 1: 男, 2: 女）
-     */
-    @ApiModelProperty(value = "性别（0:未知,1:男,2:女）", example = "1")
-    private Integer gender;
-
-    /**
      * 头像 URL
      */
     @ApiModelProperty(value = "头像URL", example = "https://example.com/avatar.jpg")
@@ -79,43 +72,19 @@ public class UserDTO implements Serializable {
      * 部门 ID
      */
     @ApiModelProperty(value = "部门ID", example = "1")
-    private Long departmentId;
+    private Long deptId;
 
     /**
-     * 部门名称
+     * 部门名称（仅用于展示）
      */
     @ApiModelProperty(value = "部门名称", example = "技术部")
-    private String departmentName;
+    private String deptName;
 
     /**
-     * 职位
+     * 状态（0: 禁用, 1: 正常）
      */
-    @ApiModelProperty(value = "职位", example = "Java开发工程师")
-    private String position;
-
-    /**
-     * 状态（0: 禁用, 1: 启用）
-     */
-    @ApiModelProperty(value = "状态（0:禁用,1:启用）", example = "1")
+    @ApiModelProperty(value = "状态（0:禁用,1:正常）", example = "1")
     private Integer status;
-
-    /**
-     * 备注
-     */
-    @ApiModelProperty(value = "备注", example = "系统管理员")
-    private String remark;
-
-    /**
-     * 最后登录时间
-     */
-    @ApiModelProperty(value = "最后登录时间")
-    private LocalDateTime lastLoginTime;
-
-    /**
-     * 最后登录 IP
-     */
-    @ApiModelProperty(value = "最后登录IP", example = "192.168.1.100")
-    private String lastLoginIp;
 
     /**
      * 创建时间

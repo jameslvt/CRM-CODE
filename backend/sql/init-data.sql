@@ -9,7 +9,7 @@ USE crm_db;
 -- =============================================
 -- 1. 插入管理员账号
 -- =============================================
--- 密码: admin123 (BCrypt 加密后的值)
+-- 密码: 123456 (BCrypt 加密后的值)
 INSERT INTO crm_user (id, username, password, nickname, email, phone, dept_id, status, create_time, update_time, deleted)
 VALUES (1, 'admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '系统管理员', 'admin@crm.com', '13800138000', 1, 1, NOW(3), NOW(3), 0)
 ON DUPLICATE KEY UPDATE username = username;
@@ -109,3 +109,115 @@ SELECT COUNT(*) AS '用户数' FROM crm_user WHERE deleted = 0;
 SELECT COUNT(*) AS '角色数' FROM crm_role WHERE deleted = 0;
 SELECT COUNT(*) AS '权限数' FROM crm_permission;
 SELECT COUNT(*) AS '部门数' FROM crm_department WHERE deleted = 0;
+
+INSERT INTO crm_permission (id, parent_id, name, permission_key, type, path, component, icon, sort, visible, status, create_time, update_time)
+  VALUES
+  -- 角色管理按钮
+  (121, 12, '新增角色', 'system:role:add', 3, NULL, NULL, NULL, 1, 1, 1, NOW(3), NOW(3)),
+  (122, 12, '编辑角色', 'system:role:edit', 3, NULL, NULL, NULL, 2, 1, 1, NOW(3), NOW(3)),
+  (123, 12, '删除角色', 'system:role:delete', 3, NULL, NULL, NULL, 3, 1, 1, NOW(3), NOW(3)),
+  (124, 12, '分配权限', 'system:role:assign', 3, NULL, NULL, NULL, 4, 1, 1, NOW(3), NOW(3)),
+
+  -- 部门管理按钮
+  (131, 13, '新增部门', 'system:dept:add', 3, NULL, NULL, NULL, 1, 1, 1, NOW(3), NOW(3)),
+  (132, 13, '编辑部门', 'system:dept:edit', 3, NULL, NULL, NULL, 2, 1, 1, NOW(3), NOW(3)),
+  (133, 13, '删除部门', 'system:dept:delete', 3, NULL, NULL, NULL, 3, 1, 1, NOW(3), NOW(3)),
+
+  -- 权限管理按钮
+  (141, 14, '新增权限', 'system:permission:add', 3, NULL, NULL, NULL, 1, 1, 1, NOW(3), NOW(3)),
+  (142, 14, '编辑权限', 'system:permission:edit', 3, NULL, NULL, NULL, 2, 1, 1, NOW(3), NOW(3)),
+  (143, 14, '删除权限', 'system:permission:delete', 3, NULL, NULL, NULL, 3, 1, 1, NOW(3), NOW(3)),
+
+  -- 字典管理按钮
+  (151, 15, '新增字典', 'system:dict:add', 3, NULL, NULL, NULL, 1, 1, 1, NOW(3), NOW(3)),
+  (152, 15, '编辑字典', 'system:dict:edit', 3, NULL, NULL, NULL, 2, 1, 1, NOW(3), NOW(3)),
+  (153, 15, '删除字典', 'system:dict:delete', 3, NULL, NULL, NULL, 3, 1, 1, NOW(3), NOW(3)),
+
+  -- 商机管理按钮
+  (231, 23, '新增商机', 'business:opportunity:add', 3, NULL, NULL, NULL, 1, 1, 1, NOW(3), NOW(3)),
+  (232, 23, '编辑商机', 'business:opportunity:edit', 3, NULL, NULL, NULL, 2, 1, 1, NOW(3), NOW(3)),
+  (233, 23, '删除商机', 'business:opportunity:delete', 3, NULL, NULL, NULL, 3, 1, 1, NOW(3), NOW(3)),
+  (234, 23, '转为合同', 'business:opportunity:convert', 3, NULL, NULL, NULL, 4, 1, 1, NOW(3), NOW(3)),
+
+  -- 产品管理按钮
+  (241, 24, '新增产品', 'business:product:add', 3, NULL, NULL, NULL, 1, 1, 1, NOW(3), NOW(3)),
+  (242, 24, '编辑产品', 'business:product:edit', 3, NULL, NULL, NULL, 2, 1, 1, NOW(3), NOW(3)),
+  (243, 24, '删除产品', 'business:product:delete', 3, NULL, NULL, NULL, 3, 1, 1, NOW(3), NOW(3)),
+  (244, 24, '启用/停用', 'business:product:status', 3, NULL, NULL, NULL, 4, 1, 1, NOW(3), NOW(3)),
+
+  -- 合同管理按钮
+  (251, 25, '新增合同', 'business:contract:add', 3, NULL, NULL, NULL, 1, 1, 1, NOW(3), NOW(3)),
+  (252, 25, '编辑合同', 'business:contract:edit', 3, NULL, NULL, NULL, 2, 1, 1, NOW(3), NOW(3)),
+  (253, 25, '删除合同', 'business:contract:delete', 3, NULL, NULL, NULL, 3, 1, 1, NOW(3), NOW(3)),
+  (254, 25, '上传文件', 'business:contract:upload', 3, NULL, NULL, NULL, 4, 1, 1, NOW(3), NOW(3)),
+
+  -- 回款管理按钮
+  (261, 26, '新增回款计划', 'business:payment:add', 3, NULL, NULL, NULL, 1, 1, 1, NOW(3), NOW(3)),
+  (262, 26, '编辑回款计划', 'business:payment:edit', 3, NULL, NULL, NULL, 2, 1, 1, NOW(3), NOW(3)),
+  (263, 26, '删除回款计划', 'business:payment:delete', 3, NULL, NULL, NULL, 3, 1, 1, NOW(3), NOW(3)),
+  (264, 26, '记录回款', 'business:payment:record', 3, NULL, NULL, NULL, 4, 1, 1, NOW(3), NOW(3)),
+
+  -- 仪表盘按钮
+  (311, 31, '导出报表', 'dashboard:sales:export', 3, NULL, NULL, NULL, 1, 1, 1, NOW(3), NOW(3))
+  ON DUPLICATE KEY UPDATE name = VALUES(name);
+
+  -- =============================================
+  -- 重新分配超级管理员所有权限（包含新增的按钮权限）
+  -- =============================================
+  DELETE FROM crm_role_permission WHERE role_id = 1;
+  INSERT INTO crm_role_permission (role_id, permission_id)
+  SELECT 1, id FROM crm_permission;
+
+  -- =============================================
+  -- 分配销售经理权限（业务管理全部 + 仪表盘）
+  -- =============================================
+  INSERT INTO crm_role_permission (role_id, permission_id)
+  SELECT 2, id FROM crm_permission
+  WHERE permission_key LIKE 'business:%'
+     OR permission_key LIKE 'dashboard:%'
+     OR permission_key IN ('business', 'dashboard')
+  ON DUPLICATE KEY UPDATE role_id = role_id;
+
+  -- =============================================
+  -- 分配销售人员权限（线索、客户、商机、产品查看）
+  -- =============================================
+  INSERT INTO crm_role_permission (role_id, permission_id)
+  SELECT 3, id FROM crm_permission
+  WHERE permission_key IN (
+      'business',
+      'business:lead', 'business:lead:add', 'business:lead:edit', 'business:lead:convert',
+      'business:customer', 'business:customer:add', 'business:customer:edit',
+      'business:opportunity', 'business:opportunity:add', 'business:opportunity:edit',
+      'business:product',
+      'dashboard', 'dashboard:sales'
+  )
+  ON DUPLICATE KEY UPDATE role_id = role_id;
+
+  -- =============================================
+  -- 分配财务人员权限（合同、回款管理）
+  -- =============================================
+  INSERT INTO crm_role_permission (role_id, permission_id)
+  SELECT 4, id FROM crm_permission
+  WHERE permission_key IN (
+      'business',
+      'business:customer',
+      'business:contract', 'business:contract:add', 'business:contract:edit', 'business:contract:upload',
+      'business:payment', 'business:payment:add', 'business:payment:edit', 'business:payment:record',
+      'dashboard', 'dashboard:sales'
+  )
+  ON DUPLICATE KEY UPDATE role_id = role_id;
+
+  -- =============================================
+  -- 补充线索管理缺失的按钮权限
+  -- =============================================
+  INSERT INTO crm_permission (id, parent_id, name, permission_key, type, path, component, icon, sort, visible, status, create_time, update_time)
+  VALUES
+  -- 线索管理 - 查询权限（缺失）
+  (217, 21, '查询线索列表', 'business:lead:list', 3, NULL, NULL, NULL, 0, 1, 1, NOW(3), NOW(3)),
+  (218, 21, '查看线索详情', 'business:lead:detail', 3, NULL, NULL, NULL, 0, 1, 1, NOW(3), NOW(3))
+  ON DUPLICATE KEY UPDATE name = VALUES(name);
+
+  -- 重新分配超级管理员所有权限
+  DELETE FROM crm_role_permission WHERE role_id = 1;
+  INSERT INTO crm_role_permission (role_id, permission_id)
+  SELECT 1, id FROM crm_permission;

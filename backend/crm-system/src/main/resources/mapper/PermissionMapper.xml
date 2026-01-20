@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.crm.system.mapper.PermissionMapper">
+
+    <!-- 根据权限编码查询权限 -->
+    <select id="selectByPermissionCode" resultType="com.crm.system.entity.Permission">
+        SELECT id, parent_id, name, permission_key, type, path, component, icon, sort, visible, status, create_time, update_time
+        FROM crm_permission
+        WHERE permission_key = #{permissionCode} AND status = 1
+    </select>
+
+    <!-- 根据用户 ID 查询权限列表 -->
+    <select id="selectByUserId" resultType="com.crm.system.entity.Permission">
+        SELECT DISTINCT p.id, p.parent_id, p.name, p.permission_key, p.type, p.path, p.component, p.icon, p.sort, p.visible, p.status, p.create_time, p.update_time
+        FROM crm_permission p
+        INNER JOIN crm_role_permission rp ON p.id = rp.permission_id
+        INNER JOIN crm_user_role ur ON rp.role_id = ur.role_id
+        WHERE ur.user_id = #{userId} AND p.status = 1
+        ORDER BY p.sort
+    </select>
+
+    <!-- 根据角色 ID 查询权限列表 -->
+    <select id="selectByRoleId" resultType="com.crm.system.entity.Permission">
+        SELECT p.id, p.parent_id, p.name, p.permission_key, p.type, p.path, p.component, p.icon, p.sort, p.visible, p.status, p.create_time, p.update_time
+        FROM crm_permission p
+        INNER JOIN crm_role_permission rp ON p.id = rp.permission_id
+        WHERE rp.role_id = #{roleId} AND p.status = 1
+        ORDER BY p.sort
+    </select>
+
+    <!-- 根据父权限 ID 查询子权限列表 -->
+    <select id="selectByParentId" resultType="com.crm.system.entity.Permission">
+        SELECT id, parent_id, name, permission_key, type, path, component, icon, sort, visible, status, create_time, update_time
+        FROM crm_permission
+        WHERE parent_id = #{parentId} AND status = 1
+        ORDER BY sort
+    </select>
+
+    <!-- 查询所有权限（树形结构） -->
+    <select id="selectAllTree" resultType="com.crm.system.entity.Permission">
+        SELECT id, parent_id, name, permission_key, type, path, component, icon, sort, visible, status, create_time, update_time
+        FROM crm_permission
+        WHERE status = 1
+        ORDER BY sort
+    </select>
+
+    <!-- 检查权限是否被角色使用 -->
+    <select id="countRolesByPermissionId" resultType="int">
+        SELECT COUNT(*) FROM crm_role_permission WHERE permission_id = #{permissionId}
+    </select>
+
+    <!-- 检查权限是否有子权限 -->
+    <select id="countChildrenByPermissionId" resultType="int">
+        SELECT COUNT(*) FROM crm_permission WHERE parent_id = #{permissionId}
+    </select>
+
+</mapper>

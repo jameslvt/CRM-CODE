@@ -112,8 +112,8 @@ export interface UserInfo {
   id: number
   /** 用户名 */
   username: string
-  /** 真实姓名 */
-  realName: string
+  /** 昵称 */
+  nickname?: string
   /** 头像 URL */
   avatar?: string
   /** 邮箱 */
@@ -124,10 +124,12 @@ export interface UserInfo {
   deptId?: number
   /** 部门名称 */
   deptName?: string
-  /** 角色列表 */
-  roles: string[]
-  /** 权限列表 */
-  permissions: string[]
+  /** 状态 */
+  status?: number
+  /** 角色列表（可选，从 LoginResult 获取） */
+  roles?: string[]
+  /** 权限列表（可选，从 LoginResult 获取） */
+  permissions?: string[]
 }
 
 /**
@@ -138,10 +140,16 @@ export interface LoginResult {
   accessToken: string
   /** 刷新令牌 */
   refreshToken: string
+  /** 令牌类型 */
+  tokenType?: string
   /** 令牌过期时间（秒） */
   expiresIn: number
   /** 用户信息 */
   userInfo: UserInfo
+  /** 角色列表 */
+  roles: string[]
+  /** 权限列表 */
+  permissions: string[]
 }
 
 /**
