@@ -231,14 +231,88 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .lead-detail {
-  padding: 16px;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-body);
 
   :deep(.n-page-header) {
-    margin-bottom: 16px;
+    margin-bottom: var(--spacing-base);
+
+    .n-page-header__title {
+      font-family: var(--font-heading);
+      font-weight: var(--font-weight-semibold);
+    }
   }
 
   :deep(.n-card) {
-    margin-bottom: 16px;
+    margin-bottom: var(--spacing-base);
+    border-radius: var(--radius-lg);
+
+    .n-card-header__main {
+      font-family: var(--font-heading);
+      font-weight: var(--font-weight-semibold);
+    }
+  }
+
+  :deep(.n-descriptions-item-label) {
+    color: var(--text-secondary);
+    font-weight: var(--font-weight-medium);
+  }
+
+  :deep(.n-descriptions-item-content) {
+    color: var(--text-primary);
+  }
+
+  :deep(.n-tag) {
+    font-weight: var(--font-weight-medium);
+    padding: 4px 12px;
+    border-radius: var(--radius-md);
+  }
+}
+
+/* 按钮悬停效果 */
+:deep(.n-button) {
+  transition: all var(--transition-base);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-weight: var(--font-weight-medium);
+}
+
+:deep(.n-button:hover) {
+  transform: translateY(-1px);
+}
+
+:deep(.n-button:active) {
+  transform: translateY(0);
+}
+
+/* 主按钮样式 */
+:deep(.n-button--primary-type) {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+:deep(.n-button--primary-type:hover) {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+:deep(.n-button--primary-type:active) {
+  background-color: var(--primary-active);
+  border-color: var(--primary-active);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .lead-detail {
+    :deep(.n-grid) {
+      display: flex;
+      flex-direction: column;
+    }
+
+    :deep(.n-gi) {
+      width: 100% !important;
+    }
   }
 }
 </style>

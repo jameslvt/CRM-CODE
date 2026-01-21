@@ -30,7 +30,7 @@ export const useAppStore = defineStore(
     /** 侧边栏是否在移动端显示 */
     const sidebarMobileVisible = ref(false)
 
-    /** 主题模式 */
+    /** 主题模式 - 固定为浅色 */
     const themeMode = ref<ThemeMode>('light')
 
     /** 设备类型 */
@@ -59,14 +59,8 @@ export const useAppStore = defineStore(
     /** 是否是桌面端 */
     const isDesktop = computed(() => deviceType.value === 'desktop')
 
-    /** 是否是暗色主题 */
-    const isDark = computed(() => {
-      if (themeMode.value === 'auto') {
-        // 自动模式：根据系统主题判断
-        return window.matchMedia('(prefers-color-scheme: dark)').matches
-      }
-      return themeMode.value === 'dark'
-    })
+    /** 是否是暗色主题 - 固定为 false */
+    const isDark = computed(() => false)
 
     // ========== 方法 ==========
 
@@ -125,15 +119,11 @@ export const useAppStore = defineStore(
     }
 
     /**
-     * 应用主题
+     * 应用主题 - 固定为浅色主题
      */
     function applyTheme(): void {
       const html = document.documentElement
-      if (isDark.value) {
-        html.classList.add('dark')
-      } else {
-        html.classList.remove('dark')
-      }
+      html.classList.remove('dark')
     }
 
     /**
@@ -282,7 +272,7 @@ export const useAppStore = defineStore(
     persist: {
       key: 'app-store',
       storage: localStorage,
-      paths: ['sidebarCollapsed', 'themeMode'] // 只持久化这些字段
+      paths: ['sidebarCollapsed'] // 只持久化侧边栏状态
     }
   }
 )

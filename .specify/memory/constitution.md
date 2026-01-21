@@ -24,7 +24,7 @@
 
 ## 核心使命
 
-构建一个**以业务为核心**的企业级 CRM 系统（对标 CordysCRM）。
+构建一个**以业务为核心**的企业级 CRM 系统。
 
 **优先级原则**：
 1. **P0 (首要目标)**: 优先确保 **L2C (线索到现金)** 的业务闭环稳定运行，实现客户、商机、合同、回款的全流程管理。
@@ -49,10 +49,45 @@
 - **工具链**: Maven, Lombok
 
 **前端 (Frontend)**:
-- **框架**: Vue.js 3 (Composition API)，前端在设计开发时，使用skills技能（ui-ux-pro-max-skill）
+- **框架**: Vue.js 3 (Composition API)
 - **UI 组件库**: Naive UI
 - **状态管理**: Pinia
 - **语言**: TypeScript
+
+## UI/UX 设计规范
+
+### 色彩方案
+- **主色调**: 蓝色系（Blue-600）
+- **背景色**: Slate-50/100/200
+- **文字色**: Slate-900/700/600/500/400
+- **状态色**:
+  - 成功/增长: Green-500
+  - 警告/下降: Red-500
+  - 信息: Blue-500
+  - 紧急: Red-600
+
+### 组件规范
+- **卡片**: Card组件，统一圆角、阴影
+- **按钮**: Button组件，统一尺寸、颜色
+- **表单**: Form组件，统一布局、验证
+- **对话框**: Dialog组件，统一样式
+- **表格**: Table组件，统一样式、分页
+- **标签**: Badge组件，统一颜色编码
+
+### 布局规范
+- **侧边栏**: 宽度64（256px），深色背景
+- **主内容区**: 最大宽度7xl，居中
+- **卡片间距**: gap-4或gap-6
+- **响应式**: 移动端优先，使用grid和flex
+
+### 交互规范
+- **悬停效果**: hover:shadow-lg
+- **过渡动画**: transition-all duration-300
+- **加载状态**: Spinner或Skeleton组件
+- **错误提示**: Alert组件或Toast通知
+
+---
+
 
 **AI 与集成 (AI & Integration)**:
 - **接口标准**: 仅需适配标准 OpenAI API (Chat Completion) 格式
@@ -100,7 +135,7 @@
 1. **Spec First**: 编写功能 Spec 文档
 2. **Review**: 确认业务逻辑是否闭环
 3. **Implementation**: 生成代码
-4. **优先级**: 优先开发后端模块，前端等后端开发完后再开发，开发时候尽量使用skills，不要copy其他页面
+4. **优先级**: 优先开发后端模块，前端等后端开发完后再开发，开发前端页面时候使用skills(使用frontend-design和ui-ux-pro-max技能设计)，不要copy其他页面
 
 ### 任务状态闭环 (Mandatory)
 每次执行 `/speckit.implement` 或完成代码编写后，**必须**执行以下收尾动作：

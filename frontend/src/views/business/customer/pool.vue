@@ -1,23 +1,17 @@
 <template>
-  <div class="customer-page">
+  <div class="pool-page">
     <!-- 页面标题 -->
     <div class="page-header">
       <div class="header-content">
-        <h1 class="page-title">客户管理</h1>
-        <p class="page-subtitle">管理企业客户信息，构建长期客户关系</p>
+        <h1 class="page-title">公海池</h1>
+        <p class="page-subtitle">未分配的客户资源，可自由领取跟进</p>
       </div>
       <div class="header-actions">
-        <n-button @click="handleGoToPool" class="secondary-btn">
+        <n-button @click="handleBack" class="secondary-btn">
           <template #icon>
-            <n-icon><GlobeOutline /></n-icon>
+            <n-icon><ArrowBackOutline /></n-icon>
           </template>
-          公海池
-        </n-button>
-        <n-button type="primary" @click="handleAdd" class="primary-btn">
-          <template #icon>
-            <n-icon><AddOutline /></n-icon>
-          </template>
-          新增客户
+          返回客户列表
         </n-button>
       </div>
     </div>
@@ -47,19 +41,12 @@
           <input
             v-model="searchParams.name"
             type="text"
-            placeholder="搜索客户名称、编码..."
+            placeholder="搜索客户名称..."
             class="search-input"
             @keyup.enter="handleSearch"
           />
         </div>
         <div class="filter-group">
-          <n-select
-            v-model:value="searchParams.level"
-            placeholder="客户级别"
-            :options="levelOptions"
-            clearable
-            class="filter-select"
-          />
           <n-select
             v-model:value="searchParams.industry"
             placeholder="行业"
@@ -82,11 +69,11 @@
       <!-- 批量操作 -->
       <div v-if="selectedRowKeys.length > 0" class="batch-actions">
         <span class="selected-count">已选择 {{ selectedRowKeys.length }} 项</span>
-        <n-button size="small" @click="handleBatchRelease">
+        <n-button size="small" type="primary" @click="handleBatchAcquire">
           <template #icon>
-            <n-icon><CloudUploadOutline /></n-icon>
+            <n-icon><DownloadOutline /></n-icon>
           </template>
-          释放到公海
+          批量领取
         </n-button>
         <n-button size="small" quaternary @click="selectedRowKeys = []">
           取消选择
@@ -110,47 +97,6 @@
         class="data-table"
       />
     </div>
-
-    <!-- 新增/编辑弹窗 -->
-    <n-modal
-      v-model:show="showFormModal"
-      :title="formTitle"
-      preset="card"
-      class="form-modal"
-      :segmented="{ content: 'soft', footer: 'soft' }"
-    >
-      <customer-form
-        ref="customerFormRef"
-        :form-data="currentCustomer"
-        @submit="handleFormSubmit"
-        @cancel="showFormModal = false"
-      />
-    </n-modal>
-
-    <!-- 分配弹窗 -->
-    <n-modal
-      v-model:show="showAssignModal"
-      title="分配客户"
-      preset="card"
-      class="assign-modal"
-    >
-      <n-form>
-        <n-form-item label="选择负责人">
-          <n-select
-            v-model:value="assignUserId"
-            placeholder="请选择负责人"
-            :options="userOptions"
-            filterable
-          />
-        </n-form-item>
-      </n-form>
-      <template #footer>
-        <div class="modal-footer">
-          <n-button @click="showAssignModal = false">取消</n-button>
-          <n-button type="primary" @click="handleAssignSubmit">确定</n-button>
-        </div>
-      </template>
-    </n-modal>
   </div>
 </template>
 
@@ -160,32 +106,23 @@ import {
   NButton,
   NIcon,
   NSelect,
-  NForm,
-  NFormItem,
-  NPopconfirm,
   useMessage,
   useDialog,
   type DataTableColumns,
   type PaginationProps
 } from 'naive-ui'
 import {
-  AddOutline,
+  ArrowBackOutline,
   SearchOutline,
-  GlobeOutline,
-  CloudUploadOutline,
-  CreateOutline,
+  DownloadOutline,
   EyeOutline,
-  PersonOutline,
+  GlobeOutline,
   BusinessOutline,
-  TrendingUpOutline,
-  StarOutline,
-  TrashOutline,
-  SwapHorizontalOutline
+  TimeOutline
 } from '@vicons/ionicons5'
 import { useRouter } from 'vue-router'
-import { pageCustomers, deleteCustomer, releaseToPool, assignCustomer } from '@/api/business/customer'
+import { pageCustomers, acquireFromPool } from '@/api/business/customer'
 import type { Customer, CustomerQueryParams } from '@/types/business/customer'
-import CustomerForm from '@/components/business/CustomerForm.vue'
 
 const router = useRouter()
 const message = useMessage()
@@ -193,10 +130,9 @@ const dialog = useDialog()
 
 // 迷你统计数据
 const miniStats = ref([
-  { key: 'total', label: '全部客户', value: '0', icon: BusinessOutline, class: 'blue' },
-  { key: 'levelA', label: 'A级客户', value: '0', icon: StarOutline, class: 'red' },
-  { key: 'levelB', label: 'B级客户', value: '0', icon: TrendingUpOutline, class: 'orange' },
-  { key: 'pool', label: '公海客户', value: '0', icon: GlobeOutline, class: 'gray' }
+  { key: 'total', label: '公海客户总数', value: '0', icon: GlobeOutline, class: 'blue' },
+  { key: 'today', label: '今日新增', value: '0', icon: TimeOutline, class: 'green' },
+  { key: 'week', label: '本周新增', value: '0', icon: BusinessOutline, class: 'orange' }
 ])
 
 // 搜索参数
@@ -204,18 +140,10 @@ const searchParams = reactive<CustomerQueryParams>({
   pageNum: 1,
   pageSize: 10,
   name: '',
-  level: undefined,
   industry: undefined,
-  status: 1 // 默认查询正常客户
+  status: 2, // 公海客户状态
+  isPublicPool: true
 })
-
-// 级别选项
-const levelOptions = [
-  { label: 'A级 - 重要', value: 'A' },
-  { label: 'B级 - 普通', value: 'B' },
-  { label: 'C级 - 一般', value: 'C' },
-  { label: 'D级 - 低', value: 'D' }
-]
 
 // 行业选项
 const industryOptions = [
@@ -228,19 +156,9 @@ const industryOptions = [
   { label: '其他', value: '其他' }
 ]
 
-// 用户选项（用于分配）
-const userOptions = ref<{ label: string; value: number }[]>([])
-
 const loading = ref(false)
 const dataList = ref<Customer[]>([])
 const selectedRowKeys = ref<number[]>([])
-const showFormModal = ref(false)
-const showAssignModal = ref(false)
-const formTitle = ref('新增客户')
-const currentCustomer = ref<Partial<Customer>>({})
-const assignCustomerId = ref<number>(0)
-const assignUserId = ref<number | null>(null)
-const customerFormRef = ref()
 
 // 分页配置
 const pagination = reactive<PaginationProps>({
@@ -322,19 +240,14 @@ const columns: DataTableColumns<Customer> = [
     width: 140
   },
   {
-    title: '负责人',
-    key: 'ownerName',
-    width: 100
-  },
-  {
-    title: '创建时间',
-    key: 'createTime',
+    title: '释放时间',
+    key: 'updateTime',
     width: 160
   },
   {
     title: '操作',
     key: 'actions',
-    width: 220,
+    width: 160,
     fixed: 'right',
     render: (row) =>
       h('div', { class: 'action-buttons' }, [
@@ -344,38 +257,15 @@ const columns: DataTableColumns<Customer> = [
             class: 'action-btn view',
             onClick: () => handleView(row.id)
           },
-          [h(NIcon, { size: 14 }, { default: () => h(EyeOutline) }), '详情']
+          [h(NIcon, { size: 14 }, { default: () => h(EyeOutline) }), '查看']
         ),
         h(
           'button',
           {
-            class: 'action-btn edit',
-            onClick: () => handleEdit(row)
+            class: 'action-btn acquire',
+            onClick: () => handleAcquire(row.id)
           },
-          [h(NIcon, { size: 14 }, { default: () => h(CreateOutline) }), '编辑']
-        ),
-        h(
-          'button',
-          {
-            class: 'action-btn assign',
-            onClick: () => handleAssign(row.id)
-          },
-          [h(NIcon, { size: 14 }, { default: () => h(SwapHorizontalOutline) }), '分配']
-        ),
-        h(
-          NPopconfirm,
-          {
-            onPositiveClick: () => handleRelease(row.id)
-          },
-          {
-            default: () => '确定要将该客户释放到公海吗？',
-            trigger: () =>
-              h(
-                'button',
-                { class: 'action-btn release' },
-                [h(NIcon, { size: 14 }, { default: () => h(CloudUploadOutline) }), '释放']
-              )
-          }
+          [h(NIcon, { size: 14 }, { default: () => h(DownloadOutline) }), '领取']
         )
       ])
   }
@@ -384,12 +274,7 @@ const columns: DataTableColumns<Customer> = [
 // 更新统计数据
 const updateStats = () => {
   const total = pagination.itemCount || 0
-  const levelA = dataList.value.filter(c => c.level === 'A').length
-  const levelB = dataList.value.filter(c => c.level === 'B').length
-
   miniStats.value[0].value = String(total)
-  miniStats.value[1].value = String(levelA)
-  miniStats.value[2].value = String(levelB)
 }
 
 // 加载数据
@@ -417,24 +302,14 @@ const handleSearch = () => {
 // 重置
 const handleReset = () => {
   searchParams.name = ''
-  searchParams.level = undefined
   searchParams.industry = undefined
   searchParams.pageNum = 1
   loadData()
 }
 
-// 新增
-const handleAdd = () => {
-  formTitle.value = '新增客户'
-  currentCustomer.value = {}
-  showFormModal.value = true
-}
-
-// 编辑
-const handleEdit = (row: Customer) => {
-  formTitle.value = '编辑客户'
-  currentCustomer.value = { ...row }
-  showFormModal.value = true
+// 返回客户列表
+const handleBack = () => {
+  router.push('/business/customer')
 }
 
 // 查看详情
@@ -442,71 +317,37 @@ const handleView = (id: number) => {
   router.push(`/business/customer/${id}`)
 }
 
-// 释放到公海
-const handleRelease = async (id: number) => {
+// 领取客户
+const handleAcquire = async (id: number) => {
   try {
-    await releaseToPool(id)
-    message.success('已释放到公海')
+    await acquireFromPool(id)
+    message.success('领取成功')
     loadData()
   } catch (error) {
-    message.error('释放失败')
+    message.error('领取失败')
   }
 }
 
-// 批量释放
-const handleBatchRelease = () => {
-  dialog.warning({
-    title: '确认释放',
-    content: `确定要将选中的 ${selectedRowKeys.value.length} 个客户释放到公海吗？`,
+// 批量领取
+const handleBatchAcquire = () => {
+  dialog.info({
+    title: '确认领取',
+    content: `确定要领取选中的 ${selectedRowKeys.value.length} 个客户吗？`,
     positiveText: '确定',
     negativeText: '取消',
     onPositiveClick: async () => {
       try {
         for (const id of selectedRowKeys.value) {
-          await releaseToPool(id)
+          await acquireFromPool(id)
         }
-        message.success('批量释放成功')
+        message.success('批量领取成功')
         selectedRowKeys.value = []
         loadData()
       } catch (error) {
-        message.error('批量释放失败')
+        message.error('批量领取失败')
       }
     }
   })
-}
-
-// 分配客户
-const handleAssign = (id: number) => {
-  assignCustomerId.value = id
-  assignUserId.value = null
-  showAssignModal.value = true
-}
-
-// 分配提交
-const handleAssignSubmit = async () => {
-  if (!assignUserId.value) {
-    message.warning('请选择负责人')
-    return
-  }
-  try {
-    await assignCustomer(assignCustomerId.value, assignUserId.value)
-    message.success('分配成功')
-    showAssignModal.value = false
-    loadData()
-  } catch (error) {
-    message.error('分配失败')
-  }
-}
-
-// 跳转公海池
-const handleGoToPool = () => {
-  router.push('/business/customer/pool')
-}
-
-// 表单提交
-const handleFormSubmit = () => {
-  showFormModal.value = false
-  loadData()
 }
 
 // 选择行
@@ -521,11 +362,11 @@ onMounted(() => {
 
 <style scoped>
 /* ========================================
-   客户管理页面样式
+   公海池页面样式
    遵循章程UI/UX设计规范
    ======================================== */
 
-.customer-page {
+.pool-page {
   width: 100%;
   min-height: 100%;
   display: flex;
@@ -533,9 +374,7 @@ onMounted(() => {
   gap: 20px;
 }
 
-/* ========================================
-   页面标题
-   ======================================== */
+/* 页面标题 */
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -577,25 +416,7 @@ onMounted(() => {
   border-color: #cbd5e1;
 }
 
-.primary-btn {
-  height: 40px;
-  padding: 0 20px;
-  border-radius: 10px;
-  font-weight: 500;
-  background: #2563eb;
-  border: none;
-  transition: all 0.3s ease;
-}
-
-.primary-btn:hover {
-  background: #1d4ed8;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 40px rgba(37, 99, 235, 0.3);
-}
-
-/* ========================================
-   迷你统计卡片
-   ======================================== */
+/* 迷你统计卡片 */
 .stats-row {
   display: flex;
   gap: 16px;
@@ -632,19 +453,14 @@ onMounted(() => {
   color: #2563eb;
 }
 
-.mini-stat-icon.red {
-  background: #fee2e2;
-  color: #ef4444;
+.mini-stat-icon.green {
+  background: #dcfce7;
+  color: #22c55e;
 }
 
 .mini-stat-icon.orange {
   background: #fef3c7;
   color: #f59e0b;
-}
-
-.mini-stat-icon.gray {
-  background: #f1f5f9;
-  color: #64748b;
 }
 
 .mini-stat-info {
@@ -664,9 +480,7 @@ onMounted(() => {
   color: #64748b;
 }
 
-/* ========================================
-   筛选卡片
-   ======================================== */
+/* 筛选卡片 */
 .filter-card {
   background: white;
   border-radius: 16px;
@@ -771,9 +585,7 @@ onMounted(() => {
   font-weight: 500;
 }
 
-/* ========================================
-   数据表格
-   ======================================== */
+/* 数据表格 */
 .table-card {
   flex: 1;
   background: white;
@@ -867,28 +679,12 @@ onMounted(() => {
   background: #dbeafe;
 }
 
-:deep(.action-btn.edit) {
-  color: #f59e0b;
-}
-
-:deep(.action-btn.edit:hover) {
-  background: #fef3c7;
-}
-
-:deep(.action-btn.assign) {
+:deep(.action-btn.acquire) {
   color: #22c55e;
 }
 
-:deep(.action-btn.assign:hover) {
+:deep(.action-btn.acquire:hover) {
   background: #dcfce7;
-}
-
-:deep(.action-btn.release) {
-  color: #64748b;
-}
-
-:deep(.action-btn.release:hover) {
-  background: #f1f5f9;
 }
 
 /* 分页样式 */
@@ -897,37 +693,7 @@ onMounted(() => {
   border-top: 1px solid #f1f5f9;
 }
 
-/* ========================================
-   弹窗样式
-   ======================================== */
-.form-modal {
-  width: 800px;
-}
-
-.form-modal :deep(.n-card-header) {
-  padding: 20px 24px;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.form-modal :deep(.n-card-header__main) {
-  font-size: 18px;
-  font-weight: 600;
-  color: #0f172a;
-}
-
-.assign-modal {
-  width: 480px;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
-/* ========================================
-   响应式设计
-   ======================================== */
+/* 响应式设计 */
 @media (max-width: 1280px) {
   .stats-row {
     flex-wrap: wrap;
@@ -947,7 +713,6 @@ onMounted(() => {
 
   .header-actions {
     width: 100%;
-    flex-wrap: wrap;
   }
 
   .stats-row {
@@ -978,12 +743,9 @@ onMounted(() => {
   }
 }
 
-/* ========================================
-   减少动画 - 无障碍
-   ======================================== */
+/* 减少动画 - 无障碍 */
 @media (prefers-reduced-motion: reduce) {
-  .mini-stat:hover,
-  .primary-btn:hover {
+  .mini-stat:hover {
     transform: none;
   }
 }

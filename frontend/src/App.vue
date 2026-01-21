@@ -1,5 +1,5 @@
 <template>
-  <n-config-provider :theme="theme" :locale="zhCN" :date-locale="dateZhCN">
+  <n-config-provider :theme="null" :locale="zhCN" :date-locale="dateZhCN">
     <n-loading-bar-provider>
       <n-dialog-provider>
         <n-notification-provider>
@@ -13,14 +13,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import {
   NConfigProvider,
   NLoadingBarProvider,
   NDialogProvider,
   NNotificationProvider,
   NMessageProvider,
-  darkTheme,
   zhCN,
   dateZhCN
 } from 'naive-ui'
@@ -29,9 +28,6 @@ import AppContent from './AppContent.vue'
 
 // 应用 Store
 const appStore = useAppStore()
-
-// 主题配置
-const theme = computed(() => (appStore.isDark ? darkTheme : null))
 
 // 应用初始化
 onMounted(() => {

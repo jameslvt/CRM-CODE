@@ -1,0 +1,384 @@
+/**
+ * CRM 系统全局样式
+ * 企业级简约大气风格
+ */
+
+@import './variables.scss';
+
+// ============================================
+// 字体导入
+// ============================================
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+// ============================================
+// 全局重置
+// ============================================
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: $font-family-body;
+  font-size: $font-size-base;
+  line-height: $line-height-normal;
+  color: $text-primary;
+  background-color: $bg-page;
+}
+
+// ============================================
+// 页面容器通用样式
+// ============================================
+
+.page-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-base;
+  padding: $spacing-base;
+  background-color: $bg-page;
+  font-family: $font-family-body;
+}
+
+// ============================================
+// 卡片通用样式
+// ============================================
+
+.card-base {
+  background: $bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  border: 1px solid $border-light;
+}
+
+.toolbar-card {
+  flex-shrink: 0;
+
+  .toolbar-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: $spacing-md;
+  }
+
+  .search-input {
+    width: 280px;
+    min-width: 200px;
+  }
+
+  .filter-select {
+    width: 180px;
+    min-width: 150px;
+  }
+
+  .flex-spacer {
+    flex: 1;
+    min-width: $spacing-base;
+  }
+}
+
+.table-card {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  :deep(.n-card__content) {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  :deep(.n-data-table) {
+    flex: 1;
+  }
+}
+
+// ============================================
+// Naive UI 组件覆盖样式
+// ============================================
+
+// 主按钮样式
+:deep(.n-button--primary-type) {
+  background-color: $primary-color;
+  border-color: $primary-color;
+
+  &:hover {
+    background-color: $primary-hover;
+    border-color: $primary-hover;
+  }
+
+  &:active {
+    background-color: $primary-active;
+    border-color: $primary-active;
+  }
+}
+
+// 按钮悬停效果
+:deep(.n-button) {
+  transition: all $transition-base;
+  cursor: pointer;
+  font-family: $font-family-body;
+  font-weight: $font-weight-medium;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// 输入框聚焦样式
+:deep(.n-input:focus-within),
+:deep(.n-input-number:focus-within),
+:deep(.n-select:focus-within),
+:deep(.n-tree-select:focus-within) {
+  border-color: $primary-color;
+  box-shadow: 0 0 0 2px rgba($primary-color, 0.1);
+}
+
+// 卡片标题样式
+:deep(.n-card-header__main),
+:deep(.n-modal-card-header),
+:deep(.n-data-table th) {
+  font-family: $font-family-heading;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+}
+
+// 表格行悬停效果
+:deep(.n-data-table-tr:hover) {
+  background-color: $bg-hover;
+}
+
+// 表格加载状态
+:deep(.n-data-table.n-data-table--loading) {
+  opacity: 0.6;
+}
+
+// 标签样式
+:deep(.n-tag) {
+  font-weight: $font-weight-medium;
+  padding: 4px 12px;
+  border-radius: $radius-md;
+}
+
+// 表单项间距
+:deep(.n-form-item) {
+  margin-bottom: $spacing-lg;
+}
+
+// 分页器样式
+:deep(.n-pagination) {
+  font-family: $font-family-body;
+}
+
+// ============================================
+// 自定义滚动条
+// ============================================
+
+:deep(.n-data-table-wrapper),
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db #f3f4f6;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: $radius-sm;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: $radius-sm;
+
+    &:hover {
+      background: #9ca3af;
+    }
+  }
+}
+
+// ============================================
+// 可访问性
+// ============================================
+
+// 焦点状态
+:deep(.n-button:focus-visible),
+:deep(.n-input:focus-within),
+:deep(.n-select:focus-within),
+:deep(.n-tree-select:focus-within),
+:deep(.n-input-number:focus-within) {
+  outline: 2px solid $primary-color;
+  outline-offset: 2px;
+}
+
+// 减少动画
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// ============================================
+// 响应式设计
+// ============================================
+
+@media (max-width: $breakpoint-md) {
+  .page-container {
+    padding: $spacing-md;
+    gap: $spacing-md;
+  }
+
+  .toolbar-card {
+    .toolbar-row {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .search-input,
+    .filter-select {
+      width: 100%;
+    }
+
+    .flex-spacer {
+      display: none;
+    }
+  }
+}
+
+// ============================================
+// 动画效果
+// ============================================
+
+// 淡入动画
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+// 卡片进入动画
+@keyframes cardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-slide-in {
+  animation: cardSlideIn 0.4s ease-out;
+}
+
+// ============================================
+// 状态颜色类
+// ============================================
+
+.status-success {
+  color: $success-color;
+}
+
+.status-warning {
+  color: $warning-color;
+}
+
+.status-error {
+  color: $error-color;
+}
+
+.status-info {
+  color: $info-color;
+}
+
+// ============================================
+// 文本工具类
+// ============================================
+
+.text-primary {
+  color: $text-primary;
+}
+
+.text-secondary {
+  color: $text-secondary;
+}
+
+.text-tertiary {
+  color: $text-tertiary;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.font-medium {
+  font-weight: $font-weight-medium;
+}
+
+.font-semibold {
+  font-weight: $font-weight-semibold;
+}
+
+.font-bold {
+  font-weight: $font-weight-bold;
+}
+
+// ============================================
+// 间距工具类
+// ============================================
+
+.mt-sm { margin-top: $spacing-sm; }
+.mt-md { margin-top: $spacing-md; }
+.mt-base { margin-top: $spacing-base; }
+.mt-lg { margin-top: $spacing-lg; }
+.mt-xl { margin-top: $spacing-xl; }
+
+.mb-sm { margin-bottom: $spacing-sm; }
+.mb-md { margin-bottom: $spacing-md; }
+.mb-base { margin-bottom: $spacing-base; }
+.mb-lg { margin-bottom: $spacing-lg; }
+.mb-xl { margin-bottom: $spacing-xl; }
+
+.p-sm { padding: $spacing-sm; }
+.p-md { padding: $spacing-md; }
+.p-base { padding: $spacing-base; }
+.p-lg { padding: $spacing-lg; }
+.p-xl { padding: $spacing-xl; }

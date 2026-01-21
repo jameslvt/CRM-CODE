@@ -255,12 +255,12 @@
 
 ### 5.5 前端 - 页面
 
-- [ ] T112 [US3] 创建客户列表页面 `frontend/src/views/business/customer/index.vue`
-- [ ] T113 [US3] 创建客户详情页面（360度视图）`frontend/src/views/business/customer/detail.vue`
-- [ ] T114 [US3] 创建客户表单组件 `frontend/src/components/business/CustomerForm.vue`
-- [ ] T115 [US3] 创建联系人列表组件 `frontend/src/components/business/ContactList.vue`
-- [ ] T116 [US3] 创建联系人表单组件 `frontend/src/components/business/ContactForm.vue`
-- [ ] T117 [US3] 创建公海池页面 `frontend/src/views/business/customer/pool.vue`
+- [x] T112 [US3] 创建客户列表页面 `frontend/src/views/business/customer/index.vue`
+- [x] T113 [US3] 创建客户详情页面（360度视图）`frontend/src/views/business/customer/detail.vue`
+- [x] T114 [US3] 创建客户表单组件 `frontend/src/components/business/CustomerForm.vue`
+- [x] T115 [US3] 创建联系人列表组件 `frontend/src/components/business/ContactList.vue`
+- [x] T116 [US3] 创建联系人表单组件 `frontend/src/components/business/ContactForm.vue`
+- [x] T117 [US3] 创建公海池页面 `frontend/src/views/business/customer/pool.vue`
 
 ### 5.6 客户分类与标签
 
@@ -269,7 +269,7 @@
 - [x] T120 [US3] 创建客户标签 Mapper `backend/crm-business/src/main/java/com/crm/business/mapper/CustomerTagMapper.java`
 - [x] T121 [US3] 创建客户标签服务 `backend/crm-business/src/main/java/com/crm/business/service/CustomerTagService.java`（CRUD、标签关联）
 - [x] T122 [US3] 创建客户标签控制器 `backend/crm-business/src/main/java/com/crm/business/controller/CustomerTagController.java`
-- [ ] T123 [US3] 创建客户标签管理组件 `frontend/src/components/business/CustomerTagManager.vue`
+- [x] T123 [US3] 创建客户标签管理组件 `frontend/src/components/business/CustomerTagManager.vue`
 
 **检查点**: 用户故事 3 完成 - 销售人员可以管理客户和联系人，查看 360 度视图（含标签管理）
 

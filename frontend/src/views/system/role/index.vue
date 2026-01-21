@@ -1,75 +1,89 @@
 <template>
-  <div class="role-management-page">
-    <!-- 顶部工具栏 -->
-    <n-card class="toolbar-card" :bordered="false">
-      <n-space vertical :size="16">
-        <n-space :size="12" :wrap="false" class="toolbar-row">
-          <!-- 搜索框 -->
-          <n-input
-            v-model:value="queryParams.keyword"
-            placeholder="搜索角色名称或角色编码"
-            clearable
+  <div class="role-page">
+    <!-- 页面标题 -->
+    <div class="page-header">
+      <div class="header-content">
+        <h1 class="page-title">角色管理</h1>
+        <p class="page-subtitle">管理系统角色，配置数据权限和功能权限</p>
+      </div>
+      <div class="header-actions">
+        <n-button type="primary" @click="handleAdd" class="primary-btn">
+          <template #icon>
+            <n-icon :component="PlusOutlined" />
+          </template>
+          新增角色
+        </n-button>
+      </div>
+    </div>
+
+    <!-- 统计卡片 -->
+    <div class="stats-row">
+      <div class="mini-stat" v-for="stat in miniStats" :key="stat.key">
+        <div class="mini-stat-icon" :class="stat.class">
+          <n-icon size="18">
+            <component :is="stat.icon" />
+          </n-icon>
+        </div>
+        <div class="mini-stat-info">
+          <span class="mini-stat-value">{{ stat.value }}</span>
+          <span class="mini-stat-label">{{ stat.label }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 搜索和筛选 -->
+    <div class="filter-card">
+      <div class="filter-row">
+        <div class="search-box">
+          <n-icon class="search-icon" size="18">
+            <SearchOutlined />
+          </n-icon>
+          <input
+            v-model="queryParams.keyword"
+            type="text"
+            placeholder="搜索角色名称、编码..."
             class="search-input"
             @keyup.enter="handleSearch"
-          >
-            <template #prefix>
-              <n-icon :component="SearchOutlined" />
-            </template>
-          </n-input>
-
-          <!-- 状态筛选 -->
+          />
+        </div>
+        <div class="filter-group">
           <n-select
             v-model:value="queryParams.status"
             :options="statusOptions"
-            placeholder="选择状态"
+            placeholder="状态"
             clearable
             class="filter-select"
-            @update:value="handleSearch"
           />
-
-          <!-- 搜索按钮 -->
-          <n-button type="primary" @click="handleSearch">
+          <n-button @click="handleSearch" class="filter-btn">
             <template #icon>
-              <n-icon :component="SearchOutlined" />
+              <n-icon><SearchOutlined /></n-icon>
             </template>
             搜索
           </n-button>
-
-          <!-- 重置按钮 -->
-          <n-button @click="handleReset">
-            <template #icon>
-              <n-icon :component="ReloadOutlined" />
-            </template>
+          <n-button @click="handleReset" quaternary class="reset-btn">
             重置
           </n-button>
-
-          <div class="flex-spacer"></div>
-
-          <!-- 新增角色按钮 -->
-          <n-button type="primary" @click="handleAdd">
-            <template #icon>
-              <n-icon :component="PlusOutlined" />
-            </template>
-            新增角色
-          </n-button>
-        </n-space>
-      </n-space>
-    </n-card>
+        </div>
+      </div>
+    </div>
 
     <!-- 数据表格 -->
-    <n-card class="table-card" :bordered="false">
+    <div class="table-card">
       <n-data-table
         :columns="columns"
         :data="tableData"
         :loading="loading"
         :pagination="pagination"
         :row-key="(row: Role) => row.id"
-        :scroll-x="1400"
-        striped
+        :scroll-x="1200"
+        :bordered="false"
+        :single-line="false"
+        flex-height
+        class="data-table"
         @update:page="handlePageChange"
         @update:page-size="handlePageSizeChange"
       />
-    </n-card>
+    </div>
 
     <!-- 新增/编辑角色弹窗 -->
     <n-modal
@@ -78,7 +92,7 @@
       preset="card"
       :title="formMode === 'add' ? '新增角色' : '编辑角色'"
       class="form-modal"
-      :style="{ width: '600px' }"
+      :segmented="{ content: 'soft', footer: 'soft' }"
     >
       <n-form
         ref="formRef"
@@ -161,7 +175,7 @@
       preset="card"
       title="分配权限"
       class="permission-modal"
-      :style="{ width: '600px' }"
+      :segmented="{ content: 'soft', footer: 'soft' }"
     >
       <n-spin :show="permissionLoading">
         <div class="permission-toolbar">
@@ -203,22 +217,20 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, h } from 'vue'
 import {
-  NCard,
-  NSpace,
-  NInput,
-  NSelect,
   NButton,
   NIcon,
+  NSelect,
   NDataTable,
   NModal,
   NForm,
   NFormItem,
+  NInput,
+  NInputNumber,
   NRadioGroup,
   NRadio,
-  NInputNumber,
+  NSpace,
   NSpin,
   NTree,
-  NTag,
   NPopconfirm,
   useMessage,
   type DataTableColumns,
@@ -228,11 +240,13 @@ import {
 } from 'naive-ui'
 import {
   SearchOutlined,
-  ReloadOutlined,
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  SafetyOutlined
+  SafetyOutlined,
+  TeamOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined
 } from '@vicons/antd'
 import type { Role, RoleQueryParams, RoleFormData, Permission } from '@/types/system'
 import { RoleStatus, DataScope } from '@/types/system'
@@ -247,27 +261,26 @@ import {
 } from '@/api/system/role'
 import dayjs from 'dayjs'
 
-/**
- * 消息提示实例
- */
+// 消息提示实例
 const message = useMessage()
 
-/**
- * 表单引用
- */
+// 迷你统计数据
+const miniStats = ref([
+  { key: 'total', label: '全部角色', value: '0', icon: TeamOutlined, class: 'blue' },
+  { key: 'enabled', label: '已启用', value: '0', icon: CheckCircleOutlined, class: 'green' },
+  { key: 'disabled', label: '已禁用', value: '0', icon: CloseCircleOutlined, class: 'gray' }
+])
+
+// 表单引用
 const formRef = ref<FormInst | null>(null)
 const permissionTreeRef = ref<TreeInst | null>(null)
 
-/**
- * 加载状态
- */
+// 加载状态
 const loading = ref(false)
 const submitting = ref(false)
 const permissionLoading = ref(false)
 
-/**
- * 查询参数
- */
+// 查询参数
 const queryParams = reactive<RoleQueryParams>({
   current: 1,
   size: 10,
@@ -275,14 +288,10 @@ const queryParams = reactive<RoleQueryParams>({
   status: undefined
 })
 
-/**
- * 表格数据
- */
+// 表格数据
 const tableData = ref<Role[]>([])
 
-/**
- * 分页配置
- */
+// 分页配置
 const pagination = reactive({
   page: 1,
   pageSize: 10,
@@ -293,18 +302,14 @@ const pagination = reactive({
   prefix: (info: { itemCount: number }) => `共 ${info.itemCount} 条`
 })
 
-/**
- * 状态选项
- */
+// 状态选项
 const statusOptions = [
   { label: '全部', value: undefined },
   { label: '启用', value: RoleStatus.ENABLED },
   { label: '禁用', value: RoleStatus.DISABLED }
 ]
 
-/**
- * 数据权限范围选项
- */
+// 数据权限范围选项
 const dataScopeOptions = [
   { label: '全部数据', value: DataScope.ALL },
   { label: '本部门及下级', value: DataScope.DEPT_AND_CHILD },
@@ -312,9 +317,7 @@ const dataScopeOptions = [
   { label: '仅本人', value: DataScope.SELF }
 ]
 
-/**
- * 数据权限范围标签映射
- */
+// 数据权限范围标签映射
 const dataScopeLabels: Record<DataScope, string> = {
   [DataScope.ALL]: '全部数据',
   [DataScope.DEPT_AND_CHILD]: '本部门及下级',
@@ -322,19 +325,13 @@ const dataScopeLabels: Record<DataScope, string> = {
   [DataScope.SELF]: '仅本人'
 }
 
-/**
- * 表单模式：add-新增，edit-编辑
- */
+// 表单模式：add-新增，edit-编辑
 const formMode = ref<'add' | 'edit'>('add')
 
-/**
- * 显示表单弹窗
- */
+// 显示表单弹窗
 const showFormModal = ref(false)
 
-/**
- * 表单数据
- */
+// 表单数据
 const formData = reactive<RoleFormData>({
   name: '',
   code: '',
@@ -344,9 +341,7 @@ const formData = reactive<RoleFormData>({
   remark: undefined
 })
 
-/**
- * 表单验证规则
- */
+// 表单验证规则
 const formRules: FormRules = {
   name: [
     { required: true, message: '请输入角色名称', trigger: 'blur' },
@@ -368,180 +363,121 @@ const formRules: FormRules = {
   ]
 }
 
-/**
- * 显示权限分配弹窗
- */
+// 显示权限分配弹窗
 const showPermissionModal = ref(false)
 
-/**
- * 当前操作的角色 ID
- */
+// 当前操作的角色 ID
 const currentRoleId = ref<number>(0)
 
-/**
- * 权限树数据
- */
+// 权限树数据
 const permissionTreeData = ref<Permission[]>([])
 
-/**
- * 已选中的权限 ID 列表
- */
+// 已选中的权限 ID 列表
 const checkedPermissionKeys = ref<number[]>([])
 
-/**
- * 默认展开的节点
- */
+// 默认展开的节点
 const defaultExpandedKeys = ref<number[]>([])
 
-/**
- * 表格列配置
- */
+// 状态颜色映射
+const statusColorMap: Record<number, { bg: string; color: string; label: string }> = {
+  [RoleStatus.ENABLED]: { bg: '#dcfce7', color: '#22c55e', label: '启用' },
+  [RoleStatus.DISABLED]: { bg: '#f1f5f9', color: '#64748b', label: '禁用' }
+}
+
+// 获取状态标签
+const getStatusTag = (status: number) => {
+  const config = statusColorMap[status] || statusColorMap[RoleStatus.DISABLED]
+  return h(
+    'span',
+    {
+      class: 'status-tag',
+      style: { background: config.bg, color: config.color }
+    },
+    config.label
+  )
+}
+
+// 获取数据权限标签
+const getDataScopeTag = (dataScope: DataScope) => {
+  return h(
+    'span',
+    {
+      class: 'scope-tag',
+      style: { background: '#dbeafe', color: '#2563eb' }
+    },
+    dataScopeLabels[dataScope]
+  )
+}
+
+// 表格列配置
 const columns: DataTableColumns<Role> = [
-  {
-    title: '序号',
-    key: 'index',
-    width: 70,
-    align: 'center',
-    render: (_row, index) => {
-      return (pagination.page - 1) * pagination.pageSize + index + 1
-    }
-  },
   {
     title: '角色名称',
     key: 'name',
     width: 150,
-    ellipsis: {
-      tooltip: true
-    }
+    render: (row) =>
+      h('div', { class: 'role-cell' }, [
+        h('span', { class: 'role-name' }, row.name),
+        h('span', { class: 'role-code' }, row.code)
+      ])
   },
   {
-    title: '角色编码',
-    key: 'code',
-    width: 150,
-    ellipsis: {
-      tooltip: true
-    }
-  },
-  {
-    title: '数据权限范围',
+    title: '数据权限',
     key: 'dataScope',
-    width: 150,
-    align: 'center',
-    render: (row) => {
-      return h(
-        NTag,
-        {
-          type: 'info',
-          size: 'small'
-        },
-        {
-          default: () => dataScopeLabels[row.dataScope]
-        }
-      )
-    }
+    width: 140,
+    render: (row) => getDataScopeTag(row.dataScope)
   },
   {
     title: '排序',
     key: 'sort',
-    width: 100,
-    align: 'center'
+    width: 80
   },
   {
     title: '状态',
     key: 'status',
     width: 100,
-    align: 'center',
-    render: (row) => {
-      return h(
-        NTag,
-        {
-          type: row.status === RoleStatus.ENABLED ? 'success' : 'error',
-          size: 'small'
-        },
-        {
-          default: () => (row.status === RoleStatus.ENABLED ? '启用' : '禁用')
-        }
-      )
-    }
+    render: (row) => getStatusTag(row.status)
   },
   {
     title: '创建时间',
     key: 'createTime',
-    width: 180,
-    render: (row) => {
-      return dayjs(row.createTime).format('YYYY-MM-DD HH:mm:ss')
-    }
+    width: 160,
+    render: (row) => dayjs(row.createTime).format('YYYY-MM-DD HH:mm')
   },
   {
     title: '操作',
     key: 'actions',
-    width: 240,
-    align: 'center',
+    width: 200,
     fixed: 'right',
-    render: (row) => {
-      return h(
-        NSpace,
-        { size: 8, justify: 'center' },
-        {
-          default: () => [
-            h(
-              NButton,
-              {
-                size: 'small',
-                type: 'primary',
-                text: true,
-                onClick: () => handleEdit(row)
-              },
-              {
-                default: () => '编辑',
-                icon: () => h(NIcon, { component: EditOutlined })
-              }
-            ),
-            h(
-              NButton,
-              {
-                size: 'small',
-                type: 'info',
-                text: true,
-                onClick: () => handleOpenPermissionModal(row)
-              },
-              {
-                default: () => '分配权限',
-                icon: () => h(NIcon, { component: SafetyOutlined })
-              }
-            ),
-            h(
-              NPopconfirm,
-              {
-                onPositiveClick: () => handleDelete(row.id)
-              },
-              {
-                default: () => '确定要删除该角色吗？删除后使用该角色的用户将失去相应权限。',
-                trigger: () =>
-                  h(
-                    NButton,
-                    {
-                      size: 'small',
-                      type: 'error',
-                      text: true
-                    },
-                    {
-                      default: () => '删除',
-                      icon: () => h(NIcon, { component: DeleteOutlined })
-                    }
-                  )
-              }
-            )
-          ]
-        }
-      )
-    }
+    render: (row) =>
+      h('div', { class: 'action-buttons' }, [
+        h('button', { class: 'action-btn edit', onClick: () => handleEdit(row) }, [
+          h(NIcon, { size: 14 }, { default: () => h(EditOutlined) }), '编辑'
+        ]),
+        h('button', { class: 'action-btn permission', onClick: () => handleOpenPermissionModal(row) }, [
+          h(NIcon, { size: 14 }, { default: () => h(SafetyOutlined) }), '权限'
+        ]),
+        h(NPopconfirm, { onPositiveClick: () => handleDelete(row.id) }, {
+          default: () => '确定要删除该角色吗？',
+          trigger: () => h('button', { class: 'action-btn delete' }, [
+            h(NIcon, { size: 14 }, { default: () => h(DeleteOutlined) }), '删除'
+          ])
+        })
+      ])
   }
 ]
 
-/**
- * 加载角色列表
- */
+// 更新统计数据
+function updateStats() {
+  const total = pagination.itemCount
+  const enabled = tableData.value.filter(r => r.status === RoleStatus.ENABLED).length
+  const disabled = tableData.value.filter(r => r.status === RoleStatus.DISABLED).length
+  miniStats.value[0].value = String(total)
+  miniStats.value[1].value = String(enabled)
+  miniStats.value[2].value = String(disabled)
+}
+
+// 加载角色列表
 async function loadRoleList() {
   loading.value = true
   try {
@@ -552,6 +488,7 @@ async function loadRoleList() {
       pagination.pageSize = res.data.size
       pagination.pageCount = res.data.pages
       pagination.itemCount = res.data.total
+      updateStats()
     }
   } catch (error) {
     message.error('加载角色列表失败')
@@ -804,67 +741,398 @@ onMounted(() => {
 
 <style scoped>
 /* 页面容器 */
-.role-management-page {
-  width: 100%;
-  height: 100%;
+.role-page {
+  padding: 24px;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+/* 页面标题 */
+.page-header {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.header-content {
+  flex: 1;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.02em;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.primary-btn {
+  height: 40px;
+  padding: 0 20px;
+  font-weight: 600;
+  border-radius: 8px;
+  background: #2563eb;
+  border-color: #2563eb;
+  transition: all 0.2s ease;
+}
+
+.primary-btn:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+/* 统计卡片行 */
+.stats-row {
+  display: flex;
   gap: 16px;
-  padding: 16px;
-  background-color: #f5f7fa;
-  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  margin-bottom: 20px;
 }
 
-/* 工具栏卡片 */
-.toolbar-card {
-  flex-shrink: 0;
-}
-
-.toolbar-row {
+.mini-stat {
   display: flex;
   align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  min-width: 160px;
+  transition: all 0.2s ease;
+}
+
+.mini-stat:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.mini-stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mini-stat-icon.blue {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.mini-stat-icon.green {
+  background: #dcfce7;
+  color: #22c55e;
+}
+
+.mini-stat-icon.gray {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.mini-stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.mini-stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.mini-stat-label {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* 筛选卡片 */
+.filter-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
   flex-wrap: wrap;
 }
 
+.search-box {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+}
+
 .search-input {
-  width: 280px;
-  min-width: 200px;
+  width: 100%;
+  height: 40px;
+  padding: 0 16px 0 44px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #0f172a;
+  background: #f8fafc;
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.search-input::placeholder {
+  color: #94a3b8;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .filter-select {
-  width: 180px;
-  min-width: 150px;
+  width: 140px;
 }
 
-.flex-spacer {
-  flex: 1;
-  min-width: 16px;
+.filter-select :deep(.n-base-selection) {
+  --n-height: 40px;
+  --n-border-radius: 8px;
+  --n-border: 1px solid #e2e8f0;
+  --n-border-hover: 1px solid #cbd5e1;
+  --n-border-focus: 1px solid #2563eb;
+  --n-box-shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  background: #f8fafc;
+}
+
+.filter-btn {
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #334155;
+}
+
+.filter-btn:hover {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+.reset-btn {
+  height: 40px;
+  padding: 0 16px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.reset-btn:hover {
+  color: #334155;
 }
 
 /* 表格卡片 */
 .table-card {
-  flex: 1;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
 }
 
-.table-card :deep(.n-card__content) {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+.data-table {
+  --n-th-color: #f8fafc;
+  --n-th-text-color: #475569;
+  --n-td-text-color: #334155;
+  --n-border-color: #e2e8f0;
+  --n-th-font-weight: 600;
 }
 
-.table-card :deep(.n-data-table) {
-  flex: 1;
+.data-table :deep(.n-data-table-thead) {
+  background: #f8fafc;
+}
+
+.data-table :deep(.n-data-table-th) {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 14px 16px;
+}
+
+.data-table :deep(.n-data-table-td) {
+  padding: 14px 16px;
+}
+
+.data-table :deep(.n-data-table-tr:hover) {
+  background: #f8fafc;
+}
+
+/* 角色单元格 */
+.role-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.role-name {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.role-code {
+  font-size: 12px;
+  color: #94a3b8;
+  font-family: 'SF Mono', Monaco, monospace;
+}
+
+/* 状态标签 */
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* 数据权限标签 */
+.scope-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* 操作按钮 */
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn.edit {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.action-btn.edit:hover {
+  background: #bfdbfe;
+}
+
+.action-btn.permission {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.action-btn.permission:hover {
+  background: #fde68a;
+}
+
+.action-btn.delete {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.action-btn.delete:hover {
+  background: #fecaca;
+}
+
+/* 弹窗样式 */
+.form-modal,
+.permission-modal {
+  width: 560px;
+}
+
+.form-modal :deep(.n-card-header),
+.permission-modal :deep(.n-card-header) {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.form-modal :deep(.n-card-header__main),
+.permission-modal :deep(.n-card-header__main) {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.form-modal :deep(.n-card__content),
+.permission-modal :deep(.n-card__content) {
+  padding: 24px;
+}
+
+.form-modal :deep(.n-card__footer),
+.permission-modal :deep(.n-card__footer) {
+  padding: 16px 24px;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* 表单样式 */
+.form-modal :deep(.n-form-item-label) {
+  font-weight: 500;
+  color: #334155;
+}
+
+.form-modal :deep(.n-input),
+.form-modal :deep(.n-input-number),
+.form-modal :deep(.n-select) {
+  --n-border-radius: 8px;
+  --n-height: 40px;
 }
 
 /* 权限工具栏 */
 .permission-toolbar {
   margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.permission-toolbar :deep(.n-button) {
+  border-radius: 6px;
 }
 
 /* 权限树 */
@@ -874,155 +1142,100 @@ onMounted(() => {
   padding: 8px 0;
 }
 
+.permission-tree :deep(.n-tree-node-content) {
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.permission-tree :deep(.n-tree-node-content:hover) {
+  background: #f1f5f9;
+}
+
+/* 自定义滚动条 */
+.permission-tree::-webkit-scrollbar {
+  width: 6px;
+}
+
+.permission-tree::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.permission-tree::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.permission-tree::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
 /* 响应式设计 */
-@media (max-width: 768px) {
-  .role-management-page {
-    padding: 12px;
-    gap: 12px;
+@media (max-width: 1024px) {
+  .stats-row {
+    flex-wrap: wrap;
   }
 
-  .toolbar-row {
+  .mini-stat {
+    flex: 1;
+    min-width: 140px;
+  }
+}
+
+@media (max-width: 768px) {
+  .role-page {
+    padding: 16px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .primary-btn {
+    width: 100%;
+  }
+
+  .filter-row {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .search-input,
-  .filter-select {
-    width: 100%;
+  .search-box {
+    max-width: none;
   }
 
-  .flex-spacer {
-    display: none;
+  .filter-group {
+    flex-wrap: wrap;
+  }
+
+  .filter-select {
+    flex: 1;
+    min-width: 120px;
   }
 
   .form-modal,
   .permission-modal {
     width: 100% !important;
-    max-width: 600px;
+    max-width: 560px;
   }
 }
 
-/* 可访问性：焦点状态 */
-:deep(.n-button:focus-visible),
-:deep(.n-input:focus-within),
-:deep(.n-select:focus-within),
-:deep(.n-input-number:focus-within) {
-  outline: 2px solid #2563eb;
-  outline-offset: 2px;
-}
-
-/* 可访问性：减少动画 */
+/* 减少动画 - 无障碍 */
 @media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  .mini-stat,
+  .primary-btn,
+  .action-btn,
+  .search-input {
+    transition: none;
   }
-}
 
-/* 悬停效果 */
-:deep(.n-button) {
-  transition: all 0.2s ease-in-out;
-  cursor: pointer;
-}
-
-:deep(.n-button:hover) {
-  transform: translateY(-1px);
-}
-
-:deep(.n-button:active) {
-  transform: translateY(0);
-}
-
-/* 主按钮样式 - 企业级蓝色 */
-:deep(.n-button--primary-type) {
-  background-color: #2563eb;
-  border-color: #2563eb;
-}
-
-:deep(.n-button--primary-type:hover) {
-  background-color: #1d4ed8;
-  border-color: #1d4ed8;
-}
-
-:deep(.n-button--primary-type:active) {
-  background-color: #1e40af;
-  border-color: #1e40af;
-}
-
-/* 加载状态 */
-:deep(.n-data-table.n-data-table--loading) {
-  opacity: 0.6;
-}
-
-/* 自定义滚动条 */
-:deep(.n-data-table-wrapper),
-.permission-tree {
-  scrollbar-width: thin;
-  scrollbar-color: #d1d5db #f3f4f6;
-}
-
-:deep(.n-data-table-wrapper::-webkit-scrollbar),
-.permission-tree::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-:deep(.n-data-table-wrapper::-webkit-scrollbar-track),
-.permission-tree::-webkit-scrollbar-track {
-  background: #f3f4f6;
-  border-radius: 4px;
-}
-
-:deep(.n-data-table-wrapper::-webkit-scrollbar-thumb),
-.permission-tree::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 4px;
-}
-
-:deep(.n-data-table-wrapper::-webkit-scrollbar-thumb:hover),
-.permission-tree::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
-}
-
-/* 标题字体 - Poppins */
-:deep(.n-card-header__main),
-:deep(.n-modal-card-header),
-:deep(.n-data-table th) {
-  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-weight: 600;
-}
-
-/* 表格行悬停效果 */
-:deep(.n-data-table-tr:hover) {
-  background-color: #f9fafb;
-}
-
-/* 标签样式优化 */
-:deep(.n-tag) {
-  font-weight: 500;
-  padding: 4px 12px;
-}
-
-/* 树形组件样式优化 */
-:deep(.n-tree-node-content) {
-  padding: 6px 0;
-}
-
-:deep(.n-tree-node-content:hover) {
-  background-color: #f3f4f6;
-}
-
-/* 表单项间距优化 */
-:deep(.n-form-item) {
-  margin-bottom: 20px;
-}
-
-/* 输入框聚焦样式 */
-:deep(.n-input:focus-within),
-:deep(.n-input-number:focus-within),
-:deep(.n-select:focus-within) {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+  .primary-btn:hover {
+    transform: none;
+  }
 }
 </style>
