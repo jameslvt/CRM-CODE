@@ -57,6 +57,12 @@ public class Customer extends BaseEntity {
     private String source;
 
     /**
+     * 客户类型
+     */
+    @TableField("type")
+    private String type;
+
+    /**
      * 级别: A、B、C、D
      */
     @TableField("level")

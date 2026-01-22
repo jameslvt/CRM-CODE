@@ -8,7 +8,6 @@ import com.crm.business.entity.Lead;
 import com.crm.business.mapper.LeadMapper;
 import com.crm.common.exception.BusinessException;
 import com.crm.common.result.PageResult;
-import com.crm.common.utils.IdGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -34,7 +33,8 @@ import java.util.stream.Collectors;
 public class LeadService {
 
     private final LeadMapper leadMapper;
-    private final IdGenerator idGenerator;
+    private final CustomerService customerService;
+    private final com.crm.system.service.UserService userService;
 
     /**
      * 线索状态映射
@@ -60,15 +60,87 @@ public class LeadService {
 
         // 转换为DTO
         List<LeadDTO> dtoList = leadPage.getRecords().stream()
-            .map(this::convertToDTO)
-            .collect(Collectors.toList());
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+        // 批量填充负责人名称
+        populateOwnerNames(dtoList);
 
         return new PageResult<>(
-            dtoList,
-            leadPage.getTotal(),
-            leadPage.getCurrent(),
-            leadPage.getSize()
-        );
+                dtoList,
+                leadPage.getTotal(),
+                leadPage.getCurrent(),
+                leadPage.getSize());
+    }
+
+    /**
+     * 根据ID获取线索详情
+     */
+    public LeadDTO getLeadById(Long id) {
+        Lead lead = leadMapper.selectById(id);
+        if (lead == null) {
+            throw new BusinessException("线索不存在");
+        }
+        LeadDTO dto = convertToDTO(lead);
+
+        // 填充负责人名称
+        if (lead.getOwnerId() != null) {
+            try {
+                com.crm.system.dto.UserDTO user = userService.getUserById(lead.getOwnerId());
+                dto.setOwnerName(user.getNickname());
+            } catch (Exception e) {
+                log.warn("获取负责人名称失败: {}", lead.getOwnerId());
+            }
+        }
+
+        return dto;
+    }
+
+    // ... (rest of the methods omitted for brevity, keeping them as is) ...
+    // Note: Since I cannot use "..." in replacement, I must include all unchanged
+    // methods or be very careful with range.
+    // To be safe, I will implement helper methods and update convertToDTO.
+    // Wait, the ReplacementContent must be contiguous.
+    // I will replace the top part to inject UserService, and the bottom part to
+    // update convertToDTO and add populateOwnerNames.
+    // BUT I can't do two separate chunks in one tool call if they are not
+    // contiguous if using single replace_file_content.
+    // I should use multi_replace_file_content or split into steps.
+    // I'll start by injecting UserService at the top.
+
+    // Actually, I'll allow myself to use multi_replace_file_content if available?
+    // Yes, default_api:multi_replace_file_content is available.
+    // I'll use multi_replace_file_content.
+
+    private static final Map<Integer, String> STATUS_MAP = new HashMap<>();
+
+    static {
+        STATUS_MAP.put(1, "新建");
+        STATUS_MAP.put(2, "跟进中");
+        STATUS_MAP.put(3, "已转化");
+        STATUS_MAP.put(4, "已关闭");
+    }
+
+    /**
+     * 分页查询线索列表
+     */
+    public PageResult<LeadDTO> getLeadList(LeadQueryParams params) {
+        LambdaQueryWrapper<Lead> wrapper = buildQueryWrapper(params);
+
+        // 分页查询
+        Page<Lead> page = new Page<>(params.getPageNum(), params.getPageSize());
+        IPage<Lead> leadPage = leadMapper.selectPage(page, wrapper);
+
+        // 转换为DTO
+        List<LeadDTO> dtoList = leadPage.getRecords().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+        return new PageResult<>(
+                dtoList,
+                leadPage.getTotal(),
+                leadPage.getCurrent(),
+                leadPage.getSize());
     }
 
     /**
@@ -89,7 +161,7 @@ public class LeadService {
     public Long createLead(LeadFormData formData) {
         Lead lead = new Lead();
         BeanUtils.copyProperties(formData, lead);
-        lead.setId(idGenerator.nextId());
+        // 删除手动设置ID,由MyBatis-Plus根据ASSIGN_ID配置自动生成
 
         // 设置默认状态
         if (lead.getStatus() == null) {
@@ -97,7 +169,7 @@ public class LeadService {
         }
 
         leadMapper.insert(lead);
-        log.info("创建线索成功，ID: {}", lead.getId());
+        log.info("创建线索成功,ID: {}", lead.getId());
         return lead.getId();
     }
 
@@ -146,7 +218,7 @@ public class LeadService {
         // 检查是否有已转化的线索
         LambdaQueryWrapper<Lead> wrapper = new LambdaQueryWrapper<>();
         wrapper.in(Lead::getId, ids)
-               .eq(Lead::getStatus, 3);
+                .eq(Lead::getStatus, 3);
         long convertedCount = leadMapper.selectCount(wrapper);
         if (convertedCount > 0) {
             throw new BusinessException("选中的线索中包含已转化的线索，无法删除");
@@ -170,15 +242,39 @@ public class LeadService {
             throw new BusinessException("该线索已转化");
         }
 
-        // TODO: 创建客户记录（需要客户模块实现后补充）
-        Long customerId = idGenerator.nextId();
+        // 调用CustomerService创建客户记录
+        Long customerId = customerService.createFromLead(
+                params.getLeadId(),
+                params.getCustomerName(),
+                params.getCustomerType(),
+                params.getCustomerLevel(),
+                lead.getOwnerId());
+
+        // 如果需要创建商机
+        Long opportunityId = null;
+        if (Boolean.TRUE.equals(params.getCreateOpportunity()) && params.getOpportunityName() != null) {
+            OpportunityDTO opportunityDTO = new OpportunityDTO();
+            opportunityDTO.setName(params.getOpportunityName());
+            opportunityDTO.setCustomerId(customerId);
+            opportunityDTO.setOwnerId(lead.getOwnerId());
+            if (params.getOpportunityAmount() != null) {
+                opportunityDTO.setAmount(new java.math.BigDecimal(params.getOpportunityAmount()));
+            }
+            if (params.getExpectedCloseDate() != null) {
+                // 将时间戳转为LocalDate
+                opportunityDTO.setExpectedDate(
+                        new java.sql.Date(params.getExpectedCloseDate()).toLocalDate());
+            }
+            opportunityId = opportunityService.createOpportunity(opportunityDTO);
+            log.info("线索转化时创建商机成功,商机ID: {}", opportunityId);
+        }
 
         // 更新线索状态为已转化
         lead.setStatus(3);
         lead.setCustomerId(customerId);
         leadMapper.updateById(lead);
 
-        log.info("线索转化成功，线索ID: {}, 客户ID: {}", params.getLeadId(), customerId);
+        log.info("线索转化成功,线索ID: {}, 客户ID: {}, 商机ID: {}", params.getLeadId(), customerId, opportunityId);
         return customerId;
     }
 
@@ -191,10 +287,9 @@ public class LeadService {
         // 关键词搜索（线索名称、公司名称、电话）
         if (StringUtils.hasText(params.getKeyword())) {
             wrapper.and(w -> w
-                .like(Lead::getName, params.getKeyword())
-                .or().like(Lead::getCompany, params.getKeyword())
-                .or().like(Lead::getPhone, params.getKeyword())
-            );
+                    .like(Lead::getName, params.getKeyword())
+                    .or().like(Lead::getCompany, params.getKeyword())
+                    .or().like(Lead::getPhone, params.getKeyword()));
         }
 
         // 来源
@@ -246,8 +341,7 @@ public class LeadService {
         int successCount = 0;
         for (Lead lead : dataList) {
             try {
-                // 设置ID
-                lead.setId(idGenerator.nextId());
+                // 删除手动设置ID,由MyBatis-Plus自动生成
 
                 // 设置默认值
                 if (lead.getStatus() == null) {
@@ -276,6 +370,38 @@ public class LeadService {
         // 导出时不分页，但限制最大数量
         wrapper.last("LIMIT 10000");
         return leadMapper.selectList(wrapper);
+    }
+
+    /**
+     * 获取线索统计数据
+     */
+    public Map<String, Object> getLeadStats() {
+        Map<String, Object> stats = new HashMap<>();
+
+        // 统计总数
+        Long total = leadMapper.selectCount(null);
+        stats.put("total", total);
+
+        // 统计各状态数量
+        // 1: 新建, 2: 跟进中, 3: 已转化, 4: 已失效
+
+        LambdaQueryWrapper<Lead> newWrapper = new LambdaQueryWrapper<>();
+        newWrapper.eq(Lead::getStatus, 1);
+        stats.put("new", leadMapper.selectCount(newWrapper));
+
+        LambdaQueryWrapper<Lead> followingWrapper = new LambdaQueryWrapper<>();
+        followingWrapper.eq(Lead::getStatus, 2);
+        stats.put("following", leadMapper.selectCount(followingWrapper));
+
+        LambdaQueryWrapper<Lead> convertedWrapper = new LambdaQueryWrapper<>();
+        convertedWrapper.eq(Lead::getStatus, 3);
+        stats.put("converted", leadMapper.selectCount(convertedWrapper));
+
+        LambdaQueryWrapper<Lead> invalidWrapper = new LambdaQueryWrapper<>();
+        invalidWrapper.eq(Lead::getStatus, 4);
+        stats.put("invalid", leadMapper.selectCount(invalidWrapper));
+
+        return stats;
     }
 
     /**

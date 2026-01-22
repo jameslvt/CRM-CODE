@@ -42,9 +42,9 @@ public class ContactService {
      * 分页查询联系人列表
      *
      * @param customerId 客户ID
-     * @param name 联系人姓名（模糊查询）
-     * @param pageNum 页码
-     * @param pageSize 每页数量
+     * @param name       联系人姓名（模糊查询）
+     * @param pageNum    页码
+     * @param pageSize   每页数量
      * @return 分页结果
      */
     public PageResult<ContactDTO> getContactList(Long customerId, String name, Integer pageNum, Integer pageSize) {
@@ -60,7 +60,7 @@ public class ContactService {
 
         // 按主要联系人优先，然后按创建时间倒序
         wrapper.orderByDesc(Contact::getIsPrimary)
-               .orderByDesc(Contact::getCreateTime);
+                .orderByDesc(Contact::getCreateTime);
 
         // 分页查询
         Page<Contact> page = new Page<>(pageNum, pageSize);
@@ -68,15 +68,62 @@ public class ContactService {
 
         // 转换为DTO
         List<ContactDTO> dtoList = contactPage.getRecords().stream()
-            .map(this::convertToDTO)
-            .collect(Collectors.toList());
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
 
         return new PageResult<>(
-            dtoList,
-            contactPage.getTotal(),
-            contactPage.getCurrent(),
-            contactPage.getSize()
-        );
+                dtoList,
+                contactPage.getTotal(),
+                contactPage.getCurrent(),
+                contactPage.getSize());
+    }
+
+    /**
+     * 分页查询所有联系人（全局搜索）
+     *
+     * @param customerId 客户ID
+     * @param name       联系人姓名（模糊查询）
+     * @param mobile     手机号（模糊查询）
+     * @param isPrimary  是否主要联系人
+     * @param pageNum    页码
+     * @param pageSize   每页数量
+     * @return 分页结果
+     */
+    public PageResult<ContactDTO> getAllContacts(Long customerId, String name, String mobile, Integer isPrimary,
+            Integer pageNum, Integer pageSize) {
+        LambdaQueryWrapper<Contact> wrapper = new LambdaQueryWrapper<>();
+
+        // 动态查询条件
+        if (customerId != null) {
+            wrapper.eq(Contact::getCustomerId, customerId);
+        }
+        if (StringUtils.hasText(name)) {
+            wrapper.like(Contact::getName, name);
+        }
+        if (StringUtils.hasText(mobile)) {
+            wrapper.like(Contact::getMobile, mobile);
+        }
+        if (isPrimary != null) {
+            wrapper.eq(Contact::getIsPrimary, isPrimary);
+        }
+
+        // 默认排序
+        wrapper.orderByDesc(Contact::getCreateTime);
+
+        // 分页查询
+        Page<Contact> page = new Page<>(pageNum, pageSize);
+        IPage<Contact> contactPage = contactMapper.selectPage(page, wrapper);
+
+        // 转换为DTO
+        List<ContactDTO> dtoList = contactPage.getRecords().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+        return new PageResult<>(
+                dtoList,
+                contactPage.getTotal(),
+                contactPage.getCurrent(),
+                contactPage.getSize());
     }
 
     /**
@@ -88,13 +135,13 @@ public class ContactService {
     public List<ContactDTO> getContactsByCustomerId(Long customerId) {
         LambdaQueryWrapper<Contact> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Contact::getCustomerId, customerId)
-               .orderByDesc(Contact::getIsPrimary)
-               .orderByDesc(Contact::getCreateTime);
+                .orderByDesc(Contact::getIsPrimary)
+                .orderByDesc(Contact::getCreateTime);
 
         List<Contact> contacts = contactMapper.selectList(wrapper);
         return contacts.stream()
-            .map(this::convertToDTO)
-            .collect(Collectors.toList());
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -146,7 +193,7 @@ public class ContactService {
     /**
      * 更新联系人
      *
-     * @param id 联系人ID
+     * @param id       联系人ID
      * @param formData 表单数据
      */
     @Transactional(rollbackFor = Exception.class)
@@ -216,12 +263,12 @@ public class ContactService {
      * 取消其他主要联系人
      *
      * @param customerId 客户ID
-     * @param excludeId 排除的联系人ID
+     * @param excludeId  排除的联系人ID
      */
     private void cancelOtherPrimaryContacts(Long customerId, Long excludeId) {
         LambdaQueryWrapper<Contact> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Contact::getCustomerId, customerId)
-               .eq(Contact::getIsPrimary, 1);
+                .eq(Contact::getIsPrimary, 1);
 
         if (excludeId != null) {
             wrapper.ne(Contact::getId, excludeId);

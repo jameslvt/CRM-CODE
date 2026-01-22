@@ -20,7 +20,7 @@
     <div class="stats-row">
       <div class="mini-stat" v-for="stat in miniStats" :key="stat.key">
         <div class="mini-stat-icon" :class="stat.class">
-          <n-icon size="18">
+          <n-icon size="18" v-if="stat.icon">
             <component :is="stat.icon" />
           </n-icon>
         </div>
@@ -139,7 +139,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, h } from 'vue'
+import { ref, reactive, onMounted, h, markRaw } from 'vue'
 import {
   NButton,
   NIcon,
@@ -176,10 +176,10 @@ const opportunityStore = useOpportunityStore()
 
 // 迷你统计数据
 const miniStats = ref([
-  { key: 'total', label: '全部商机', value: '0', icon: RocketOutline, class: 'blue' },
-  { key: 'amount', label: '预计金额', value: '¥0', icon: CashOutline, class: 'green' },
-  { key: 'won', label: '已赢单', value: '0', icon: CheckmarkCircleOutline, class: 'success' },
-  { key: 'lost', label: '已输单', value: '0', icon: CloseCircleOutline, class: 'gray' }
+  { key: 'total', label: '全部商机', value: '0', icon: markRaw(RocketOutline), class: 'blue' },
+  { key: 'amount', label: '预计金额', value: '¥0', icon: markRaw(CashOutline), class: 'green' },
+  { key: 'won', label: '已赢单', value: '0', icon: markRaw(CheckmarkCircleOutline), class: 'success' },
+  { key: 'lost', label: '已输单', value: '0', icon: markRaw(CloseCircleOutline), class: 'gray' }
 ])
 
 // 搜索参数
@@ -438,12 +438,12 @@ const handleEdit = (row: Opportunity) => {
 }
 
 // 查看详情
-const handleView = (id: number) => {
+const handleView = (id: string) => {
   router.push(`/business/opportunity/${id}`)
 }
 
 // 删除
-const handleDelete = async (id: number) => {
+const handleDelete = async (id: string) => {
   try {
     await deleteOpportunity(id)
     message.success('删除成功')

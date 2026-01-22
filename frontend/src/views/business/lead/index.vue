@@ -146,7 +146,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, h } from 'vue'
+import { ref, reactive, onMounted, h, markRaw } from 'vue'
 import {
   NButton,
   NIcon,
@@ -174,7 +174,7 @@ import {
   CloseCircleOutline
 } from '@vicons/ionicons5'
 import { useRouter } from 'vue-router'
-import { pageLeads, deleteLead, batchDeleteLeads } from '@/api/business/lead'
+import { pageLeads, deleteLead, batchDeleteLeads, getLeadStats } from '@/api/business/lead'
 import type { Lead, LeadQueryParams } from '@/types/business'
 import LeadForm from '@/components/business/LeadForm.vue'
 import LeadConvertDialog from '@/components/business/LeadConvertDialog.vue'
@@ -185,11 +185,11 @@ const dialog = useDialog()
 
 // 迷你统计数据
 const miniStats = ref([
-  { key: 'total', label: '全部线索', value: '1,234', icon: PersonOutline, class: 'blue' },
-  { key: 'new', label: '新建', value: '156', icon: TimeOutline, class: 'purple' },
-  { key: 'following', label: '跟进中', value: '423', icon: TimeOutline, class: 'orange' },
-  { key: 'converted', label: '已转化', value: '567', icon: CheckmarkCircleOutline, class: 'green' },
-  { key: 'invalid', label: '已失效', value: '88', icon: CloseCircleOutline, class: 'gray' }
+  { key: 'total', label: '全部线索', value: '0', icon: markRaw(PersonOutline), class: 'blue' },
+  { key: 'new', label: '新建', value: '0', icon: markRaw(TimeOutline), class: 'purple' },
+  { key: 'following', label: '跟进中', value: '0', icon: markRaw(TimeOutline), class: 'orange' },
+  { key: 'converted', label: '已转化', value: '0', icon: markRaw(CheckmarkCircleOutline), class: 'green' },
+  { key: 'invalid', label: '已失效', value: '0', icon: markRaw(CloseCircleOutline), class: 'gray' }
 ])
 
 // 搜索参数 - 字段名与后端 LeadQueryParams 保持一致
@@ -316,12 +316,13 @@ const columns: DataTableColumns<Lead> = [
   {
     title: '联系电话',
     key: 'phone',
-    width: 120,
-    render: (row) =>
-      h('div', { class: 'contact-cell' }, [
-        h('span', { class: 'contact-phone' }, row.phone),
-        h('span', { class: 'contact-email' }, row.email)
-      ])
+    width: 120
+  },
+  {
+    title: '邮箱',
+    key: 'email',
+    width: 150,
+    ellipsis: { tooltip: true }
   },
   {
     title: '状态',
@@ -343,12 +344,24 @@ const columns: DataTableColumns<Lead> = [
   {
     title: '负责人',
     key: 'ownerName',
-    width: 100
+    width: 100,
+    render: (row) => row.ownerName || '-'
   },
   {
     title: '创建时间',
     key: 'createTime',
-    width: 160
+    width: 160,
+    render: (row) => {
+      if (!row.createTime) return '-'
+      const date = new Date(row.createTime)
+      return date.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    }
   },
   {
     title: '操作',
@@ -405,10 +418,22 @@ const columns: DataTableColumns<Lead> = [
 const loadData = async () => {
   loading.value = true
   try {
-    const result = await pageLeads(searchParams)
-    dataList.value = result.records
-    pagination.itemCount = result.total
-    pagination.page = result.current
+    const [pageResult, statsResult] = await Promise.all([
+      pageLeads(searchParams),
+      getLeadStats()
+    ])
+    
+    // 更新列表
+    dataList.value = pageResult.records
+    pagination.itemCount = pageResult.total
+    pagination.page = pageResult.current
+    
+    // 更新统计
+    miniStats.value[0].value = statsResult.total?.toString() || '0'
+    miniStats.value[1].value = statsResult.new?.toString() || '0'
+    miniStats.value[2].value = statsResult.following?.toString() || '0'
+    miniStats.value[3].value = statsResult.converted?.toString() || '0'
+    miniStats.value[4].value = statsResult.invalid?.toString() || '0'
   } catch (error) {
     message.error('加载数据失败')
   } finally {
@@ -445,12 +470,12 @@ const handleEdit = (row: Lead) => {
 }
 
 // 查看详情
-const handleView = (id: number) => {
+const handleView = (id: string) => {
   router.push(`/business/lead/${id}`)
 }
 
 // 删除
-const handleDelete = async (id: number) => {
+const handleDelete = async (id: string) => {
   try {
     await deleteLead(id)
     message.success('删除成功')
@@ -481,7 +506,7 @@ const handleBatchDelete = () => {
 }
 
 // 转化为客户
-const handleConvert = (id: number) => {
+const handleConvert = (id: string) => {
   convertLeadId.value = id
   showConvertModal.value = true
 }

@@ -253,6 +253,24 @@ const rules: FormRules = {
   ]
 }
 
+// 重置表单
+const resetForm = () => {
+  Object.assign(formData, {
+    id: undefined,
+    name: '',
+    shortName: '',
+    industry: undefined,
+    scale: undefined,
+    source: undefined,
+    level: undefined,
+    phone: '',
+    fax: '',
+    website: '',
+    address: '',
+    remark: ''
+  })
+}
+
 // 监听外部数据变化
 watch(
   () => props.formData,
@@ -279,23 +297,7 @@ watch(
   { immediate: true, deep: true }
 )
 
-// 重置表单
-const resetForm = () => {
-  Object.assign(formData, {
-    id: undefined,
-    name: '',
-    shortName: '',
-    industry: undefined,
-    scale: undefined,
-    source: undefined,
-    level: undefined,
-    phone: '',
-    fax: '',
-    website: '',
-    address: '',
-    remark: ''
-  })
-}
+
 
 // 提交表单
 const handleSubmit = async () => {

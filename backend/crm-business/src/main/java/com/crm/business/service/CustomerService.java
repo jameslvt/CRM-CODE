@@ -10,7 +10,6 @@ import com.crm.business.mapper.ContactMapper;
 import com.crm.business.mapper.CustomerMapper;
 import com.crm.common.exception.BusinessException;
 import com.crm.common.result.PageResult;
-import com.crm.common.utils.IdGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -40,7 +39,6 @@ public class CustomerService {
 
     private final CustomerMapper customerMapper;
     private final ContactMapper contactMapper;
-    private final IdGenerator idGenerator;
 
     /**
      * 客户状态映射
@@ -72,15 +70,14 @@ public class CustomerService {
 
         // 转换为DTO
         List<CustomerDTO> dtoList = customerPage.getRecords().stream()
-            .map(this::convertToDTO)
-            .collect(Collectors.toList());
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
 
         return new PageResult<>(
-            dtoList,
-            customerPage.getTotal(),
-            customerPage.getCurrent(),
-            customerPage.getSize()
-        );
+                dtoList,
+                customerPage.getTotal(),
+                customerPage.getCurrent(),
+                customerPage.getSize());
     }
 
     /**
@@ -117,12 +114,12 @@ public class CustomerService {
         // 联系人列表
         LambdaQueryWrapper<Contact> contactWrapper = new LambdaQueryWrapper<>();
         contactWrapper.eq(Contact::getCustomerId, id)
-                      .orderByDesc(Contact::getIsPrimary)
-                      .orderByDesc(Contact::getCreateTime);
+                .orderByDesc(Contact::getIsPrimary)
+                .orderByDesc(Contact::getCreateTime);
         List<Contact> contacts = contactMapper.selectList(contactWrapper);
         dto.setContacts(contacts.stream()
-            .map(this::convertContactToDTO)
-            .collect(Collectors.toList()));
+                .map(this::convertContactToDTO)
+                .collect(Collectors.toList()));
 
         // TODO: 商机列表（需要商机模块实现后补充）
         // TODO: 合同列表（需要合同模块实现后补充）
@@ -152,7 +149,7 @@ public class CustomerService {
     public Long createCustomer(CustomerFormData formData) {
         Customer customer = new Customer();
         BeanUtils.copyProperties(formData, customer);
-        customer.setId(idGenerator.nextId());
+        // 删除手动设置ID,由MyBatis-Plus自动生成
 
         // 生成客户编码
         customer.setCode(generateCustomerCode());
@@ -170,30 +167,35 @@ public class CustomerService {
     /**
      * 从线索创建客户
      *
-     * @param leadId 线索ID
-     * @param customerName 客户名称
-     * @param ownerId 负责人ID
+     * @param leadId        线索ID
+     * @param customerName  客户名称
+     * @param customerType  客户类型
+     * @param customerLevel 客户级别
+     * @param ownerId       负责人ID
      * @return 客户ID
      */
     @Transactional(rollbackFor = Exception.class)
-    public Long createFromLead(Long leadId, String customerName, Long ownerId) {
+    public Long createFromLead(Long leadId, String customerName, String customerType, String customerLevel,
+            Long ownerId) {
         Customer customer = new Customer();
-        customer.setId(idGenerator.nextId());
+        // 删除手动设置ID,由MyBatis-Plus自动生成
         customer.setName(customerName);
         customer.setCode(generateCustomerCode());
         customer.setLeadId(leadId);
         customer.setOwnerId(ownerId);
+        customer.setType(customerType);
+        customer.setLevel(customerLevel);
         customer.setStatus(1); // 正常
 
         customerMapper.insert(customer);
-        log.info("从线索创建客户成功，线索ID: {}, 客户ID: {}", leadId, customer.getId());
+        log.info("从线索创建客户成功,线索ID: {}, 客户ID: {}, 级别: {}", leadId, customer.getId(), customerLevel);
         return customer.getId();
     }
 
     /**
      * 更新客户
      *
-     * @param id 客户ID
+     * @param id       客户ID
      * @param formData 表单数据
      */
     @Transactional(rollbackFor = Exception.class)
@@ -237,7 +239,7 @@ public class CustomerService {
     /**
      * 释放客户到公海
      *
-     * @param id 客户ID
+     * @param id     客户ID
      * @param reason 释放原因
      */
     @Transactional(rollbackFor = Exception.class)
@@ -261,7 +263,7 @@ public class CustomerService {
     /**
      * 从公海领取客户
      *
-     * @param id 客户ID
+     * @param id      客户ID
      * @param ownerId 领取人ID
      */
     @Transactional(rollbackFor = Exception.class)
@@ -285,7 +287,7 @@ public class CustomerService {
     /**
      * 分配客户
      *
-     * @param id 客户ID
+     * @param id      客户ID
      * @param ownerId 负责人ID
      */
     @Transactional(rollbackFor = Exception.class)

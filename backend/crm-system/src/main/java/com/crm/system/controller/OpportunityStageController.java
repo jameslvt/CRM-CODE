@@ -18,7 +18,7 @@ import java.util.List;
  */
 @Api(tags = "商机阶段配置")
 @RestController
-@RequestMapping("/system/opportunity-stage")
+@RequestMapping("/api/system/opportunity-stage")
 @RequiredArgsConstructor
 public class OpportunityStageController {
 

@@ -250,7 +250,7 @@ const handleEdit = (activity: Activity) => {
 }
 
 // 删除跟进
-const handleDelete = async (id: number) => {
+const handleDelete = async (id: string) => {
   try {
     await deleteActivity(id)
     message.success('删除成功')

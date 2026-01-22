@@ -17,7 +17,7 @@ export async function pageLeads(params: LeadQueryParams): Promise<PageResult<Lea
 /**
  * 根据ID获取线索详情
  */
-export async function getLeadById(id: number): Promise<Lead> {
+export async function getLeadById(id: string): Promise<Lead> {
   const result = await request.get<Lead>(`/business/lead/${id}`)
   return result.data
 }
@@ -25,8 +25,8 @@ export async function getLeadById(id: number): Promise<Lead> {
 /**
  * 创建线索
  */
-export async function saveLead(data: Partial<Lead>): Promise<number> {
-  const result = await request.post<number>('/business/lead', data)
+export async function saveLead(data: Partial<Lead>): Promise<string> {
+  const result = await request.post<string>('/business/lead', data)
   return result.data
 }
 
@@ -40,21 +40,28 @@ export async function updateLead(data: Lead): Promise<void> {
 /**
  * 删除线索
  */
-export async function deleteLead(id: number): Promise<void> {
+export async function deleteLead(id: string): Promise<void> {
   await request.delete<void>(`/business/lead/${id}`)
 }
 
 /**
  * 批量删除线索
  */
-export async function batchDeleteLeads(ids: number[]): Promise<void> {
+export async function batchDeleteLeads(ids: string[]): Promise<void> {
   await request.delete<void>('/business/lead/batch', { data: ids })
 }
 
 /**
  * 转化线索为客户
  */
-export async function convertLead(leadId: number, params: Omit<LeadConvertParams, 'leadId'>): Promise<number> {
-  const result = await request.post<number>('/business/lead/convert', { leadId, ...params })
+export async function convertLead(leadId: string, params: Omit<LeadConvertParams, 'leadId'>): Promise<string> {
+  const result = await request.post<string>('/business/lead/convert', { leadId, ...params })
+  return result.data
+}
+/**
+ * 获取线索统计
+ */
+export async function getLeadStats(): Promise<Record<string, number>> {
+  const result = await request.get<Record<string, number>>('/business/lead/stats')
   return result.data
 }

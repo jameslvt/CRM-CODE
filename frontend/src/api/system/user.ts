@@ -38,7 +38,7 @@ export function pageUsers(params: { pageNum?: number; pageSize?: number; usernam
  * @param id 用户 ID
  * @returns 用户详情
  */
-export function getUserDetail(id: number): Promise<Result<User>> {
+export function getUserDetail(id: string): Promise<Result<User>> {
   return request.get(`/system/users/${id}`)
 }
 
@@ -66,7 +66,7 @@ export function updateUser(id: number, data: UserFormData): Promise<Result<void>
  * @param id 用户 ID
  * @returns 操作结果
  */
-export function deleteUser(id: number): Promise<Result<void>> {
+export function deleteUser(id: string): Promise<Result<void>> {
   return request.delete(`/system/users/${id}`)
 }
 

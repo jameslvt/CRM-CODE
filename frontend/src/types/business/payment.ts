@@ -6,11 +6,11 @@
  * 回款计划实体
  */
 export interface PaymentPlan {
-  id: number
-  contractId: number
+  id: string
+  contractId: string
   contractNo?: string
   contractName?: string
-  customerId?: number
+  customerId?: string
   customerName?: string
   period: number
   planAmount: number
@@ -29,14 +29,14 @@ export interface PaymentPlan {
  * 回款记录实体
  */
 export interface PaymentRecord {
-  id: number
-  planId: number
+  id: string
+  planId: string
   amount: number
   paymentDate: string
   paymentMethod?: string
   paymentMethodName?: string
   remark?: string
-  createBy?: number
+  createBy?: string
   createByName?: string
   createTime?: string
 }
@@ -47,7 +47,7 @@ export interface PaymentRecord {
 export interface PaymentPlanQueryParams {
   pageNum?: number
   pageSize?: number
-  contractId?: number
+  contractId?: string
   status?: number
 }
 
@@ -55,8 +55,8 @@ export interface PaymentPlanQueryParams {
  * 回款计划表单数据
  */
 export interface PaymentPlanFormData {
-  id?: number
-  contractId: number
+  id?: string
+  contractId: string
   period: number
   planAmount: number
   planDate: string
@@ -67,8 +67,8 @@ export interface PaymentPlanFormData {
  * 回款记录表单数据
  */
 export interface PaymentRecordFormData {
-  id?: number
-  planId: number
+  id?: string
+  planId: string
   amount: number
   paymentDate: string
   paymentMethod?: string

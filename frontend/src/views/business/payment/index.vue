@@ -460,7 +460,7 @@ const handleEditPlan = (row: PaymentPlan) => {
 }
 
 // 删除回款计划
-const handleDeletePlan = async (id: number) => {
+const handleDeletePlan = async (id: string) => {
   try {
     await deletePaymentPlan(id)
     message.success('删除成功')

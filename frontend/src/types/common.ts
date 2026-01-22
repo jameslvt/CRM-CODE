@@ -113,7 +113,7 @@ export interface TableColumn {
  */
 export interface UserInfo {
   /** 用户 ID */
-  id: number
+  id: string
   /** 用户名 */
   username: string
   /** 昵称 */
@@ -125,7 +125,7 @@ export interface UserInfo {
   /** 手机号 */
   phone?: string
   /** 部门 ID */
-  deptId?: number
+  deptId?: string
   /** 部门名称 */
   deptName?: string
   /** 状态 */
@@ -164,7 +164,7 @@ export interface LoginResult {
  */
 export interface MenuItem {
   /** 菜单 ID */
-  id: number
+  id: string
   /** 菜单名称 */
   name: string
   /** 菜单标题 */
@@ -176,7 +176,7 @@ export interface MenuItem {
   /** 组件路径 */
   component?: string
   /** 父菜单 ID */
-  parentId?: number
+  parentId?: string
   /** 排序号 */
   sort: number
   /** 是否隐藏 */

@@ -331,7 +331,7 @@ const editingActivity = ref<Activity | null>(null)
 const activityTimelineRef = ref()
 
 // 商机ID
-const opportunityId = computed(() => Number(route.params.id))
+const opportunityId = computed(() => String(route.params.id))
 
 // 阶段配置
 const stages = [
@@ -385,10 +385,10 @@ const isStageCompleted = (stageCode: string) => {
 
 // 加载商机详情
 const loadOpportunity = async () => {
-  const id = Number(route.params.id)
+  const id = String(route.params.id)
   if (!id) {
     message.error('商机ID无效')
-    router.push('/business/opportunity')
+    router.push('/opportunities')
     return
   }
 
@@ -397,7 +397,7 @@ const loadOpportunity = async () => {
     opportunity.value = await getOpportunityById(id)
   } catch (error) {
     message.error('加载商机详情失败')
-    router.push('/business/opportunity')
+    router.push('/opportunities')
   } finally {
     loading.value = false
   }
@@ -405,7 +405,7 @@ const loadOpportunity = async () => {
 
 // 返回列表
 const handleBack = () => {
-  router.push('/business/opportunity')
+  router.push('/opportunities')
 }
 
 // 编辑

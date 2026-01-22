@@ -17,7 +17,7 @@ export const pageCustomers = async (params: CustomerQueryParams): Promise<PageRe
 /**
  * 根据ID获取客户详情
  */
-export const getCustomerById = async (id: number): Promise<Customer> => {
+export const getCustomerById = async (id: string): Promise<Customer> => {
   const result = await request.get<Customer>(`/business/customer/${id}`)
   return result.data
 }
@@ -25,7 +25,7 @@ export const getCustomerById = async (id: number): Promise<Customer> => {
 /**
  * 获取客户360度视图
  */
-export const getCustomer360 = async (id: number): Promise<Customer360> => {
+export const getCustomer360 = async (id: string): Promise<Customer360> => {
   const result = await request.get<Customer360>(`/business/customer/${id}/360`)
   return result.data
 }
@@ -33,8 +33,8 @@ export const getCustomer360 = async (id: number): Promise<Customer360> => {
 /**
  * 创建客户
  */
-export const saveCustomer = async (data: CustomerFormData): Promise<number> => {
-  const result = await request.post<number>('/business/customer', data)
+export const saveCustomer = async (data: CustomerFormData): Promise<string> => {
+  const result = await request.post<string>('/business/customer', data)
   return result.data
 }
 
@@ -48,27 +48,27 @@ export const updateCustomer = async (data: CustomerFormData): Promise<void> => {
 /**
  * 删除客户
  */
-export const deleteCustomer = async (id: number): Promise<void> => {
+export const deleteCustomer = async (id: string): Promise<void> => {
   await request.delete(`/business/customer/${id}`)
 }
 
 /**
  * 释放客户到公海
  */
-export const releaseToPool = async (id: number, reason?: string): Promise<void> => {
+export const releaseToPool = async (id: string, reason?: string): Promise<void> => {
   await request.post(`/business/customer/${id}/release`, { reason })
 }
 
 /**
  * 从公海领取客户
  */
-export const acquireFromPool = async (id: number): Promise<void> => {
+export const acquireFromPool = async (id: string): Promise<void> => {
   await request.post(`/business/customer/${id}/acquire`)
 }
 
 /**
  * 分配客户
  */
-export const assignCustomer = async (id: number, ownerId: number): Promise<void> => {
+export const assignCustomer = async (id: string, ownerId: string): Promise<void> => {
   await request.post(`/business/customer/${id}/assign`, { ownerId })
 }

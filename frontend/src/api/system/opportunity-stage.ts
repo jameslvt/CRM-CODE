@@ -25,7 +25,7 @@ export function listOpportunityStages(): Promise<OpportunityStage[]> {
 /**
  * 根据ID查询商机阶段
  */
-export function getOpportunityStageById(id: number): Promise<OpportunityStage> {
+export function getOpportunityStageById(id: string): Promise<OpportunityStage> {
   return request.get(`/system/opportunity-stage/${id}`)
 }
 
@@ -46,7 +46,7 @@ export function updateOpportunityStage(data: OpportunityStage): Promise<void> {
 /**
  * 删除商机阶段
  */
-export function deleteOpportunityStage(id: number): Promise<void> {
+export function deleteOpportunityStage(id: string): Promise<void> {
   return request.delete(`/system/opportunity-stage/${id}`)
 }
 

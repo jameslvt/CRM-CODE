@@ -6,18 +6,18 @@
  * 商机实体
  */
 export interface Opportunity {
-  id: number
+  id: string
   name: string
-  customerId: number
+  customerId: string
   customerName?: string
-  contactId?: number
+  contactId?: string
   contactName?: string
   amount?: number
   stage: string
   stageName?: string
   probability?: number
   expectedDate?: string
-  ownerId?: number
+  ownerId?: string
   ownerName?: string
   source?: string
   sourceName?: string
@@ -32,9 +32,9 @@ export interface Opportunity {
  * 商机产品关联
  */
 export interface OpportunityProduct {
-  id?: number
-  opportunityId?: number
-  productId: number
+  id?: string
+  opportunityId?: string
+  productId: string
   productName?: string
   productCode?: string
   quantity: number
@@ -51,10 +51,10 @@ export interface OpportunityQueryParams {
   pageNum?: number
   pageSize?: number
   name?: string
-  customerId?: number
+  customerId?: string
   customerName?: string
   stage?: string
-  ownerId?: number
+  ownerId?: string
   source?: string
   expectedDateStart?: string
   expectedDateEnd?: string
@@ -66,15 +66,15 @@ export interface OpportunityQueryParams {
  * 商机表单数据
  */
 export interface OpportunityFormData {
-  id?: number
+  id?: string
   name: string
-  customerId: number
-  contactId?: number
+  customerId: string
+  contactId?: string
   amount?: number
   stage: string
   probability?: number
   expectedDate?: string
-  ownerId?: number
+  ownerId?: string
   source?: string
   remark?: string
   closeReason?: string
@@ -85,7 +85,7 @@ export interface OpportunityFormData {
  * 阶段推进DTO
  */
 export interface StageAdvanceDTO {
-  opportunityId: number
+  opportunityId: string
   targetStage: string
   remark?: string
   closeReason?: string
@@ -95,7 +95,7 @@ export interface StageAdvanceDTO {
  * 商机阶段配置
  */
 export interface OpportunityStage {
-  id: number
+  id: string
   code: string
   name: string
   probability: number

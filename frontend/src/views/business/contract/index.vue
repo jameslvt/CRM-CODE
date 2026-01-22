@@ -20,7 +20,7 @@
     <div class="stats-row">
       <div class="mini-stat" v-for="stat in miniStats" :key="stat.key">
         <div class="mini-stat-icon" :class="stat.class">
-          <n-icon size="18">
+          <n-icon size="18" v-if="stat.icon">
             <component :is="stat.icon" />
           </n-icon>
         </div>
@@ -109,7 +109,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, h, computed } from 'vue'
+import { ref, reactive, onMounted, h, computed, markRaw } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   NButton,
@@ -158,10 +158,10 @@ const dialog = useDialog()
 
 // 迷你统计数据
 const miniStats = ref([
-  { key: 'total', label: '全部合同', value: '0', icon: DocumentTextOutline, class: 'blue' },
-  { key: 'executing', label: '执行中', value: '0', icon: TimeOutline, class: 'orange' },
-  { key: 'completed', label: '已完成', value: '0', icon: CheckmarkCircleOutline, class: 'green' },
-  { key: 'amount', label: '合同总额', value: '¥0', icon: CashOutline, class: 'purple' }
+  { key: 'total', label: '全部合同', value: '0', icon: markRaw(DocumentTextOutline), class: 'blue' },
+  { key: 'executing', label: '执行中', value: '0', icon: markRaw(TimeOutline), class: 'orange' },
+  { key: 'completed', label: '已完成', value: '0', icon: markRaw(CheckmarkCircleOutline), class: 'green' },
+  { key: 'amount', label: '合同总额', value: '¥0', icon: markRaw(CashOutline), class: 'purple' }
 ])
 
 // 搜索参数
@@ -456,12 +456,12 @@ const handleEdit = (row: Contract) => {
 }
 
 // 查看详情
-const handleViewDetail = (id: number) => {
+const handleViewDetail = (id: string) => {
   router.push(`/business/contract/${id}`)
 }
 
 // 删除
-const handleDelete = async (id: number) => {
+const handleDelete = async (id: string) => {
   try {
     await deleteContract(id)
     message.success('删除成功')
@@ -472,7 +472,7 @@ const handleDelete = async (id: number) => {
 }
 
 // 提交审批
-const handleSubmit = async (id: number) => {
+const handleSubmit = async (id: string) => {
   try {
     await submitContractForApproval(id)
     message.success('提交成功')
@@ -483,7 +483,7 @@ const handleSubmit = async (id: number) => {
 }
 
 // 审批通过
-const handleApprove = async (id: number) => {
+const handleApprove = async (id: string) => {
   dialog.warning({
     title: '确认审批',
     content: '确定要通过该合同的审批吗？',
@@ -502,7 +502,7 @@ const handleApprove = async (id: number) => {
 }
 
 // 审批驳回
-const handleReject = async (id: number) => {
+const handleReject = async (id: string) => {
   dialog.warning({
     title: '确认驳回',
     content: '确定要驳回该合同吗？',

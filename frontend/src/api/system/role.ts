@@ -27,7 +27,7 @@ export function getRoleList(params: RoleQueryParams): Promise<Result<PageResult<
  * @param id 角色 ID
  * @returns 角色详情
  */
-export function getRoleDetail(id: number): Promise<Result<Role>> {
+export function getRoleDetail(id: string): Promise<Result<Role>> {
   return request.get(`/system/roles/${id}`)
 }
 
@@ -55,7 +55,7 @@ export function updateRole(id: number, data: RoleFormData): Promise<Result<void>
  * @param id 角色 ID
  * @returns 操作结果
  */
-export function deleteRole(id: number): Promise<Result<void>> {
+export function deleteRole(id: string): Promise<Result<void>> {
   return request.delete(`/system/roles/${id}`)
 }
 

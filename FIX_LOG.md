@@ -441,12 +441,12 @@ export async function pageCustomers(params: CustomerQueryParams): Promise<PageRe
 
 ```typescript
 // 修改前
-export function getCustomer(id: number): Promise<Customer> {
+export function getCustomer(id: string): Promise<Customer> {
   return request.get(`/business/customer/${id}`)
 }
 
 // 修改后
-export async function getCustomer(id: number): Promise<Customer> {
+export async function getCustomer(id: string): Promise<Customer> {
   const result = await request.get<Customer>(`/business/customer/${id}`)
   return result.data
 }

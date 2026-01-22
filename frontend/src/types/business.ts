@@ -53,7 +53,7 @@ export enum LeadRating {
  */
 export interface Lead {
   /** 线索ID */
-  id: number
+  id: string
   /** 线索名称 */
   name: string
   /** 联系电话 */
@@ -79,7 +79,7 @@ export interface Lead {
   /** 预计金额（元） */
   estimatedAmount?: number
   /** 负责人ID */
-  ownerId?: number
+  ownerId?: string
   /** 负责人姓名 */
   ownerName?: string
   /** 地址 */
@@ -91,7 +91,7 @@ export interface Lead {
   /** 转化时间 */
   convertTime?: string
   /** 转化后的客户ID */
-  customerId?: number
+  customerId?: string
   /** 创建时间 */
   createTime: string
   /** 更新时间 */
@@ -110,7 +110,7 @@ export interface LeadQueryParams extends PageParams {
   /** 线索状态 */
   status?: number
   /** 负责人ID */
-  ownerId?: number
+  ownerId?: string
   /** 行业 */
   industry?: string
   /** 开始时间 */
@@ -125,7 +125,7 @@ export interface LeadQueryParams extends PageParams {
  */
 export interface LeadFormData {
   /** 线索ID（编辑时必填） */
-  id?: number
+  id?: string
   /** 线索名称 */
   name: string
   /** 联系电话 */
@@ -145,7 +145,7 @@ export interface LeadFormData {
   /** 预计金额（元） */
   estimatedAmount?: number
   /** 负责人ID */
-  ownerId?: number
+  ownerId?: string
   /** 地址 */
   address?: string
   /** 行业 */
@@ -159,7 +159,7 @@ export interface LeadFormData {
  */
 export interface LeadConvertParams {
   /** 线索ID */
-  leadId: number
+  leadId: string
   /** 客户名称 */
   customerName: string
   /** 客户类型 */

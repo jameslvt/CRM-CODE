@@ -124,7 +124,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, h } from 'vue'
+import { ref, reactive, onMounted, h, markRaw } from 'vue'
 import {
   NButton,
   NIcon,
@@ -162,9 +162,9 @@ const dialog = useDialog()
 
 // 迷你统计数据
 const miniStats = ref([
-  { key: 'total', label: '全部产品', value: '0', icon: CubeOutline, class: 'blue' },
-  { key: 'enabled', label: '已启用', value: '0', icon: CheckmarkCircleOutline, class: 'green' },
-  { key: 'disabled', label: '已停用', value: '0', icon: CloseCircleOutline, class: 'gray' }
+  { key: 'total', label: '全部产品', value: '0', icon: markRaw(CubeOutline), class: 'blue' },
+  { key: 'enabled', label: '已启用', value: '0', icon: markRaw(CheckmarkCircleOutline), class: 'green' },
+  { key: 'disabled', label: '已停用', value: '0', icon: markRaw(CloseCircleOutline), class: 'gray' }
 ])
 
 // 搜索参数
@@ -386,7 +386,7 @@ const handleEdit = (row: Product) => {
 }
 
 // 删除
-const handleDelete = async (id: number) => {
+const handleDelete = async (id: string) => {
   try {
     await deleteProduct(id)
     message.success('删除成功')

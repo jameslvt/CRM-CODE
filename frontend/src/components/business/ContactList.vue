@@ -192,7 +192,7 @@ const handleEdit = (contact: Contact) => {
 }
 
 // 删除联系人
-const handleDelete = async (id: number) => {
+const handleDelete = async (id: string) => {
   try {
     await deleteContact(id)
     message.success('删除成功')
@@ -203,7 +203,7 @@ const handleDelete = async (id: number) => {
 }
 
 // 设为主要联系人
-const handleSetPrimary = async (id: number) => {
+const handleSetPrimary = async (id: string) => {
   try {
     await setPrimaryContact(id)
     message.success('已设为主要联系人')

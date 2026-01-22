@@ -18,7 +18,7 @@ export const pageAllContacts = async (params: ContactQueryParams): Promise<PageR
  * 分页查询联系人列表（按客户）
  */
 export const pageContacts = async (
-  customerId: number,
+  customerId: string,
   name?: string,
   pageNum = 1,
   pageSize = 10
@@ -32,7 +32,7 @@ export const pageContacts = async (
 /**
  * 获取客户的所有联系人
  */
-export const getContactsByCustomerId = async (customerId: number): Promise<Contact[]> => {
+export const getContactsByCustomerId = async (customerId: string): Promise<Contact[]> => {
   const result = await request.get<Contact[]>(`/business/contact/customer/${customerId}`)
   return result.data
 }
@@ -40,7 +40,7 @@ export const getContactsByCustomerId = async (customerId: number): Promise<Conta
 /**
  * 根据ID获取联系人详情
  */
-export const getContactById = async (id: number): Promise<Contact> => {
+export const getContactById = async (id: string): Promise<Contact> => {
   const result = await request.get<Contact>(`/business/contact/${id}`)
   return result.data
 }
@@ -48,8 +48,8 @@ export const getContactById = async (id: number): Promise<Contact> => {
 /**
  * 创建联系人
  */
-export const saveContact = async (data: ContactFormData): Promise<number> => {
-  const result = await request.post<number>('/business/contact', data)
+export const saveContact = async (data: ContactFormData): Promise<string> => {
+  const result = await request.post<string>('/business/contact', data)
   return result.data
 }
 
@@ -63,13 +63,13 @@ export const updateContact = async (data: ContactFormData): Promise<void> => {
 /**
  * 删除联系人
  */
-export const deleteContact = async (id: number): Promise<void> => {
+export const deleteContact = async (id: string): Promise<void> => {
   await request.delete(`/business/contact/${id}`)
 }
 
 /**
  * 设置为主要联系人
  */
-export const setPrimaryContact = async (id: number): Promise<void> => {
+export const setPrimaryContact = async (id: string): Promise<void> => {
   await request.post(`/business/contact/${id}/set-primary`)
 }

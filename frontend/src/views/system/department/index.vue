@@ -643,7 +643,7 @@ async function handleSubmit() {
 }
 
 // 删除部门
-async function handleDelete(id: number) {
+async function handleDelete(id: string) {
   currentDeleteId.value = id
   showDeleteModal.value = true
   deleteChecking.value = true

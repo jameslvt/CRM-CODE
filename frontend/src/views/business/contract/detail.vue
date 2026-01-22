@@ -377,10 +377,10 @@ const paymentProgress = computed(() => {
 
 // 加载合同详情
 const loadContract = async () => {
-  const id = Number(route.params.id)
+  const id = String(route.params.id)
   if (!id) {
     message.error('合同ID无效')
-    router.push('/business/contract')
+    router.push('/contracts')
     return
   }
 
@@ -390,7 +390,7 @@ const loadContract = async () => {
     fileUrl.value = contract.value.fileUrl || ''
   } catch (error) {
     message.error('加载合同详情失败')
-    router.push('/business/contract')
+    router.push('/contracts')
   } finally {
     loading.value = false
   }
@@ -398,7 +398,7 @@ const loadContract = async () => {
 
 // 返回列表
 const handleBack = () => {
-  router.push('/business/contract')
+  router.push('/contracts')
 }
 
 // 编辑

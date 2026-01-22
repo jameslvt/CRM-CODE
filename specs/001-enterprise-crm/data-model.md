@@ -171,6 +171,7 @@
 | company | VARCHAR(200) | | 公司名称 |
 | position | VARCHAR(50) | | 职位 |
 | industry | VARCHAR(50) | | 行业 |
+| rating | VARCHAR(10) | | 评级: A-高, B-中, C-低, D-极低 |
 | address | VARCHAR(500) | | 地址 |
 | status | TINYINT | NOT NULL, DEFAULT 1 | 状态: 1-新建, 2-跟进中, 3-已转化, 4-已关闭 |
 | owner_id | BIGINT | FK | 负责人 ID |

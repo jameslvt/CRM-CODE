@@ -183,7 +183,7 @@ const handleAdd = () => {
 }
 
 // 删除回款记录
-const handleDelete = async (id: number) => {
+const handleDelete = async (id: string) => {
   try {
     await deletePaymentRecord(id)
     message.success('删除成功')

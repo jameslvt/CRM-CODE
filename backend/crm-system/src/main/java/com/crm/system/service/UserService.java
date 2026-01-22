@@ -200,7 +200,7 @@ public class UserService {
      * @return 分页结果
      */
     public IPage<UserDTO> getUserPage(Integer page, Integer size, String username, String nickname,
-                                      Long deptId, Integer status) {
+            Long deptId, Integer status) {
         Page<User> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
 
@@ -305,6 +305,20 @@ public class UserService {
 
         log.info("密码重置成功");
         return newPassword;
+    }
+
+    /**
+     * 根据 ID 列表批量查询用户
+     *
+     * @param userIds 用户 ID 列表
+     * @return 用户 DTO 列表
+     */
+    public List<UserDTO> getUsersByIds(List<Long> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            return java.util.Collections.emptyList();
+        }
+        List<User> users = userMapper.selectBatchIds(userIds);
+        return users.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     /**

@@ -63,6 +63,12 @@ public class Lead extends BaseEntity {
     private String industry;
 
     /**
+     * 评级: A-高, B-中, C-低, D-极低
+     */
+    @TableField("rating")
+    private String rating;
+
+    /**
      * 地址
      */
     @TableField("address")

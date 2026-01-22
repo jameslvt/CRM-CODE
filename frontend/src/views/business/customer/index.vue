@@ -155,7 +155,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, h } from 'vue'
+import { ref, reactive, onMounted, h, markRaw } from 'vue'
 import {
   NButton,
   NIcon,
@@ -193,10 +193,10 @@ const dialog = useDialog()
 
 // 迷你统计数据
 const miniStats = ref([
-  { key: 'total', label: '全部客户', value: '0', icon: BusinessOutline, class: 'blue' },
-  { key: 'levelA', label: 'A级客户', value: '0', icon: StarOutline, class: 'red' },
-  { key: 'levelB', label: 'B级客户', value: '0', icon: TrendingUpOutline, class: 'orange' },
-  { key: 'pool', label: '公海客户', value: '0', icon: GlobeOutline, class: 'gray' }
+  { key: 'total', label: '全部客户', value: '0', icon: markRaw(BusinessOutline), class: 'blue' },
+  { key: 'levelA', label: 'A级客户', value: '0', icon: markRaw(StarOutline), class: 'red' },
+  { key: 'levelB', label: 'B级客户', value: '0', icon: markRaw(TrendingUpOutline), class: 'orange' },
+  { key: 'pool', label: '公海客户', value: '0', icon: markRaw(GlobeOutline), class: 'gray' }
 ])
 
 // 搜索参数
@@ -272,7 +272,19 @@ const levelColorMap: Record<string, { bg: string; color: string }> = {
 // 获取级别标签
 const getLevelTag = (level: string | undefined) => {
   if (!level) return h('span', { class: 'level-tag', style: { background: '#f1f5f9', color: '#64748b' } }, '-')
-  const config = levelColorMap[level] || levelColorMap.D
+  
+  // 兼容旧数据 'NORMAL' -> 'B' (普通)
+  const normalizedLevel = level === 'NORMAL' ? 'B' : level
+  const config = levelColorMap[normalizedLevel] || levelColorMap.D
+  
+  const labelMap: Record<string, string> = {
+    'A': 'A级',
+    'B': 'B级',
+    'C': 'C级',
+    'D': 'D级',
+    'NORMAL': '普通'
+  }
+
   return h(
     'span',
     {
@@ -282,7 +294,7 @@ const getLevelTag = (level: string | undefined) => {
         color: config.color
       }
     },
-    `${level}级`
+    labelMap[level] || `${level}级`
   )
 }
 
@@ -438,12 +450,12 @@ const handleEdit = (row: Customer) => {
 }
 
 // 查看详情
-const handleView = (id: number) => {
+const handleView = (id: string) => {
   router.push(`/business/customer/${id}`)
 }
 
 // 释放到公海
-const handleRelease = async (id: number) => {
+const handleRelease = async (id: string) => {
   try {
     await releaseToPool(id)
     message.success('已释放到公海')
@@ -476,7 +488,7 @@ const handleBatchRelease = () => {
 }
 
 // 分配客户
-const handleAssign = (id: number) => {
+const handleAssign = (id: string) => {
   assignCustomerId.value = id
   assignUserId.value = null
   showAssignModal.value = true

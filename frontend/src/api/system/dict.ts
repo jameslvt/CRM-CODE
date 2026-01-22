@@ -34,7 +34,7 @@ export function pageDictType(params: DictTypeQueryParams): Promise<PageResult<Di
 /**
  * 根据ID查询字典类型
  */
-export function getDictTypeById(id: number): Promise<DictType> {
+export function getDictTypeById(id: string): Promise<DictType> {
   return request.get(`/system/dict/type/${id}`)
 }
 
@@ -55,7 +55,7 @@ export function updateDictType(data: DictType): Promise<void> {
 /**
  * 删除字典类型
  */
-export function deleteDictType(id: number): Promise<void> {
+export function deleteDictType(id: string): Promise<void> {
   return request.delete(`/system/dict/type/${id}`)
 }
 
@@ -76,7 +76,7 @@ export function pageDictData(params: DictDataQueryParams): Promise<PageResult<Di
 /**
  * 根据ID查询字典数据
  */
-export function getDictDataById(id: number): Promise<DictData> {
+export function getDictDataById(id: string): Promise<DictData> {
   return request.get(`/system/dict/data/${id}`)
 }
 
@@ -97,7 +97,7 @@ export function updateDictData(data: DictData): Promise<void> {
 /**
  * 删除字典数据
  */
-export function deleteDictData(id: number): Promise<void> {
+export function deleteDictData(id: string): Promise<void> {
   return request.delete(`/system/dict/data/${id}`)
 }
 

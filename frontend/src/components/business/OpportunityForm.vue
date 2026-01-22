@@ -139,7 +139,7 @@
         <div v-if="formData.products && formData.products.length > 0" class="product-list">
           <div
             v-for="(product, index) in formData.products"
-            :key="index"
+            :key="`prod-${index}`"
             class="product-item"
           >
             <n-grid :cols="24" :x-gap="12">
@@ -335,6 +335,23 @@ const formatAmount = (amount: number | undefined) => {
   return `¥${amount.toLocaleString()}`
 }
 
+// 重置表单
+const resetForm = () => {
+  Object.assign(formData, {
+    id: undefined,
+    name: '',
+    customerId: 0,
+    contactId: undefined,
+    amount: undefined,
+    stage: 'REQUIREMENT',
+    probability: 20,
+    expectedDate: undefined,
+    source: undefined,
+    remark: '',
+    products: []
+  })
+}
+
 // 监听外部数据变化
 watch(
   () => props.formData,
@@ -419,22 +436,7 @@ const calculateProductAmount = (index: number) => {
   product.amount = quantity * price * (1 - discount / 100)
 }
 
-// 重置表单
-const resetForm = () => {
-  Object.assign(formData, {
-    id: undefined,
-    name: '',
-    customerId: 0,
-    contactId: undefined,
-    amount: undefined,
-    stage: 'REQUIREMENT',
-    probability: 20,
-    expectedDate: undefined,
-    source: undefined,
-    remark: '',
-    products: []
-  })
-}
+
 
 // 提交表单
 const handleSubmit = async () => {

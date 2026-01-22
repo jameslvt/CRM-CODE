@@ -19,7 +19,7 @@ import com.crm.business.mapper.OpportunityMapper;
 import com.crm.business.mapper.OpportunityProductMapper;
 import com.crm.business.mapper.ProductMapper;
 import com.crm.common.exception.BusinessException;
-import com.crm.common.utils.IdGenerator;
+
 import com.crm.system.entity.User;
 import com.crm.system.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +57,7 @@ public class OpportunityService {
     private final ContactMapper contactMapper;
     private final ProductMapper productMapper;
     private final UserMapper userMapper;
-    private final IdGenerator idGenerator;
+
     private final ApplicationEventPublisher eventPublisher;
 
     /**
@@ -137,7 +137,7 @@ public class OpportunityService {
     public List<OpportunityDTO> getOpportunitiesByCustomerId(Long customerId) {
         LambdaQueryWrapper<Opportunity> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Opportunity::getCustomerId, customerId)
-               .orderByDesc(Opportunity::getCreateTime);
+                .orderByDesc(Opportunity::getCreateTime);
         List<Opportunity> opportunities = opportunityMapper.selectList(wrapper);
         return opportunities.stream()
                 .map(this::convertToDTO)
@@ -188,7 +188,6 @@ public class OpportunityService {
 
         Opportunity opportunity = new Opportunity();
         BeanUtils.copyProperties(formData, opportunity);
-        opportunity.setId(idGenerator.nextId());
 
         // 设置默认阶段和概率
         if (!StringUtils.hasText(opportunity.getStage())) {
@@ -217,7 +216,7 @@ public class OpportunityService {
     /**
      * 更新商机
      *
-     * @param id 商机ID
+     * @param id       商机ID
      * @param formData 表单数据
      */
     @Transactional(rollbackFor = Exception.class)
@@ -246,7 +245,8 @@ public class OpportunityService {
             if (contact == null) {
                 throw new BusinessException("联系人不存在");
             }
-            Long customerId = formData.getCustomerId() != null ? formData.getCustomerId() : existingOpportunity.getCustomerId();
+            Long customerId = formData.getCustomerId() != null ? formData.getCustomerId()
+                    : existingOpportunity.getCustomerId();
             if (!contact.getCustomerId().equals(customerId)) {
                 throw new BusinessException("联系人不属于该客户");
             }
@@ -389,7 +389,7 @@ public class OpportunityService {
      * 保存商机产品
      *
      * @param opportunityId 商机ID
-     * @param products 产品列表
+     * @param products      产品列表
      */
     private void saveOpportunityProducts(Long opportunityId, List<OpportunityProductDTO> products) {
         for (OpportunityProductDTO productDTO : products) {
@@ -400,7 +400,6 @@ public class OpportunityService {
             }
 
             OpportunityProduct op = new OpportunityProduct();
-            op.setId(idGenerator.nextId());
             op.setOpportunityId(opportunityId);
             op.setProductId(productDTO.getProductId());
             op.setQuantity(productDTO.getQuantity() != null ? productDTO.getQuantity() : 1);

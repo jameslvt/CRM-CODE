@@ -122,7 +122,7 @@ const leadData = ref<Lead>()
 const formModel = reactive<Omit<LeadConvertParams, 'leadId'>>({
   customerName: '',
   customerType: 'ENTERPRISE',
-  customerLevel: 'NORMAL',
+  customerLevel: 'B',
   createOpportunity: false,
   opportunityName: '',
   expectedAmount: undefined,
@@ -138,9 +138,10 @@ const customerTypeOptions = [
 
 // 客户级别选项
 const customerLevelOptions = [
-  { label: '重要客户', value: 'IMPORTANT' },
-  { label: '普通客户', value: 'NORMAL' },
-  { label: '潜在客户', value: 'POTENTIAL' }
+  { label: 'A级 (重要客户)', value: 'A' },
+  { label: 'B级 (普通客户)', value: 'B' },
+  { label: 'C级 (一般客户)', value: 'C' },
+  { label: 'D级 (低优先级)', value: 'D' }
 ]
 
 // 表单验证规则

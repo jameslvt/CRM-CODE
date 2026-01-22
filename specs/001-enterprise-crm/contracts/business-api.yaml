@@ -1280,6 +1280,9 @@ components:
           type: string
         industry:
           type: string
+        rating:
+          type: string
+          description: "评级: A-高, B-中, C-低, D-极低"
         address:
           type: string
         remark:
@@ -1302,6 +1305,9 @@ components:
           type: string
         industry:
           type: string
+        rating:
+          type: string
+          description: "评级: A-高, B-中, C-低, D-极低"
         address:
           type: string
         remark:

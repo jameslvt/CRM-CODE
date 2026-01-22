@@ -45,13 +45,13 @@ export function getOperationLogs(params: OperationLogQuery): Promise<PageResult<
 /**
  * 获取操作日志详情
  */
-export function getOperationLogById(id: number): Promise<OperationLog> {
+export function getOperationLogById(id: string): Promise<OperationLog> {
   return request.get(`/system/logs/${id}`)
 }
 
 /**
  * 清理历史日志
  */
-export function cleanOperationLogs(days: number = 90): Promise<number> {
+export function cleanOperationLogs(days: number = 90): Promise<string> {
   return request.delete('/system/logs/clean', { params: { days } })
 }

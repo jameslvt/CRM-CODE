@@ -44,6 +44,24 @@ public class ContactController {
     }
 
     /**
+     * 分页查询所有联系人（全局搜索）
+     */
+    @ApiOperation("分页查询所有联系人")
+    @GetMapping("/page")
+    @PreAuthorize("hasAuthority('business:contact:list')")
+    public Result<PageResult<ContactDTO>> getAllContacts(
+            @RequestParam(required = false) Long customerId,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String mobile,
+            @RequestParam(required = false) Integer isPrimary,
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize) {
+        PageResult<ContactDTO> result = contactService.getAllContacts(customerId, name, mobile, isPrimary, pageNum,
+                pageSize);
+        return Result.success(result);
+    }
+
+    /**
      * 获取客户的所有联系人
      */
     @ApiOperation("获取客户的所有联系人")

@@ -56,6 +56,11 @@ public class LeadFormData {
     private String industry;
 
     /**
+     * 评级: A-高, B-中, C-低, D-极低
+     */
+    private String rating;
+
+    /**
      * 地址
      */
     private String address;

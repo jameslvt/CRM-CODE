@@ -26,7 +26,7 @@ export function getDepartmentTree(params?: DepartmentQueryParams): Promise<Resul
  * @param id 部门 ID
  * @returns 部门详情
  */
-export function getDepartmentDetail(id: number): Promise<Result<Department>> {
+export function getDepartmentDetail(id: string): Promise<Result<Department>> {
   return request.get(`/system/departments/${id}`)
 }
 
@@ -54,7 +54,7 @@ export function updateDepartment(id: number, data: DepartmentFormData): Promise<
  * @param id 部门 ID
  * @returns 操作结果
  */
-export function deleteDepartment(id: number): Promise<Result<void>> {
+export function deleteDepartment(id: string): Promise<Result<void>> {
   return request.delete(`/system/departments/${id}`)
 }
 
@@ -63,7 +63,7 @@ export function deleteDepartment(id: number): Promise<Result<void>> {
  * @param id 部门 ID
  * @returns 检查结果（包含是否有子部门、是否有用户等信息）
  */
-export function checkDepartmentDeletable(id: number): Promise<Result<{
+export function checkDepartmentDeletable(id: string): Promise<Result<{
   deletable: boolean
   hasChildren: boolean
   hasUsers: boolean

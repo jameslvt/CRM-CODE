@@ -307,7 +307,7 @@ const route = useRoute()
 const router = useRouter()
 const message = useMessage()
 
-const customerId = computed(() => Number(route.params.id))
+const customerId = computed(() => String(route.params.id))
 const customer360 = ref<Customer360 | null>(null)
 const loading = ref(false)
 const showEditModal = ref(false)
@@ -339,7 +339,7 @@ const formatAmount = (amount: number | undefined) => {
 
 // 返回列表
 const handleBack = () => {
-  router.push('/business/customer')
+  router.push('/customers')
 }
 
 // 编辑客户
@@ -365,12 +365,12 @@ const handleRelease = async () => {
 }
 
 // 跳转商机详情
-const goToOpportunity = (id: number) => {
+const goToOpportunity = (id: string) => {
   router.push(`/business/opportunity/${id}`)
 }
 
 // 跳转合同详情
-const goToContract = (id: number) => {
+const goToContract = (id: string) => {
   router.push(`/business/contract/${id}`)
 }
 

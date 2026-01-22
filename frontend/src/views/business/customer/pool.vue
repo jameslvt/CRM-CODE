@@ -313,12 +313,12 @@ const handleBack = () => {
 }
 
 // 查看详情
-const handleView = (id: number) => {
+const handleView = (id: string) => {
   router.push(`/business/customer/${id}`)
 }
 
 // 领取客户
-const handleAcquire = async (id: number) => {
+const handleAcquire = async (id: string) => {
   try {
     await acquireFromPool(id)
     message.success('领取成功')

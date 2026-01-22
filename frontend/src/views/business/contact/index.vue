@@ -202,7 +202,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, h } from 'vue'
+import { ref, reactive, onMounted, h, markRaw } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   NButton,
@@ -251,10 +251,10 @@ const message = useMessage()
 
 // 迷你统计数据
 const miniStats = ref([
-  { key: 'total', label: '全部联系人', value: '0', icon: PersonOutline, class: 'blue' },
-  { key: 'primary', label: '主要联系人', value: '0', icon: StarOutline, class: 'orange' },
-  { key: 'male', label: '男性', value: '0', icon: PersonOutline, class: 'green' },
-  { key: 'female', label: '女性', value: '0', icon: PersonOutline, class: 'pink' }
+  { key: 'total', label: '全部联系人', value: '0', icon: markRaw(PersonOutline), class: 'blue' },
+  { key: 'primary', label: '主要联系人', value: '0', icon: markRaw(StarOutline), class: 'orange' },
+  { key: 'male', label: '男性', value: '0', icon: markRaw(PersonOutline), class: 'green' },
+  { key: 'female', label: '女性', value: '0', icon: markRaw(PersonOutline), class: 'pink' }
 ])
 
 // 搜索参数
@@ -291,7 +291,7 @@ const formData = reactive<ContactFormData>({
   email: '',
   wechat: '',
   isPrimary: false,
-  birthday: '',
+  birthday: undefined,
   remark: ''
 })
 
@@ -517,7 +517,7 @@ const handleAdd = () => {
     email: '',
     wechat: '',
     isPrimary: false,
-    birthday: '',
+    birthday: undefined,
     remark: ''
   })
   customerOptions.value = []
@@ -539,7 +539,7 @@ const handleEdit = (row: Contact) => {
     email: row.email || '',
     wechat: row.wechat || '',
     isPrimary: row.isPrimary === 1,
-    birthday: row.birthday || '',
+    birthday: row.birthday || undefined,
     remark: row.remark || ''
   })
   // 设置客户选项
@@ -550,7 +550,7 @@ const handleEdit = (row: Contact) => {
 }
 
 // 删除
-const handleDelete = async (id: number) => {
+const handleDelete = async (id: string) => {
   try {
     await deleteContact(id)
     message.success('删除成功')
@@ -561,7 +561,7 @@ const handleDelete = async (id: number) => {
 }
 
 // 设为主要联系人
-const handleSetPrimary = async (id: number) => {
+const handleSetPrimary = async (id: string) => {
   try {
     await setPrimaryContact(id)
     message.success('设置成功')

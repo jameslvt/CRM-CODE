@@ -124,9 +124,9 @@ public class LeadController {
 
         // 定义字段映射（Excel列顺序）
         String[] fieldNames = {
-            "leadName", "contactName", "phone", "email",
-            "companyName", "position", "source", "industry",
-            "rating", "address", "remark"
+                "leadName", "contactName", "phone", "email",
+                "companyName", "position", "source", "industry",
+                "rating", "address", "remark"
         };
 
         List<Lead> dataList = ExcelUtils.importExcel(file, Lead.class, fieldNames);
@@ -147,18 +147,28 @@ public class LeadController {
 
         // 定义表头和字段
         String[] headers = {
-            "线索名称", "联系人", "联系电话", "邮箱",
-            "公司名称", "职位", "来源", "行业",
-            "评级", "地址", "备注"
+                "线索名称", "联系人", "联系电话", "邮箱",
+                "公司名称", "职位", "来源", "行业",
+                "评级", "地址", "备注"
         };
         String[] fieldNames = {
-            "leadName", "contactName", "phone", "email",
-            "companyName", "position", "source", "industry",
-            "rating", "address", "remark"
+                "leadName", "contactName", "phone", "email",
+                "companyName", "position", "source", "industry",
+                "rating", "address", "remark"
         };
 
         // 导出
         String fileName = "线索数据_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         ExcelUtils.exportExcel(response, dataList, headers, fieldNames, fileName);
+    }
+
+    /**
+     * 获取线索统计
+     */
+    @ApiOperation("获取线索统计")
+    @GetMapping("/stats")
+    public Result<java.util.Map<String, Object>> getLeadStats() {
+        java.util.Map<String, Object> stats = leadService.getLeadStats();
+        return Result.success(stats);
     }
 }

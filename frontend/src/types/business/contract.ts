@@ -6,12 +6,12 @@
  * 合同实体
  */
 export interface Contract {
-  id: number
+  id: string
   contractNo?: string
   name: string
-  customerId: number
+  customerId: string
   customerName?: string
-  opportunityId?: number
+  opportunityId?: string
   opportunityName?: string
   amount: number
   startDate?: string
@@ -19,7 +19,7 @@ export interface Contract {
   signDate?: string
   status: number
   statusName?: string
-  ownerId?: number
+  ownerId?: string
   ownerName?: string
   fileUrl?: string
   remark?: string
@@ -37,11 +37,11 @@ export interface ContractQueryParams {
   pageSize?: number
   contractNo?: string
   name?: string
-  customerId?: number
+  customerId?: string
   customerName?: string
-  opportunityId?: number
+  opportunityId?: string
   status?: number
-  ownerId?: number
+  ownerId?: string
   signDateStart?: string
   signDateEnd?: string
   createTimeStart?: string
@@ -52,17 +52,17 @@ export interface ContractQueryParams {
  * 合同表单数据
  */
 export interface ContractFormData {
-  id?: number
+  id?: string
   contractNo?: string
   name: string
-  customerId: number
-  opportunityId?: number
+  customerId: string
+  opportunityId?: string
   amount: number
   startDate?: string
   endDate?: string
   signDate?: string
   status?: number
-  ownerId?: number
+  ownerId?: string
   fileUrl?: string
   remark?: string
 }

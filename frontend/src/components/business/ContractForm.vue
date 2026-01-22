@@ -151,6 +151,13 @@ import { pageUsers } from '@/api/system/user'
 import type { Contract, ContractFormData } from '@/types/business/contract'
 import type { User } from '@/types/system'
 
+// 扩展表单数据类型定义，允许 date 为 null
+interface LocalContractFormData extends Omit<ContractFormData, 'startDate' | 'endDate' | 'signDate'> {
+  startDate: string | null
+  endDate: string | null
+  signDate: string | null
+}
+
 const props = defineProps<{
   formData: Partial<Contract>
 }>()
@@ -168,15 +175,15 @@ const submitting = ref(false)
 const isEdit = computed(() => !!props.formData?.id)
 
 // 表单数据
-const formData = ref<ContractFormData>({
+const formData = ref<LocalContractFormData>({
   name: '',
   contractNo: '',
   customerId: undefined as unknown as number,
   opportunityId: undefined,
   amount: 0,
-  startDate: undefined,
-  endDate: undefined,
-  signDate: undefined,
+  startDate: null,
+  endDate: null,
+  signDate: null,
   ownerId: undefined,
   remark: ''
 })
@@ -216,9 +223,9 @@ const initFormData = () => {
       customerId: props.formData.customerId as number,
       opportunityId: props.formData.opportunityId,
       amount: props.formData.amount || 0,
-      startDate: props.formData.startDate,
-      endDate: props.formData.endDate,
-      signDate: props.formData.signDate,
+      startDate: props.formData.startDate || null,
+      endDate: props.formData.endDate || null,
+      signDate: props.formData.signDate || null,
       ownerId: props.formData.ownerId,
       remark: props.formData.remark || ''
     }
@@ -253,7 +260,7 @@ const handleCustomerSearch = async (query: string) => {
 }
 
 // 客户变更
-const handleCustomerChange = (customerId: number) => {
+const handleCustomerChange = (customerId: string) => {
   formData.value.opportunityId = undefined
   if (customerId) {
     loadOpportunities(customerId)
@@ -263,7 +270,7 @@ const handleCustomerChange = (customerId: number) => {
 }
 
 // 加载商机列表
-const loadOpportunities = async (customerId: number) => {
+const loadOpportunities = async (customerId: string) => {
   try {
     const result = await pageOpportunities({ pageNum: 1, pageSize: 100, customerId })
     opportunityOptions.value = result.records.map(o => ({
@@ -306,9 +313,9 @@ const handleSubmit = async () => {
       customerId: formData.value.customerId,
       opportunityId: formData.value.opportunityId,
       amount: formData.value.amount,
-      startDate: formData.value.startDate,
-      endDate: formData.value.endDate,
-      signDate: formData.value.signDate,
+      startDate: formData.value.startDate || undefined,
+      endDate: formData.value.endDate || undefined,
+      signDate: formData.value.signDate || undefined,
       ownerId: formData.value.ownerId,
       remark: formData.value.remark || undefined
     }

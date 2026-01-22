@@ -25,7 +25,7 @@ export function getPermissionTree(params?: PermissionQueryParams): Promise<Resul
  * @param id 权限 ID
  * @returns 权限详情
  */
-export function getPermissionDetail(id: number): Promise<Result<Permission>> {
+export function getPermissionDetail(id: string): Promise<Result<Permission>> {
   return request.get(`/system/permission/${id}`)
 }
 
@@ -53,7 +53,7 @@ export function updatePermission(id: number, data: PermissionFormData): Promise<
  * @param id 权限 ID
  * @returns 操作结果
  */
-export function deletePermission(id: number): Promise<Result<void>> {
+export function deletePermission(id: string): Promise<Result<void>> {
   return request.delete(`/system/permission/${id}`)
 }
 

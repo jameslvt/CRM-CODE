@@ -596,7 +596,7 @@ async function handleSubmit() {
 /**
  * 删除角色
  */
-async function handleDelete(id: number) {
+async function handleDelete(id: string) {
   try {
     const res = await deleteRole(id)
     if (res.code === 200) {

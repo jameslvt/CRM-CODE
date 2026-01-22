@@ -693,7 +693,7 @@ async function handleSubmit() {
 }
 
 // 删除用户
-async function handleDelete(id: number) {
+async function handleDelete(id: string) {
   try {
     const res = await deleteUser(id)
     if (res.code === 200) {

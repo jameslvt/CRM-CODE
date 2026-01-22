@@ -94,6 +94,11 @@ import { createPaymentPlan, updatePaymentPlan } from '@/api/business/payment'
 import { pageContracts } from '@/api/business/contract'
 import type { PaymentPlan, PaymentPlanFormData } from '@/types/business/payment'
 
+// 扩展表单数据类型定义，允许 date 为 null
+interface LocalPaymentPlanFormData extends Omit<PaymentPlanFormData, 'planDate'> {
+  planDate: string | null
+}
+
 const props = defineProps<{
   formData: Partial<PaymentPlan>
 }>()
@@ -111,11 +116,11 @@ const submitting = ref(false)
 const isEdit = computed(() => !!props.formData?.id)
 
 // 表单数据
-const formData = ref<PaymentPlanFormData>({
+const formData = ref<LocalPaymentPlanFormData>({
   contractId: undefined as unknown as number,
   period: 1,
   planAmount: 0,
-  planDate: '',
+  planDate: null,
   remark: ''
 })
 
@@ -149,7 +154,7 @@ const initFormData = () => {
       contractId: props.formData.contractId as number,
       period: props.formData.period || 1,
       planAmount: props.formData.planAmount || 0,
-      planDate: props.formData.planDate || '',
+      planDate: props.formData.planDate || null,
       remark: props.formData.remark || ''
     }
 
@@ -196,7 +201,7 @@ const handleSubmit = async () => {
       contractId: formData.value.contractId,
       period: formData.value.period,
       planAmount: formData.value.planAmount,
-      planDate: formData.value.planDate,
+      planDate: formData.value.planDate || '',
       remark: formData.value.remark || undefined
     }
 

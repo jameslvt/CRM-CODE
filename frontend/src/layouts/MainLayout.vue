@@ -161,7 +161,7 @@
       </n-layout-header>
 
       <!-- 内容区 -->
-      <n-layout-content class="layout-content" :native-scrollbar="false">
+      <n-layout-content class="layout-content">
         <div class="content-wrapper">
           <router-view v-slot="{ Component, route }">
             <transition name="page-fade" mode="out-in">

@@ -232,7 +232,7 @@ const handleSubmit = async () => {
   }
 }
 
-const handleDelete = (id: number) => {
+const handleDelete = (id: string) => {
   dialog.warning({
     title: '确认删除',
     content: '确定要删除该商机阶段吗？',

@@ -159,7 +159,7 @@ const selectedProducts = ref<Product[]>([])
 const tempSelected = ref<Product[]>([])
 
 // 判断是否已选中
-const isSelected = (id: number) => {
+const isSelected = (id: string) => {
   return tempSelected.value.some(p => p.id === id)
 }
 
@@ -212,7 +212,7 @@ const handleSelect = (product: Product) => {
 }
 
 // 移除已选产品
-const handleRemove = (id: number) => {
+const handleRemove = (id: string) => {
   const index = selectedProducts.value.findIndex(p => p.id === id)
   if (index > -1) {
     selectedProducts.value.splice(index, 1)

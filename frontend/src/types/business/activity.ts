@@ -9,7 +9,7 @@
  * 跟进记录
  */
 export interface Activity {
-  id: number
+  id: string
   /** 类型: phone、visit、email、meeting、other */
   type: string
   /** 类型名称 */
@@ -21,13 +21,13 @@ export interface Activity {
   /** 关联对象类型名称 */
   targetTypeName?: string
   /** 关联对象 ID */
-  targetId: number
+  targetId: string
   /** 关联对象名称 */
   targetName?: string
   /** 下次跟进时间 */
   nextTime?: string
   /** 创建人ID */
-  createBy?: number
+  createBy?: string
   /** 创建人名称 */
   createByName?: string
   /** 创建时间 */
@@ -43,18 +43,18 @@ export interface ActivityQueryParams {
   /** 关联对象类型 */
   targetType?: string
   /** 关联对象ID */
-  targetId?: number
+  targetId?: string
   /** 跟进类型 */
   type?: string
   /** 创建人ID */
-  createBy?: number
+  createBy?: string
 }
 
 /**
  * 跟进记录表单数据
  */
 export interface ActivityFormData {
-  id?: number
+  id?: string
   /** 类型 */
   type: string
   /** 跟进内容 */
@@ -62,7 +62,7 @@ export interface ActivityFormData {
   /** 关联对象类型 */
   targetType: string
   /** 关联对象 ID */
-  targetId: number
+  targetId: string
   /** 下次跟进时间 */
   nextTime?: string
 }

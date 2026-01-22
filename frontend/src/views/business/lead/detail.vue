@@ -157,7 +157,7 @@ const route = useRoute()
 const router = useRouter()
 const message = useMessage()
 
-const leadId = ref(Number(route.params.id))
+const leadId = ref(String(route.params.id))
 const loading = ref(false)
 const leadData = ref<Lead>()
 const showEditModal = ref(false)
