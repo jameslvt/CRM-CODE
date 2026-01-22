@@ -51,7 +51,7 @@
             <SearchOutline />
           </n-icon>
           <input
-            v-model="searchParams.leadName"
+            v-model="searchParams.keyword"
             type="text"
             placeholder="搜索线索名称、联系人..."
             class="search-input"
@@ -66,13 +66,7 @@
             clearable
             class="filter-select"
           />
-          <n-select
-            v-model:value="searchParams.rating"
-            placeholder="评级"
-            :options="ratingOptions"
-            clearable
-            class="filter-select"
-          />
+          
           <n-button @click="handleSearch" class="filter-btn">
             <template #icon>
               <n-icon><SearchOutline /></n-icon>
@@ -198,14 +192,12 @@ const miniStats = ref([
   { key: 'invalid', label: '已失效', value: '88', icon: CloseCircleOutline, class: 'gray' }
 ])
 
-// 搜索参数
+// 搜索参数 - 字段名与后端 LeadQueryParams 保持一致
 const searchParams = reactive<LeadQueryParams>({
   pageNum: 1,
   pageSize: 10,
-  leadName: '',
-  contactName: '',
-  status: undefined,
-  rating: undefined
+  keyword: '',
+  status: undefined
 })
 
 // 状态选项 (后端使用数字: 1-新建, 2-跟进中, 3-已转化, 4-已关闭)
@@ -312,23 +304,23 @@ const columns: DataTableColumns<Lead> = [
   { type: 'selection', width: 48 },
   {
     title: '线索名称',
-    key: 'leadName',
+    key: 'name',
     width: 200,
     ellipsis: { tooltip: true },
     render: (row) =>
       h('div', { class: 'lead-name-cell' }, [
-        h('span', { class: 'lead-name' }, row.leadName),
-        h('span', { class: 'lead-company' }, row.companyName)
+        h('span', { class: 'lead-name' }, row.name),
+        h('span', { class: 'lead-company' }, row.company)
       ])
   },
   {
-    title: '联系人',
-    key: 'contactName',
+    title: '联系电话',
+    key: 'phone',
     width: 120,
     render: (row) =>
       h('div', { class: 'contact-cell' }, [
-        h('span', { class: 'contact-name' }, row.contactName),
-        h('span', { class: 'contact-phone' }, row.phone)
+        h('span', { class: 'contact-phone' }, row.phone),
+        h('span', { class: 'contact-email' }, row.email)
       ])
   },
   {
@@ -432,10 +424,8 @@ const handleSearch = () => {
 
 // 重置
 const handleReset = () => {
-  searchParams.leadName = ''
-  searchParams.contactName = ''
+  searchParams.keyword = ''
   searchParams.status = undefined
-  searchParams.rating = undefined
   searchParams.pageNum = 1
   loadData()
 }

@@ -49,20 +49,19 @@ export enum LeadRating {
 
 /**
  * 线索实体
+ * 字段名与后端 LeadDTO 保持一致
  */
 export interface Lead {
   /** 线索ID */
   id: number
   /** 线索名称 */
-  leadName: string
-  /** 联系人姓名 */
-  contactName: string
+  name: string
   /** 联系电话 */
   phone: string
   /** 邮箱 */
   email?: string
   /** 公司名称 */
-  companyName: string
+  company: string
   /** 职位 */
   position?: string
   /** 线索来源 */
@@ -74,13 +73,13 @@ export interface Lead {
   /** 线索状态名称 */
   statusName?: string
   /** 线索评级 */
-  rating: string
+  rating?: string
   /** 线索评级名称 */
   ratingName?: string
   /** 预计金额（元） */
   estimatedAmount?: number
   /** 负责人ID */
-  ownerId: number
+  ownerId?: number
   /** 负责人姓名 */
   ownerName?: string
   /** 地址 */
@@ -101,18 +100,15 @@ export interface Lead {
 
 /**
  * 线索查询参数
+ * 字段名与后端 LeadQueryParams 保持一致
  */
 export interface LeadQueryParams extends PageParams {
-  /** 线索名称 */
-  leadName?: string
-  /** 联系人 */
-  contactName?: string
+  /** 关键词（线索名称、公司名称、电话） */
+  keyword?: string
   /** 线索来源 */
   source?: string
   /** 线索状态 */
-  status?: string
-  /** 线索评级 */
-  rating?: string
+  status?: number
   /** 负责人ID */
   ownerId?: number
   /** 行业 */
@@ -125,28 +121,27 @@ export interface LeadQueryParams extends PageParams {
 
 /**
  * 线索表单数据
+ * 字段名与后端 LeadFormData 保持一致
  */
 export interface LeadFormData {
   /** 线索ID（编辑时必填） */
   id?: number
   /** 线索名称 */
-  leadName: string
-  /** 联系人姓名 */
-  contactName: string
+  name: string
   /** 联系电话 */
-  phone: string
+  phone?: string
   /** 邮箱 */
   email?: string
   /** 公司名称 */
-  companyName: string
+  company?: string
   /** 职位 */
   position?: string
   /** 线索来源 */
-  source: string
+  source?: string
   /** 线索状态 */
-  status: string
+  status?: number
   /** 线索评级 */
-  rating: string
+  rating?: string
   /** 预计金额（元） */
   estimatedAmount?: number
   /** 负责人ID */
@@ -163,20 +158,22 @@ export interface LeadFormData {
  * 线索转化参数
  */
 export interface LeadConvertParams {
+  /** 线索ID */
+  leadId: number
   /** 客户名称 */
   customerName: string
   /** 客户类型 */
-  customerType: string
+  customerType?: string
   /** 客户级别 */
-  customerLevel: string
+  customerLevel?: string
   /** 是否创建商机 */
-  createOpportunity: boolean
+  createOpportunity?: boolean
   /** 商机名称（如果创建商机） */
   opportunityName?: string
   /** 预计金额（如果创建商机） */
   expectedAmount?: number
   /** 预计成交日期（如果创建商机） */
-  expectedCloseDate?: number
+  expectedCloseDate?: string
   /** 备注 */
   remark?: string
 }
