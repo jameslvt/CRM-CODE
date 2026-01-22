@@ -16,6 +16,7 @@ interface LoginParams {
   username: string
   password: string
   captcha?: string
+  rememberMe?: boolean
 }
 
 /**
@@ -44,8 +45,14 @@ export const useUserStore = defineStore('user', () => {
   /** 昵称 */
   const nickname = computed(() => userInfo.value?.nickname || userInfo.value?.username || '')
 
+  /** 真实姓名（兼容旧代码） */
+  const realName = computed(() => userInfo.value?.nickname || userInfo.value?.username || '')
+
   /** 头像 */
   const avatar = computed(() => userInfo.value?.avatar || '')
+
+  /** Token（从存储获取） */
+  const token = computed(() => getToken())
 
   /** 是否是管理员 */
   const isAdmin = computed(() => roles.value.includes('admin'))
@@ -228,7 +235,9 @@ export const useUserStore = defineStore('user', () => {
     isLoggedIn,
     username,
     nickname,
+    realName,
     avatar,
+    token,
     isAdmin,
 
     // 方法

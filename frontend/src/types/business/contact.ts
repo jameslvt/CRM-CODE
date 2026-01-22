@@ -59,9 +59,13 @@ export interface Contact {
  */
 export interface ContactQueryParams extends PageParams {
   /** 客户ID */
-  customerId: number
+  customerId?: number
   /** 姓名 */
   name?: string
+  /** 手机 */
+  mobile?: string
+  /** 是否主要联系人 */
+  isPrimary?: number
 }
 
 /**
@@ -94,4 +98,30 @@ export interface ContactFormData {
   birthday?: string
   /** 备注 */
   remark?: string
+}
+
+/**
+ * 性别选项
+ */
+export const genderOptions = [
+  { label: '男', value: Gender.MALE },
+  { label: '女', value: Gender.FEMALE }
+]
+
+/**
+ * 获取性别名称
+ */
+export function getGenderName(gender: number | undefined): string {
+  if (gender === Gender.MALE) return '男'
+  if (gender === Gender.FEMALE) return '女'
+  return '-'
+}
+
+/**
+ * 获取性别颜色
+ */
+export function getGenderColor(gender: number | undefined): { bg: string; color: string } {
+  if (gender === Gender.MALE) return { bg: '#dbeafe', color: '#2563eb' }
+  if (gender === Gender.FEMALE) return { bg: '#fce7f3', color: '#ec4899' }
+  return { bg: '#f1f5f9', color: '#64748b' }
 }

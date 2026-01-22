@@ -25,6 +25,15 @@ export function getUserList(params: UserQueryParams): Promise<Result<PageResult<
 }
 
 /**
+ * 分页查询用户列表（别名）
+ * @param params 查询参数
+ * @returns 分页用户列表
+ */
+export function pageUsers(params: { pageNum?: number; pageSize?: number; username?: string; nickname?: string; status?: number; deptId?: number }): Promise<Result<PageResult<User>>> {
+  return request.get('/system/users', { params })
+}
+
+/**
  * 获取用户详情
  * @param id 用户 ID
  * @returns 用户详情

@@ -166,7 +166,7 @@ const leadFormRef = ref()
 const convertDialogRef = ref()
 
 // 状态映射
-const statusMap = {
+const statusMap: Record<string, { label: string; color: string }> = {
   NEW: { label: '新建', color: 'info' },
   FOLLOWING: { label: '跟进中', color: 'warning' },
   CONVERTED: { label: '已转化', color: 'success' },
@@ -174,7 +174,7 @@ const statusMap = {
 }
 
 // 评级映射
-const ratingMap = {
+const ratingMap: Record<string, { label: string; color: string }> = {
   A: { label: 'A高', color: 'error' },
   B: { label: 'B中', color: 'warning' },
   C: { label: 'C低', color: 'info' }

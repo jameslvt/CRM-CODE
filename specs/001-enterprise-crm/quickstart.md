@@ -123,7 +123,7 @@ mvn spring-boot:run -pl crm-admin
 
 默认管理员账号:
 - 用户名: `admin`
-- 密码: `admin123`
+- 密码: `123456`
 
 ---
 

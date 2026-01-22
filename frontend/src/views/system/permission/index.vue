@@ -356,6 +356,7 @@ const modalTitle = computed(() => (isEdit.value ? '编辑权限' : '新增权限
 const formData = reactive<PermissionFormData>({
   parentId: 0,
   name: '',
+  code: '',
   permissionKey: '',
   type: PermissionType.MENU,
   path: '',

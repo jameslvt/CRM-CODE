@@ -219,30 +219,16 @@
 
           <!-- 跟进记录 -->
           <n-tab-pane name="activities" tab="跟进记录">
-            <div class="tab-content">
-              <div v-if="customer360?.activities?.length" class="activity-list">
-                <div
-                  v-for="activity in customer360.activities"
-                  :key="activity.id"
-                  class="activity-item"
-                >
-                  <div class="activity-icon" :class="getActivityTypeClass(activity.type)">
-                    <n-icon size="16"><component :is="getActivityIcon(activity.type)" /></n-icon>
-                  </div>
-                  <div class="activity-content">
-                    <div class="activity-header">
-                      <span class="activity-type">{{ activity.type }}</span>
-                      <span class="activity-time">{{ activity.createTime }}</span>
-                    </div>
-                    <p class="activity-text">{{ activity.content }}</p>
-                    <span class="activity-author">{{ activity.createByName }}</span>
-                  </div>
-                </div>
-              </div>
-              <div v-else class="empty-tab">
-                <n-icon size="40" class="empty-icon"><TimeOutline /></n-icon>
-                <p>暂无跟进记录</p>
-              </div>
+            <div class="tab-content activity-tab">
+              <activity-timeline
+                v-if="customerId"
+                ref="activityTimelineRef"
+                :target-type="TargetType.CUSTOMER"
+                :target-id="customerId"
+                @add="handleAddActivity"
+                @edit="handleEditActivity"
+                @refresh="handleActivityRefresh"
+              />
             </div>
           </n-tab-pane>
         </n-tabs>
@@ -261,6 +247,23 @@
         :form-data="customer360?.basicInfo || {}"
         @submit="handleEditSubmit"
         @cancel="showEditModal = false"
+      />
+    </n-modal>
+
+    <!-- 跟进记录弹窗 -->
+    <n-modal
+      v-model:show="showActivityModal"
+      :title="editingActivity ? '编辑跟进记录' : '添加跟进记录'"
+      preset="card"
+      class="activity-modal"
+    >
+      <activity-form
+        v-if="customerId"
+        :target-type="TargetType.CUSTOMER"
+        :target-id="customerId"
+        :edit-data="editingActivity"
+        @submit="handleActivitySubmit"
+        @cancel="showActivityModal = false"
       />
     </n-modal>
   </div>
@@ -293,8 +296,12 @@ import {
 } from '@vicons/ionicons5'
 import { getCustomer360, releaseToPool } from '@/api/business/customer'
 import type { Customer360 } from '@/types/business/customer'
+import type { Activity } from '@/types/business/activity'
+import { TargetType } from '@/types/business/activity'
 import ContactList from '@/components/business/ContactList.vue'
 import CustomerForm from '@/components/business/CustomerForm.vue'
+import ActivityTimeline from '@/components/business/ActivityTimeline.vue'
+import ActivityForm from '@/components/business/ActivityForm.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -306,6 +313,9 @@ const loading = ref(false)
 const showEditModal = ref(false)
 const contactListRef = ref()
 const customerFormRef = ref()
+const activityTimelineRef = ref()
+const showActivityModal = ref(false)
+const editingActivity = ref<Activity | null>(null)
 
 // 加载客户360度视图数据
 const loadCustomer360 = async () => {
@@ -408,6 +418,31 @@ const getActivityIcon = (type: string) => {
     '会议': PeopleOutline
   }
   return iconMap[type] || TimeOutline
+}
+
+// 添加跟进记录
+const handleAddActivity = () => {
+  editingActivity.value = null
+  showActivityModal.value = true
+}
+
+// 编辑跟进记录
+const handleEditActivity = (activity: Activity) => {
+  editingActivity.value = activity
+  showActivityModal.value = true
+}
+
+// 跟进记录提交成功
+const handleActivitySubmit = () => {
+  showActivityModal.value = false
+  editingActivity.value = null
+  activityTimelineRef.value?.refresh()
+  loadCustomer360()
+}
+
+// 跟进记录刷新
+const handleActivityRefresh = () => {
+  loadCustomer360()
 }
 
 onMounted(() => {
@@ -919,6 +954,16 @@ onMounted(() => {
 /* 编辑弹窗 */
 .edit-modal {
   width: 800px;
+}
+
+/* 跟进记录弹窗 */
+.activity-modal {
+  width: 600px;
+}
+
+/* 跟进记录 Tab */
+.activity-tab {
+  padding: 0 !important;
 }
 
 /* 响应式 */

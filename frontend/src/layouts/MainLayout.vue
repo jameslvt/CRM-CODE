@@ -173,6 +173,9 @@
         </div>
       </n-layout-content>
     </n-layout>
+
+    <!-- AI 助手 -->
+    <AiAssistantDialog />
   </n-layout>
 </template>
 
@@ -200,7 +203,7 @@ import {
   HomeOutline,
   PersonOutline,
   PeopleOutline,
-  CallOutline,
+  PersonAddOutline,
   TrendingUpOutline,
   CubeOutline,
   DocumentTextOutline,
@@ -212,6 +215,7 @@ import {
 } from '@vicons/ionicons5'
 import { useUserStore } from '@/stores/user'
 import { useAppStore } from '@/stores/app'
+import AiAssistantDialog from '@/components/ai/AiAssistantDialog.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -258,7 +262,7 @@ const menuOptions = computed<MenuOption[]>(() => {
     {
       label: '联系人管理',
       key: '/contacts',
-      icon: renderIcon(CallOutline),
+      icon: renderIcon(PersonAddOutline),
       show: userStore.hasPermission('contact:view')
     },
     {

@@ -252,6 +252,7 @@ export const useAppStore = defineStore(
       setSidebarCollapsed,
       toggleMobileSidebar,
       setMobileSidebarVisible,
+      setSidebarMobileVisible: setMobileSidebarVisible, // 别名，兼容旧代码
       closeMobileSidebar,
       toggleTheme,
       setThemeMode,

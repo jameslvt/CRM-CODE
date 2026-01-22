@@ -69,8 +69,8 @@ export interface Lead {
   source: string
   /** 线索来源名称 */
   sourceName?: string
-  /** 线索状态 */
-  status: string
+  /** 线索状态 (1-新建, 2-跟进中, 3-已转化, 4-已失效) */
+  status: number
   /** 线索状态名称 */
   statusName?: string
   /** 线索评级 */

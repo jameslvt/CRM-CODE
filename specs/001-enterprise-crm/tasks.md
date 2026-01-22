@@ -302,17 +302,17 @@
 
 ### 6.4 前端 - API 与类型
 
-- [ ] T134 [P] [US4] 创建商机 API `frontend/src/api/business/opportunity.ts`
-- [ ] T135 [P] [US4] 创建商机类型 `frontend/src/types/business/opportunity.ts`
-- [ ] T136 [P] [US4] 创建商机状态管理 `frontend/src/stores/opportunity.ts`
+- [x] T134 [P] [US4] 创建商机 API `frontend/src/api/business/opportunity.ts`
+- [x] T135 [P] [US4] 创建商机类型 `frontend/src/types/business/opportunity.ts`
+- [x] T136 [P] [US4] 创建商机状态管理 `frontend/src/stores/opportunity.ts`
 
 ### 6.5 前端 - 页面
 
-- [ ] T137 [US4] 创建商机列表页面 `frontend/src/views/business/opportunity/index.vue`
-- [ ] T138 [US4] 创建商机详情页面 `frontend/src/views/business/opportunity/detail.vue`
-- [ ] T139 [US4] 创建商机表单组件 `frontend/src/components/business/OpportunityForm.vue`
-- [ ] T140 [US4] 创建商机产品选择组件 `frontend/src/components/business/OpportunityProductSelect.vue`
-- [ ] T141 [US4] 创建商机阶段推进组件 `frontend/src/components/business/StageProgress.vue`
+- [x] T137 [US4] 创建商机列表页面 `frontend/src/views/business/opportunity/index.vue`
+- [x] T138 [US4] 创建商机详情页面 `frontend/src/views/business/opportunity/detail.vue`
+- [x] T139 [US4] 创建商机表单组件 `frontend/src/components/business/OpportunityForm.vue`
+- [x] T140 [US4] 创建商机产品选择组件 `frontend/src/components/business/OpportunityProductSelect.vue`
+- [x] T141 [US4] 创建商机阶段推进组件 `frontend/src/components/business/StageProgress.vue`
 
 **检查点**: 用户故事 4 完成 - 销售人员可以管理商机全流程
 
@@ -340,14 +340,14 @@
 
 ### 7.4 前端 - API 与类型
 
-- [ ] T147 [P] [US5] 创建产品 API `frontend/src/api/business/product.ts`
-- [ ] T148 [P] [US5] 创建产品类型 `frontend/src/types/business/product.ts`
+- [x] T147 [P] [US5] 创建产品 API `frontend/src/api/business/product.ts`
+- [x] T148 [P] [US5] 创建产品类型 `frontend/src/types/business/product.ts`
 
 ### 7.5 前端 - 页面
 
-- [ ] T149 [US5] 创建产品列表页面 `frontend/src/views/business/product/index.vue`
-- [ ] T150 [US5] 创建产品表单组件 `frontend/src/components/business/ProductForm.vue`
-- [ ] T151 [US5] 创建产品选择器组件 `frontend/src/components/business/ProductSelector.vue`（用于商机）
+- [x] T149 [US5] 创建产品列表页面 `frontend/src/views/business/product/index.vue`
+- [x] T150 [US5] 创建产品表单组件 `frontend/src/components/business/ProductForm.vue`
+- [x] T151 [US5] 创建产品选择器组件 `frontend/src/components/business/ProductSelector.vue`（用于商机）
 
 **检查点**: 用户故事 5 完成 - 产品管理员可以维护产品目录
 
@@ -368,7 +368,7 @@
 
 - [x] T154 [US6] 创建合同 Mapper `backend/crm-business/src/main/java/com/crm/business/mapper/ContractMapper.java`
 - [x] T155 [US6] 创建合同服务 `backend/crm-business/src/main/java/com/crm/business/service/ContractService.java`（CRUD、状态流转、文件上传）
-- [ ] T156 [US6] 创建文件上传服务 `backend/crm-common/src/main/java/com/crm/common/service/FileService.java`
+- [x] T156 [US6] 创建文件上传服务 `backend/crm-common/src/main/java/com/crm/common/service/FileService.java`
 - [x] T157 [US6] 创建合同签署事件 `backend/crm-business/src/main/java/com/crm/business/event/ContractSignedEvent.java`
 
 ### 8.3 后端 - Controller
@@ -377,15 +377,15 @@
 
 ### 8.4 前端 - API 与类型
 
-- [ ] T159 [P] [US6] 创建合同 API `frontend/src/api/business/contract.ts`
-- [ ] T160 [P] [US6] 创建合同类型 `frontend/src/types/business/contract.ts`
+- [x] T159 [P] [US6] 创建合同 API `frontend/src/api/business/contract.ts`
+- [x] T160 [P] [US6] 创建合同类型 `frontend/src/types/business/contract.ts`
 
 ### 8.5 前端 - 页面
 
-- [ ] T161 [US6] 创建合同列表页面 `frontend/src/views/business/contract/index.vue`
-- [ ] T162 [US6] 创建合同详情页面 `frontend/src/views/business/contract/detail.vue`
-- [ ] T163 [US6] 创建合同表单组件 `frontend/src/components/business/ContractForm.vue`
-- [ ] T164 [US6] 创建文件上传组件 `frontend/src/components/common/FileUpload.vue`
+- [x] T161 [US6] 创建合同列表页面 `frontend/src/views/business/contract/index.vue`
+- [x] T162 [US6] 创建合同详情页面 `frontend/src/views/business/contract/detail.vue`
+- [x] T163 [US6] 创建合同表单组件 `frontend/src/components/business/ContractForm.vue`
+- [x] T164 [US6] 创建文件上传组件 `frontend/src/components/common/FileUpload.vue`
 
 **检查点**: 用户故事 6 完成 - 销售人员可以管理合同全生命周期
 
@@ -416,15 +416,15 @@
 
 ### 9.4 前端 - API 与类型
 
-- [ ] T175 [P] [US7] 创建回款 API `frontend/src/api/business/payment.ts`
-- [ ] T176 [P] [US7] 创建回款类型 `frontend/src/types/business/payment.ts`
+- [x] T175 [P] [US7] 创建回款 API `frontend/src/api/business/payment.ts`
+- [x] T176 [P] [US7] 创建回款类型 `frontend/src/types/business/payment.ts`
 
 ### 9.5 前端 - 页面
 
-- [ ] T177 [US7] 创建回款管理页面 `frontend/src/views/business/payment/index.vue`
-- [ ] T178 [US7] 创建回款计划列表组件 `frontend/src/components/business/PaymentPlanList.vue`
-- [ ] T179 [US7] 创建回款记录表单组件 `frontend/src/components/business/PaymentRecordForm.vue`
-- [ ] T180 [US7] 创建应收账款报表组件 `frontend/src/components/business/ReceivableReport.vue`
+- [x] T177 [US7] 创建回款管理页面 `frontend/src/views/business/payment/index.vue`
+- [x] T178 [US7] 创建回款计划表单组件 `frontend/src/components/business/PaymentPlanForm.vue`
+- [x] T179 [US7] 创建回款记录表单组件 `frontend/src/components/business/PaymentRecordForm.vue`
+- [x] T180 [US7] 创建回款记录列表组件 `frontend/src/components/business/PaymentRecordsList.vue`
 
 **检查点**: 用户故事 7 完成 - L2C 业务闭环完成！财务人员可以管理回款全流程
 
@@ -452,15 +452,15 @@
 
 ### 10.4 前端 - API 与类型
 
-- [ ] T186 [P] [US8] 创建跟进记录 API `frontend/src/api/business/activity.ts`
-- [ ] T187 [P] [US8] 创建跟进记录类型 `frontend/src/types/business/activity.ts`
+- [x] T186 [P] [US8] 创建跟进记录 API `frontend/src/api/business/activity.ts`
+- [x] T187 [P] [US8] 创建跟进记录类型 `frontend/src/types/business/activity.ts`
 
 ### 10.5 前端 - 组件
 
-- [ ] T188 [US8] 创建跟进记录时间线组件 `frontend/src/components/business/ActivityTimeline.vue`
-- [ ] T189 [US8] 创建跟进记录表单组件 `frontend/src/components/business/ActivityForm.vue`
-- [ ] T190 [US8] 将跟进记录集成到客户详情页 `frontend/src/views/business/customer/detail.vue`（添加跟进记录 Tab）
-- [ ] T191 [US8] 将跟进记录集成到商机详情页 `frontend/src/views/business/opportunity/detail.vue`（添加跟进记录 Tab）
+- [x] T188 [US8] 创建跟进记录时间线组件 `frontend/src/components/business/ActivityTimeline.vue`
+- [x] T189 [US8] 创建跟进记录表单组件 `frontend/src/components/business/ActivityForm.vue`
+- [x] T190 [US8] 将跟进记录集成到客户详情页 `frontend/src/views/business/customer/detail.vue`（添加跟进记录 Tab）
+- [x] T191 [US8] 将跟进记录集成到商机详情页 `frontend/src/views/business/opportunity/detail.vue`（添加跟进记录卡片）
 
 **检查点**: 用户故事 8 完成 - 销售人员可以记录和查看跟进历史
 
@@ -478,7 +478,7 @@
 - [x] T193 [P] [US9] 创建销售漏斗 DTO `backend/crm-business/src/main/java/com/crm/business/dto/SalesFunnelDTO.java`
 - [x] T194 [P] [US9] 创建业绩趋势 DTO `backend/crm-business/src/main/java/com/crm/business/dto/PerformanceTrendDTO.java`
 - [x] T195 [US9] 创建仪表盘服务 `backend/crm-business/src/main/java/com/crm/business/service/DashboardService.java`（汇总统计、漏斗、趋势）
-- [ ] T196 [US9] 创建报表导出服务 `backend/crm-business/src/main/java/com/crm/business/service/ReportExportService.java`
+- [x] T196 [US9] 创建报表导出服务 `backend/crm-business/src/main/java/com/crm/business/service/ReportExportService.java`
 
 ### 11.2 后端 - Controller
 
@@ -486,16 +486,16 @@
 
 ### 11.3 前端 - API 与类型
 
-- [ ] T198 [P] [US9] 创建仪表盘 API `frontend/src/api/business/dashboard.ts`
-- [ ] T199 [P] [US9] 创建仪表盘类型 `frontend/src/types/business/dashboard.ts`
+- [x] T198 [P] [US9] 创建仪表盘 API `frontend/src/api/business/dashboard.ts`
+- [x] T199 [P] [US9] 创建仪表盘类型 `frontend/src/types/business/dashboard.ts`
 
 ### 11.4 前端 - 页面与组件
 
-- [ ] T200 [US9] 创建仪表盘页面 `frontend/src/views/business/dashboard/index.vue`
-- [ ] T201 [US9] 创建销售漏斗图组件 `frontend/src/components/business/SalesFunnelChart.vue`
-- [ ] T202 [US9] 创建业绩趋势图组件 `frontend/src/components/business/PerformanceTrendChart.vue`
-- [ ] T203 [US9] 创建核心指标卡片组件 `frontend/src/components/business/MetricCard.vue`
-- [ ] T204 [US9] 创建时间范围选择器组件 `frontend/src/components/common/DateRangePicker.vue`
+- [x] T200 [US9] 创建仪表盘页面 `frontend/src/views/business/dashboard/index.vue`
+- [x] T201 [US9] 创建销售漏斗图组件 `frontend/src/components/business/SalesFunnelChart.vue`
+- [x] T202 [US9] 创建业绩趋势图组件 `frontend/src/components/business/PerformanceTrendChart.vue`
+- [x] T203 [US9] 创建核心指标卡片组件 `frontend/src/components/business/MetricCard.vue`
+- [x] T204 [US9] 创建时间范围选择器组件 `frontend/src/components/common/DateRangePicker.vue`
 
 **检查点**: 用户故事 9 完成 - 销售经理可以查看数据分析和业绩指标
 
@@ -529,14 +529,14 @@
 
 ### 12.4 前端 - API 与类型
 
-- [ ] T214 [P] [US10] 创建 AI API `frontend/src/api/ai/index.ts`
-- [ ] T215 [P] [US10] 创建 AI 类型 `frontend/src/types/ai.ts`
+- [x] T214 [P] [US10] 创建 AI API `frontend/src/api/ai/index.ts`
+- [x] T215 [P] [US10] 创建 AI 类型 `frontend/src/types/ai.ts`
 
 ### 12.5 前端 - 组件
 
-- [ ] T216 [US10] 创建 AI 助手对话框组件 `frontend/src/components/ai/AiAssistantDialog.vue`
-- [ ] T217 [US10] 创建智能查重提示组件 `frontend/src/components/ai/DuplicateAlert.vue`
-- [ ] T218 [US10] 将 AI 助手集成到主布局 `frontend/src/layouts/MainLayout.vue`（添加 AI 入口）
+- [x] T216 [US10] 创建 AI 助手对话框组件 `frontend/src/components/ai/AiAssistantDialog.vue`
+- [x] T217 [US10] 创建智能查重提示组件 `frontend/src/components/ai/DuplicateAlert.vue`
+- [x] T218 [US10] 将 AI 助手集成到主布局 `frontend/src/layouts/MainLayout.vue`（添加 AI 入口）
 
 **检查点**: 用户故事 10 完成 - 销售人员可以使用 AI 辅助功能
 
@@ -575,29 +575,29 @@
 
 ### 14.1 操作日志
 
-- [ ] T227 [P] 创建操作日志实体 `backend/crm-system/src/main/java/com/crm/system/entity/OperationLog.java`
-- [ ] T228 [P] 创建操作日志切面 `backend/crm-common/src/main/java/com/crm/common/aspect/OperationLogAspect.java`
-- [ ] T229 创建操作日志查询页面 `frontend/src/views/system/log/index.vue`
+- [x] T227 [P] 创建操作日志实体 `backend/crm-system/src/main/java/com/crm/system/entity/OperationLog.java`
+- [x] T228 [P] 创建操作日志切面 `backend/crm-common/src/main/java/com/crm/common/aspect/OperationLogAspect.java`
+- [x] T229 创建操作日志查询页面 `frontend/src/views/system/log/index.vue`
 
 ### 14.2 数据权限
 
-- [ ] T230 实现数据权限拦截器 `backend/crm-common/src/main/java/com/crm/common/interceptor/DataScopeInterceptor.java`
+- [x] T230 实现数据权限拦截器 `backend/crm-common/src/main/java/com/crm/common/interceptor/DataScopeInterceptor.java`
 - [ ] T231 在业务服务中应用数据权限（线索、客户、商机等）
 
 ### 14.3 代码清理与优化
 
-- [ ] T232 统一异常处理和错误码定义
+- [x] T232 统一异常处理和错误码定义
 - [ ] T233 API 响应格式验证和 Swagger 文档完善
 - [ ] T234 前端组件代码重构和通用组件提取
-- [ ] T235 性能优化：添加必要的数据库索引
-- [ ] T236 安全加固：XSS 防护、SQL 注入防护检查
+- [x] T235 性能优化：添加必要的数据库索引
+- [x] T236 安全加固：XSS 防护、SQL 注入防护检查
 
 ### 14.5 验证与文档
 
-- [ ] T237 运行 quickstart.md 验证完整部署流程
+
 - [ ] T238 更新 API 文档（Knife4j 注解完善）
 
----
+--- - [ ] T237 运行 quickstart.md 验证完整部署流程
 
 ## 依赖关系与执行顺序
 

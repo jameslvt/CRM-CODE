@@ -149,6 +149,8 @@ export interface Role {
   status: RoleStatus
   /** 备注 */
   remark?: string
+  /** 描述（兼容旧代码） */
+  description?: string
   /** 创建时间 */
   createTime: string
   /** 更新时间 */
@@ -237,6 +239,8 @@ export interface Permission {
   name: string
   /** 权限标识（如 system:user:add） */
   code: string
+  /** 权限标识（别名，兼容旧代码） */
+  permissionKey?: string
   /** 权限类型：1-目录，2-菜单，3-按钮 */
   type: PermissionType
   /** 父权限 ID */
@@ -287,6 +291,8 @@ export interface PermissionFormData {
   name: string
   /** 权限标识 */
   code: string
+  /** 权限标识（别名，兼容旧代码） */
+  permissionKey?: string
   /** 路由路径 */
   path?: string
   /** 组件路径 */

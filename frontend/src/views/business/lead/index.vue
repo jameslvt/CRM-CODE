@@ -208,12 +208,12 @@ const searchParams = reactive<LeadQueryParams>({
   rating: undefined
 })
 
-// 状态选项
+// 状态选项 (后端使用数字: 1-新建, 2-跟进中, 3-已转化, 4-已关闭)
 const statusOptions = [
-  { label: '新建', value: 'NEW' },
-  { label: '跟进中', value: 'FOLLOWING' },
-  { label: '已转化', value: 'CONVERTED' },
-  { label: '已失效', value: 'INVALID' }
+  { label: '新建', value: 1 },
+  { label: '跟进中', value: 2 },
+  { label: '已转化', value: 3 },
+  { label: '已失效', value: 4 }
 ]
 
 // 评级选项
@@ -253,12 +253,12 @@ const pagination = reactive<PaginationProps>({
   }
 })
 
-// 状态颜色映射
-const statusColorMap: Record<string, { type: string; bg: string; color: string }> = {
-  NEW: { type: 'info', bg: '#dbeafe', color: '#2563eb' },
-  FOLLOWING: { type: 'warning', bg: '#fef3c7', color: '#f59e0b' },
-  CONVERTED: { type: 'success', bg: '#dcfce7', color: '#22c55e' },
-  INVALID: { type: 'default', bg: '#f1f5f9', color: '#64748b' }
+// 状态颜色映射 (使用数字键)
+const statusColorMap: Record<number, { type: string; bg: string; color: string }> = {
+  1: { type: 'info', bg: '#dbeafe', color: '#2563eb' },      // 新建
+  2: { type: 'warning', bg: '#fef3c7', color: '#f59e0b' },   // 跟进中
+  3: { type: 'success', bg: '#dcfce7', color: '#22c55e' },   // 已转化
+  4: { type: 'default', bg: '#f1f5f9', color: '#64748b' }    // 已失效
 }
 
 // 评级颜色映射
@@ -269,13 +269,13 @@ const ratingColorMap: Record<string, { bg: string; color: string }> = {
 }
 
 // 获取状态标签
-const getStatusTag = (status: string) => {
-  const config = statusColorMap[status] || statusColorMap.INVALID
-  const labels: Record<string, string> = {
-    NEW: '新建',
-    FOLLOWING: '跟进中',
-    CONVERTED: '已转化',
-    INVALID: '已失效'
+const getStatusTag = (status: number) => {
+  const config = statusColorMap[status] || statusColorMap[4]
+  const labels: Record<number, string> = {
+    1: '新建',
+    2: '跟进中',
+    3: '已转化',
+    4: '已失效'
   }
   return h(
     'span',
@@ -286,7 +286,7 @@ const getStatusTag = (status: string) => {
         color: config.color
       }
     },
-    labels[status] || status
+    labels[status] || String(status)
   )
 }
 

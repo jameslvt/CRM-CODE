@@ -80,6 +80,8 @@ import { useMessage, type UploadFileInfo } from 'naive-ui'
 import { DownloadOutline, CloudUploadOutline } from '@vicons/ionicons5'
 import { useUserStore } from '@/stores/user'
 import type { LeadQueryParams } from '@/types/business'
+// 需要安装 xlsx 库：npm install xlsx
+import * as XLSX from 'xlsx'
 
 interface Props {
   queryParams?: LeadQueryParams
@@ -227,11 +229,6 @@ const handleExport = async () => {
     exporting.value = false
   }
 }
-</script>
-
-<script setup lang="ts">
-// 需要安装 xlsx 库：npm install xlsx
-import * as XLSX from 'xlsx'
 </script>
 
 <style scoped lang="scss">

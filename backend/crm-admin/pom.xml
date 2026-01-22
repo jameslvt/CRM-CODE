@@ -18,6 +18,12 @@
     <description>CRM 启动模块 - 主启动类和配置</description>
 
     <dependencies>
+        <!-- CRM Common -->
+        <dependency>
+            <groupId>com.crm</groupId>
+            <artifactId>crm-common</artifactId>
+        </dependency>
+
         <!-- CRM System -->
         <dependency>
             <groupId>com.crm</groupId>

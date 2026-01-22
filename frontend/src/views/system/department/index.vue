@@ -574,8 +574,8 @@ function handleToggleExpand() {
 }
 
 // 展开行键变化
-function handleExpandedRowKeysChange(keys: number[]) {
-  expandedRowKeys.value = keys
+function handleExpandedRowKeysChange(keys: Array<string | number>) {
+  expandedRowKeys.value = keys as number[]
   expandAll.value = false
 }
 

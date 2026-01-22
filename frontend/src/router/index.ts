@@ -103,6 +103,19 @@ const mainRoutes: RouteRecordRaw[] = [
           keepAlive: true
         }
       },
+      // 线索详情
+      {
+        path: '/business/lead/:id',
+        name: 'LeadDetail',
+        component: () => import('@/views/business/lead/detail.vue'),
+        meta: {
+          title: '线索详情',
+          icon: 'leads',
+          requiresAuth: true,
+          permissions: ['lead:view'],
+          hidden: true
+        }
+      },
 
       // 客户管理
       {
@@ -115,6 +128,19 @@ const mainRoutes: RouteRecordRaw[] = [
           requiresAuth: true,
           permissions: ['customer:view'],
           keepAlive: true
+        }
+      },
+      // 客户详情
+      {
+        path: '/business/customer/:id',
+        name: 'CustomerDetail',
+        component: () => import('@/views/business/customer/detail.vue'),
+        meta: {
+          title: '客户详情',
+          icon: 'customers',
+          requiresAuth: true,
+          permissions: ['customer:view'],
+          hidden: true
         }
       },
 
@@ -145,6 +171,19 @@ const mainRoutes: RouteRecordRaw[] = [
           keepAlive: true
         }
       },
+      // 商机详情
+      {
+        path: '/business/opportunity/:id',
+        name: 'OpportunityDetail',
+        component: () => import('@/views/business/opportunity/detail.vue'),
+        meta: {
+          title: '商机详情',
+          icon: 'opportunities',
+          requiresAuth: true,
+          permissions: ['opportunity:view'],
+          hidden: true
+        }
+      },
 
       // 产品管理
       {
@@ -171,6 +210,19 @@ const mainRoutes: RouteRecordRaw[] = [
           requiresAuth: true,
           permissions: ['contract:view'],
           keepAlive: true
+        }
+      },
+      // 合同详情
+      {
+        path: '/business/contract/:id',
+        name: 'ContractDetail',
+        component: () => import('@/views/business/contract/detail.vue'),
+        meta: {
+          title: '合同详情',
+          icon: 'contracts',
+          requiresAuth: true,
+          permissions: ['contract:view'],
+          hidden: true
         }
       },
 

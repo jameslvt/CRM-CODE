@@ -39,9 +39,13 @@ export interface PageResult<T = any> {
  */
 export interface PageParams {
   /** 当前页码，从 1 开始 */
-  current: number
+  current?: number
   /** 每页大小 */
-  size: number
+  size?: number
+  /** 当前页码（别名，兼容旧代码） */
+  pageNum?: number
+  /** 每页大小（别名，兼容旧代码） */
+  pageSize?: number
   /** 排序字段 */
   orderBy?: string
   /** 排序方式：asc 升序，desc 降序 */
@@ -130,6 +134,8 @@ export interface UserInfo {
   roles?: string[]
   /** 权限列表（可选，从 LoginResult 获取） */
   permissions?: string[]
+  /** 创建时间 */
+  createTime?: string
 }
 
 /**

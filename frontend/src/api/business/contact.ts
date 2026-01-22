@@ -3,11 +3,18 @@
  */
 
 import request from '../request'
-import type { Contact, ContactFormData } from '@/types/business/customer'
+import type { Contact, ContactFormData, ContactQueryParams } from '@/types/business/contact'
 import type { PageResult } from '@/types/common'
 
 /**
- * 分页查询联系人列表
+ * 分页查询联系人列表（全局）
+ */
+export const pageAllContacts = (params: ContactQueryParams): Promise<PageResult<Contact>> => {
+  return request.get('/business/contact/page', { params })
+}
+
+/**
+ * 分页查询联系人列表（按客户）
  */
 export const pageContacts = (
   customerId: number,

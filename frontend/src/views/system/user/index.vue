@@ -81,7 +81,7 @@
         :columns="columns"
         :data="tableData"
         :loading="loading"
-        :pagination="pagination"
+        :pagination="pagination as any"
         :row-key="(row: User) => row.id"
         :scroll-x="1200"
         :bordered="false"
@@ -292,7 +292,8 @@ import {
   type DataTableColumns,
   type FormInst,
   type FormRules,
-  type FormItemRule
+  type FormItemRule,
+  type PaginationProps
 } from 'naive-ui'
 import {
   SearchOutlined,
@@ -352,14 +353,14 @@ const queryParams = reactive<UserQueryParams>({
 const tableData = ref<User[]>([])
 
 // 分页配置
-const pagination = reactive({
+const pagination = reactive<PaginationProps>({
   page: 1,
   pageSize: 10,
   pageCount: 0,
   itemCount: 0,
   showSizePicker: true,
   pageSizes: [10, 20, 50, 100],
-  prefix: (info: { itemCount: number }) => `共 ${info.itemCount} 条`
+  prefix: (info) => `共 ${info.itemCount ?? 0} 条`
 })
 
 // 部门选项
@@ -419,8 +420,12 @@ const formRules: FormRules = {
   ],
   password: [
     {
-      required: computed(() => formMode.value === 'add'),
-      message: '请输入密码',
+      validator: (_rule: FormItemRule, value: string) => {
+        if (formMode.value === 'add' && !value) {
+          return new Error('请输入密码')
+        }
+        return true
+      },
       trigger: 'blur'
     },
     { min: 6, max: 20, message: '密码长度为6-20个字符', trigger: 'blur' }
