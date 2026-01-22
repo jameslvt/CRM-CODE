@@ -152,7 +152,7 @@ const formModel = reactive<Partial<Lead>>({
   source: '',
   industry: '',
   rating: 'B',
-  status: 1, // 默认状态：1-新建
+  status: '1', // 默认状态：1-新建
   address: '',
   remark: ''
 })
@@ -176,9 +176,9 @@ const ratingOptions = [
 
 // 状态选项 (后端使用数字: 1-新建, 2-跟进中, 3-已转化, 4-已关闭)
 const statusOptions = [
-  { label: '新建', value: 1 },
-  { label: '跟进中', value: 2 },
-  { label: '已失效', value: 4 }
+  { label: '新建', value: '1' },
+  { label: '跟进中', value: '2' },
+  { label: '已失效', value: '4' }
 ]
 
 // 表单验证规则
