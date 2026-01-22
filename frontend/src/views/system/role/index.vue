@@ -426,7 +426,7 @@ const columns: DataTableColumns<Role> = [
     title: '数据权限',
     key: 'dataScope',
     width: 140,
-    render: (row) => getDataScopeTag(row.dataScope)
+    render: (row) => getDataScopeTag(row.dataScope || DataScope.ALL)
   },
   {
     title: '排序',

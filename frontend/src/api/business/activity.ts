@@ -1,4 +1,4 @@
-import request from '@/api/request'
+import { request } from '@/api/request'
 import type { PageResult } from '@/types/common'
 import type {
   Activity,
@@ -12,55 +12,61 @@ import type {
 /**
  * 分页查询跟进记录列表
  */
-export function pageActivities(params: ActivityQueryParams): Promise<PageResult<Activity>> {
-  return request.get('/api/business/activity/page', { params })
+export async function pageActivities(params: ActivityQueryParams): Promise<PageResult<Activity>> {
+  const result = await request.get<PageResult<Activity>>('/business/activity/page', { params })
+  return result.data
 }
 
 /**
  * 根据关联对象获取跟进记录列表（时间线）
  */
-export function getActivitiesByTarget(targetType: string, targetId: number): Promise<Activity[]> {
-  return request.get(`/api/business/activity/target/${targetType}/${targetId}`)
+export async function getActivitiesByTarget(targetType: string, targetId: number): Promise<Activity[]> {
+  const result = await request.get<Activity[]>(`/business/activity/target/${targetType}/${targetId}`)
+  return result.data
 }
 
 /**
  * 根据ID获取跟进记录详情
  */
-export function getActivityById(id: number): Promise<Activity> {
-  return request.get(`/api/business/activity/${id}`)
+export async function getActivityById(id: number): Promise<Activity> {
+  const result = await request.get<Activity>(`/business/activity/${id}`)
+  return result.data
 }
 
 /**
  * 创建跟进记录
  */
-export function createActivity(data: ActivityFormData): Promise<number> {
-  return request.post('/api/business/activity', data)
+export async function createActivity(data: ActivityFormData): Promise<number> {
+  const result = await request.post<number>('/business/activity', data)
+  return result.data
 }
 
 /**
  * 更新跟进记录
  */
-export function updateActivity(id: number, data: ActivityFormData): Promise<void> {
-  return request.put(`/api/business/activity/${id}`, data)
+export async function updateActivity(id: number, data: ActivityFormData): Promise<void> {
+  await request.put(`/business/activity/${id}`, data)
 }
 
 /**
  * 删除跟进记录
  */
-export function deleteActivity(id: number): Promise<void> {
-  return request.delete(`/api/business/activity/${id}`)
+export async function deleteActivity(id: number): Promise<void> {
+  await request.delete(`/business/activity/${id}`)
 }
 
 /**
  * 获取今日待跟进列表
  */
-export function getTodayPendingActivities(userId: number): Promise<Activity[]> {
-  return request.get('/api/business/activity/today-pending', { params: { userId } })
+export async function getTodayPendingActivities(userId: number): Promise<Activity[]> {
+  const result = await request.get<Activity[]>('/business/activity/today-pending', { params: { userId } })
+  return result.data
 }
 
 /**
  * 获取跟进统计数据
  */
-export function getActivityStatistics(targetType?: string, targetId?: number): Promise<ActivityStatistics> {
-  return request.get('/api/business/activity/statistics', { params: { targetType, targetId } })
+export async function getActivityStatistics(targetType?: string, targetId?: number): Promise<ActivityStatistics> {
+  const result = await request.get<ActivityStatistics>('/business/activity/statistics', { params: { targetType, targetId } })
+  return result.data
 }

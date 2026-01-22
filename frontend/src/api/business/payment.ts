@@ -1,4 +1,4 @@
-import request from '@/api/request'
+import { request } from '@/api/request'
 import type { PageResult } from '@/types/common'
 import type {
   PaymentPlan,
@@ -14,50 +14,54 @@ import type {
 /**
  * 分页查询回款计划列表
  */
-export function pagePaymentPlans(params: PaymentPlanQueryParams): Promise<PageResult<PaymentPlan>> {
-  return request.get('/api/business/payment/plan/page', { params })
+export async function pagePaymentPlans(params: PaymentPlanQueryParams): Promise<PageResult<PaymentPlan>> {
+  const result = await request.get<PageResult<PaymentPlan>>('/business/payment/plan/page', { params })
+  return result.data
 }
 
 /**
  * 根据合同ID获取回款计划列表
  */
-export function getPaymentPlansByContractId(contractId: number): Promise<PaymentPlan[]> {
-  return request.get(`/api/business/payment/plan/contract/${contractId}`)
+export async function getPaymentPlansByContractId(contractId: number): Promise<PaymentPlan[]> {
+  const result = await request.get<PaymentPlan[]>(`/business/payment/plan/contract/${contractId}`)
+  return result.data
 }
 
 /**
  * 根据ID获取回款计划详情
  */
-export function getPaymentPlanById(id: number): Promise<PaymentPlan> {
-  return request.get(`/api/business/payment/plan/${id}`)
+export async function getPaymentPlanById(id: number): Promise<PaymentPlan> {
+  const result = await request.get<PaymentPlan>(`/business/payment/plan/${id}`)
+  return result.data
 }
 
 /**
  * 创建回款计划
  */
-export function createPaymentPlan(data: PaymentPlanFormData): Promise<number> {
-  return request.post('/api/business/payment/plan', data)
+export async function createPaymentPlan(data: PaymentPlanFormData): Promise<number> {
+  const result = await request.post<number>('/business/payment/plan', data)
+  return result.data
 }
 
 /**
  * 批量创建回款计划
  */
-export function batchCreatePaymentPlans(contractId: number, plans: PaymentPlanFormData[]): Promise<void> {
-  return request.post(`/api/business/payment/plan/batch/${contractId}`, plans)
+export async function batchCreatePaymentPlans(contractId: number, plans: PaymentPlanFormData[]): Promise<void> {
+  await request.post(`/business/payment/plan/batch/${contractId}`, plans)
 }
 
 /**
  * 更新回款计划
  */
-export function updatePaymentPlan(id: number, data: PaymentPlanFormData): Promise<void> {
-  return request.put(`/api/business/payment/plan/${id}`, data)
+export async function updatePaymentPlan(id: number, data: PaymentPlanFormData): Promise<void> {
+  await request.put(`/business/payment/plan/${id}`, data)
 }
 
 /**
  * 删除回款计划
  */
-export function deletePaymentPlan(id: number): Promise<void> {
-  return request.delete(`/api/business/payment/plan/${id}`)
+export async function deletePaymentPlan(id: number): Promise<void> {
+  await request.delete(`/business/payment/plan/${id}`)
 }
 
 // ==================== 回款记录 ====================
@@ -65,22 +69,24 @@ export function deletePaymentPlan(id: number): Promise<void> {
 /**
  * 获取回款计划的回款记录列表
  */
-export function getPaymentRecordsByPlanId(planId: number): Promise<PaymentRecord[]> {
-  return request.get(`/api/business/payment/record/plan/${planId}`)
+export async function getPaymentRecordsByPlanId(planId: number): Promise<PaymentRecord[]> {
+  const result = await request.get<PaymentRecord[]>(`/business/payment/record/plan/${planId}`)
+  return result.data
 }
 
 /**
  * 创建回款记录
  */
-export function createPaymentRecord(data: PaymentRecordFormData): Promise<number> {
-  return request.post('/api/business/payment/record', data)
+export async function createPaymentRecord(data: PaymentRecordFormData): Promise<number> {
+  const result = await request.post<number>('/business/payment/record', data)
+  return result.data
 }
 
 /**
  * 删除回款记录
  */
-export function deletePaymentRecord(id: number): Promise<void> {
-  return request.delete(`/api/business/payment/record/${id}`)
+export async function deletePaymentRecord(id: number): Promise<void> {
+  await request.delete(`/business/payment/record/${id}`)
 }
 
 // ==================== 统计 ====================
@@ -88,6 +94,7 @@ export function deletePaymentRecord(id: number): Promise<void> {
 /**
  * 获取回款统计数据
  */
-export function getPaymentStatistics(contractId?: number): Promise<PaymentStatistics> {
-  return request.get('/api/business/payment/statistics', { params: { contractId } })
+export async function getPaymentStatistics(contractId?: number): Promise<PaymentStatistics> {
+  const result = await request.get<PaymentStatistics>('/business/payment/statistics', { params: { contractId } })
+  return result.data
 }

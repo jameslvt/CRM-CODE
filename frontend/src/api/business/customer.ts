@@ -2,69 +2,73 @@
  * 客户管理API
  */
 
-import request from '../request'
+import { request } from '../request'
 import type { Customer, CustomerQueryParams, CustomerFormData, Customer360 } from '@/types/business/customer'
-import type { PageResult } from '@/types/common'
+import type { PageResult, Result } from '@/types/common'
 
 /**
  * 分页查询客户列表
  */
-export const pageCustomers = (params: CustomerQueryParams): Promise<PageResult<Customer>> => {
-  return request.get('/business/customer/list', { params })
+export const pageCustomers = async (params: CustomerQueryParams): Promise<PageResult<Customer>> => {
+  const result = await request.get<PageResult<Customer>>('/business/customer/list', { params })
+  return result.data
 }
 
 /**
  * 根据ID获取客户详情
  */
-export const getCustomerById = (id: number): Promise<Customer> => {
-  return request.get(`/business/customer/${id}`)
+export const getCustomerById = async (id: number): Promise<Customer> => {
+  const result = await request.get<Customer>(`/business/customer/${id}`)
+  return result.data
 }
 
 /**
  * 获取客户360度视图
  */
-export const getCustomer360 = (id: number): Promise<Customer360> => {
-  return request.get(`/business/customer/${id}/360`)
+export const getCustomer360 = async (id: number): Promise<Customer360> => {
+  const result = await request.get<Customer360>(`/business/customer/${id}/360`)
+  return result.data
 }
 
 /**
  * 创建客户
  */
-export const saveCustomer = (data: CustomerFormData): Promise<number> => {
-  return request.post('/business/customer', data)
+export const saveCustomer = async (data: CustomerFormData): Promise<number> => {
+  const result = await request.post<number>('/business/customer', data)
+  return result.data
 }
 
 /**
  * 更新客户
  */
-export const updateCustomer = (data: CustomerFormData): Promise<void> => {
-  return request.put(`/business/customer/${data.id}`, data)
+export const updateCustomer = async (data: CustomerFormData): Promise<void> => {
+  await request.put(`/business/customer/${data.id}`, data)
 }
 
 /**
  * 删除客户
  */
-export const deleteCustomer = (id: number): Promise<void> => {
-  return request.delete(`/business/customer/${id}`)
+export const deleteCustomer = async (id: number): Promise<void> => {
+  await request.delete(`/business/customer/${id}`)
 }
 
 /**
  * 释放客户到公海
  */
-export const releaseToPool = (id: number, reason?: string): Promise<void> => {
-  return request.post(`/business/customer/${id}/release`, { reason })
+export const releaseToPool = async (id: number, reason?: string): Promise<void> => {
+  await request.post(`/business/customer/${id}/release`, { reason })
 }
 
 /**
  * 从公海领取客户
  */
-export const acquireFromPool = (id: number): Promise<void> => {
-  return request.post(`/business/customer/${id}/acquire`)
+export const acquireFromPool = async (id: number): Promise<void> => {
+  await request.post(`/business/customer/${id}/acquire`)
 }
 
 /**
  * 分配客户
  */
-export const assignCustomer = (id: number, ownerId: number): Promise<void> => {
-  return request.post(`/business/customer/${id}/assign`, { ownerId })
+export const assignCustomer = async (id: number, ownerId: number): Promise<void> => {
+  await request.post(`/business/customer/${id}/assign`, { ownerId })
 }

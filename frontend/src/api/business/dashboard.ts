@@ -1,4 +1,4 @@
-import request from '@/api/request'
+import { request } from '@/api/request'
 import type {
   DashboardData,
   SalesFunnel,
@@ -10,20 +10,23 @@ import type {
 /**
  * 获取仪表盘汇总数据
  */
-export function getDashboardData(params?: DashboardQueryParams): Promise<DashboardData> {
-  return request.get('/api/business/dashboard/summary', { params })
+export async function getDashboardData(params?: DashboardQueryParams): Promise<DashboardData> {
+  const result = await request.get<DashboardData>('/business/dashboard/summary', { params })
+  return result.data
 }
 
 /**
  * 获取销售漏斗数据
  */
-export function getSalesFunnel(params?: DashboardQueryParams): Promise<SalesFunnel> {
-  return request.get('/api/business/dashboard/funnel', { params })
+export async function getSalesFunnel(params?: DashboardQueryParams): Promise<SalesFunnel> {
+  const result = await request.get<SalesFunnel>('/business/dashboard/funnel', { params })
+  return result.data
 }
 
 /**
  * 获取业绩趋势数据
  */
-export function getPerformanceTrend(params?: TrendQueryParams): Promise<PerformanceTrend> {
-  return request.get('/api/business/dashboard/trend', { params })
+export async function getPerformanceTrend(params?: TrendQueryParams): Promise<PerformanceTrend> {
+  const result = await request.get<PerformanceTrend>('/business/dashboard/trend', { params })
+  return result.data
 }

@@ -333,7 +333,7 @@ const columns: DataTableColumns<Lead> = [
     title: '评级',
     key: 'rating',
     width: 80,
-    render: (row) => getRatingTag(row.rating)
+    render: (row) => getRatingTag(row.rating || '')
   },
   {
     title: '来源',
@@ -373,7 +373,7 @@ const columns: DataTableColumns<Lead> = [
           },
           [h(NIcon, { size: 16 }, { default: () => h(CreateOutline) }), '编辑']
         ),
-        row.status !== 'CONVERTED' &&
+        row.status !== 3 &&
           h(
             'button',
             {

@@ -396,3 +396,160 @@ public CorsConfigurationSource corsConfigurationSource() {
 ---
 
 *最后更新：2026-01-22*
+
+
+---
+
+## 阶段 5-14：所有业务模块 API 修复
+
+### 修复：所有业务 API 响应数据处理错误
+
+**问题描述**：
+所有业务 API 文件都存在相同的问题：
+- 直接返回 `request.get()` 的结果，没有正确提取 `data` 字段
+- 部分 API 路径以 `/api/` 开头，与 `VITE_API_BASE_URL` 中的 `/api` 重复
+
+**修复文件**：
+1. `frontend/src/api/business/customer.ts` - 修复客户 API
+2. `frontend/src/api/business/contact.ts` - 修复联系人 API
+3. `frontend/src/api/business/opportunity.ts` - 修复商机 API
+4. `frontend/src/api/business/product.ts` - 修复产品 API
+5. `frontend/src/api/business/contract.ts` - 修复合同 API
+6. `frontend/src/api/business/payment.ts` - 修复回款 API
+7. `frontend/src/api/business/activity.ts` - 修复活动 API
+8. `frontend/src/api/business/dashboard.ts` - 修复仪表盘 API
+9. `frontend/src/api/ai/index.ts` - 修复 AI API（移除重复的 /api 前缀）
+
+**修复内容**：
+
+#### 1. 修复分页查询函数
+
+```typescript
+// 修改前
+export function pageCustomers(params: CustomerQueryParams): Promise<PageResult<Customer>> {
+  return request.get('/business/customer/list', { params })
+}
+
+// 修改后
+export async function pageCustomers(params: CustomerQueryParams): Promise<PageResult<Customer>> {
+  const result = await request.get<PageResult<Customer>>('/business/customer/list', { params })
+  return result.data
+}
+```
+
+#### 2. 修复单个实体查询函数
+
+```typescript
+// 修改前
+export function getCustomer(id: number): Promise<Customer> {
+  return request.get(`/business/customer/${id}`)
+}
+
+// 修改后
+export async function getCustomer(id: number): Promise<Customer> {
+  const result = await request.get<Customer>(`/business/customer/${id}`)
+  return result.data
+}
+```
+
+#### 3. 修复 AI API 路径重复问题
+
+```typescript
+// 修改前
+export function getAiStatus(): Promise<AiStatus> {
+  return request.get('/api/ai/status')  // 路径重复 /api
+}
+
+// 修改后
+export async function getAiStatus(): Promise<AiStatus> {
+  const result = await request.get<AiStatus>('/ai/status')  // 移除重复的 /api
+  return result.data
+}
+```
+
+---
+
+### TypeScript 编译错误修复
+
+**问题描述**：
+修改 API 文件后，部分 Vue 组件出现 TypeScript 编译错误：
+1. `LeadConvertDialog.vue` 使用了旧的字段名
+2. `lead/detail.vue` 使用了旧的字段名
+3. `lead/index.vue` 状态比较类型不正确
+4. `role/index.vue` DataScope 类型使用不正确
+
+**修复文件**：
+1. `frontend/src/components/business/LeadConvertDialog.vue`
+2. `frontend/src/views/business/lead/detail.vue`
+3. `frontend/src/views/business/lead/index.vue`
+4. `frontend/src/views/system/role/index.vue`
+
+**修复内容**：
+
+#### 1. 修复 LeadConvertDialog.vue
+
+```typescript
+// 修改前
+formModel.companyName = props.lead.companyName
+formModel.contactName = props.lead.contactName
+
+// 修改后
+formModel.companyName = props.lead.company
+// 移除 contactName（后端没有此字段）
+```
+
+#### 2. 修复 lead/detail.vue
+
+```typescript
+// 修改前
+<span>{{ lead.leadName }}</span>
+<span>{{ lead.companyName }}</span>
+
+// 修改后
+<span>{{ lead.name }}</span>
+<span>{{ lead.company }}</span>
+```
+
+#### 3. 修复 lead/index.vue 状态比较
+
+```typescript
+// 修改前
+row.status !== LeadStatus.CONVERTED
+
+// 修改后
+row.status !== Number(LeadStatus.CONVERTED)
+```
+
+#### 4. 修复 role/index.vue DataScope 类型
+
+```typescript
+// 修改前
+formData.dataScope = DataScope.ALL
+
+// 修改后
+formData.dataScope = DataScope.ALL as number
+```
+
+---
+
+## 待修复问题
+
+### 客户管理新增弹窗不显示
+
+**问题描述**：
+点击"新增客户"按钮后，弹窗没有显示。
+
+**初步分析**：
+- 后端 API 正常工作（通过 curl 测试成功创建客户）
+- 前端 TypeScript 编译通过
+- Vue 组件事件绑定可能有问题
+- 可能是 n-modal 组件渲染问题
+
+**待进一步调查**：
+- 检查 CustomerForm 组件是否正确导入
+- 检查 n-modal 组件的 show 属性绑定
+- 检查 Vue 组件是否有运行时错误
+
+---
+
+*最后更新：2026-01-22*
