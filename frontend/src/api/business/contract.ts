@@ -1,108 +1,115 @@
-import request from '@/api/request'
+import { request } from '@/api/request'
 import type { PageResult } from '@/types/common'
 import type { Contract, ContractQueryParams, ContractFormData, ContractStatistics } from '@/types/business/contract'
 
 /**
  * 分页查询合同列表
  */
-export function pageContracts(params: ContractQueryParams): Promise<PageResult<Contract>> {
-  return request.get('/api/business/contract/page', { params })
+export async function pageContracts(params: ContractQueryParams): Promise<PageResult<Contract>> {
+  const result = await request.get<PageResult<Contract>>('/business/contract/page', { params })
+  return result.data
 }
 
 /**
  * 根据客户ID获取合同列表
  */
-export function getContractsByCustomerId(customerId: number): Promise<Contract[]> {
-  return request.get(`/api/business/contract/customer/${customerId}`)
+export async function getContractsByCustomerId(customerId: number): Promise<Contract[]> {
+  const result = await request.get<Contract[]>(`/business/contract/customer/${customerId}`)
+  return result.data
 }
 
 /**
  * 根据商机ID获取合同列表
  */
-export function getContractsByOpportunityId(opportunityId: number): Promise<Contract[]> {
-  return request.get(`/api/business/contract/opportunity/${opportunityId}`)
+export async function getContractsByOpportunityId(opportunityId: number): Promise<Contract[]> {
+  const result = await request.get<Contract[]>(`/business/contract/opportunity/${opportunityId}`)
+  return result.data
 }
 
 /**
  * 根据ID获取合同详情
  */
-export function getContractById(id: number): Promise<Contract> {
-  return request.get(`/api/business/contract/${id}`)
+export async function getContractById(id: number): Promise<Contract> {
+  const result = await request.get<Contract>(`/business/contract/${id}`)
+  return result.data
 }
 
 /**
  * 创建合同
  */
-export function createContract(data: ContractFormData): Promise<number> {
-  return request.post('/api/business/contract', data)
+export async function createContract(data: ContractFormData): Promise<number> {
+  const result = await request.post<number>('/business/contract', data)
+  return result.data
 }
 
 /**
  * 从商机创建合同
  */
-export function createContractFromOpportunity(opportunityId: number): Promise<number> {
-  return request.post(`/api/business/contract/from-opportunity/${opportunityId}`)
+export async function createContractFromOpportunity(opportunityId: number): Promise<number> {
+  const result = await request.post<number>(`/business/contract/from-opportunity/${opportunityId}`)
+  return result.data
 }
 
 /**
  * 更新合同
  */
-export function updateContract(id: number, data: ContractFormData): Promise<void> {
-  return request.put(`/api/business/contract/${id}`, data)
+export async function updateContract(id: number, data: ContractFormData): Promise<void> {
+  await request.put(`/business/contract/${id}`, data)
 }
 
 /**
  * 删除合同
  */
-export function deleteContract(id: number): Promise<void> {
-  return request.delete(`/api/business/contract/${id}`)
+export async function deleteContract(id: number): Promise<void> {
+  await request.delete(`/business/contract/${id}`)
 }
 
 /**
  * 提交审批
  */
-export function submitContractForApproval(id: number): Promise<void> {
-  return request.post(`/api/business/contract/${id}/submit`)
+export async function submitContractForApproval(id: number): Promise<void> {
+  await request.post(`/business/contract/${id}/submit`)
 }
 
 /**
  * 审批通过
  */
-export function approveContract(id: number): Promise<void> {
-  return request.post(`/api/business/contract/${id}/approve`)
+export async function approveContract(id: number): Promise<void> {
+  await request.post(`/business/contract/${id}/approve`)
 }
 
 /**
  * 审批驳回
  */
-export function rejectContract(id: number): Promise<void> {
-  return request.post(`/api/business/contract/${id}/reject`)
+export async function rejectContract(id: number): Promise<void> {
+  await request.post(`/business/contract/${id}/reject`)
 }
 
 /**
  * 完成合同
  */
-export function completeContract(id: number): Promise<void> {
-  return request.post(`/api/business/contract/${id}/complete`)
+export async function completeContract(id: number): Promise<void> {
+  await request.post(`/business/contract/${id}/complete`)
 }
 
 /**
  * 终止合同
  */
-export function terminateContract(id: number): Promise<void> {
-  return request.post(`/api/business/contract/${id}/terminate`)
+export async function terminateContract(id: number): Promise<void> {
+  await request.post(`/business/contract/${id}/terminate`)
 }
 
 /**
  * 更新合同文件
  */
-export function updateContractFile(id: number, fileUrl: string): Promise<void> {
-  return request.put(`/api/business/contract/${id}/file`, null, { params: { fileUrl } })
+export async function updateContractFile(id: number, fileUrl: string): Promise<void> {
+  await request.put(`/business/contract/${id}/file`, null, { params: { fileUrl } })
 }
 
 /**
  * 获取合同统计数据
  */
-export function getContractStatistics(ownerId?: number): Promise<ContractStatistics> {
-  return request.get('/api/business/contract/statistics', { params: { ownerId } })
+export async function getContractStatistics(ownerId?: number): Promise<ContractStatistics> {
+  const result = await request.get<ContractStatistics>('/business/contract/statistics', { params: { ownerId } })
+  return result.data
 }

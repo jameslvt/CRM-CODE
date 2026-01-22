@@ -8,18 +8,10 @@
     require-mark-placement="right-hanging"
   >
     <n-grid :cols="2" :x-gap="24">
-      <n-form-item-gi label="线索名称" path="leadName">
+      <n-form-item-gi label="线索名称" path="name">
         <n-input
-          v-model:value="formModel.leadName"
+          v-model:value="formModel.name"
           placeholder="请输入线索名称"
-          clearable
-        />
-      </n-form-item-gi>
-
-      <n-form-item-gi label="联系人" path="contactName">
-        <n-input
-          v-model:value="formModel.contactName"
-          placeholder="请输入联系人"
           clearable
         />
       </n-form-item-gi>
@@ -40,9 +32,9 @@
         />
       </n-form-item-gi>
 
-      <n-form-item-gi label="公司名称" path="companyName">
+      <n-form-item-gi label="公司名称" path="company">
         <n-input
-          v-model:value="formModel.companyName"
+          v-model:value="formModel.company"
           placeholder="请输入公司名称"
           clearable
         />
@@ -141,21 +133,8 @@ const message = useMessage()
 const formRef = ref<FormInst>()
 const submitting = ref(false)
 
-// 表单数据
-const formModel = reactive<Partial<Lead>>({
-  leadName: '',
-  contactName: '',
-  phone: '',
-  email: '',
-  companyName: '',
-  position: '',
-  source: '',
-  industry: '',
-  rating: 'B',
-  status: '1', // 默认状态：1-新建
-  address: '',
-  remark: ''
-})
+// 表单数据 - 字段名与后端 LeadFormData 保持一致
+const formModel = reactive<Partial<Lead>>({})
 
 // 来源选项
 const sourceOptions = [
@@ -176,21 +155,17 @@ const ratingOptions = [
 
 // 状态选项 (后端使用数字: 1-新建, 2-跟进中, 3-已转化, 4-已关闭)
 const statusOptions = [
-  { label: '新建', value: '1' },
-  { label: '跟进中', value: '2' },
-  { label: '已失效', value: '4' }
+  { label: '新建', value: 1 },
+  { label: '跟进中', value: 2 },
+  { label: '已失效', value: 4 }
 ]
 
-// 表单验证规则
+// 表单验证规则 - 字段名与后端保持一致
 const rules: FormRules = {
-  leadName: [
+  name: [
     { required: true, message: '请输入线索名称', trigger: 'blur' }
   ],
-  contactName: [
-    { required: true, message: '请输入联系人', trigger: 'blur' }
-  ],
   phone: [
-    { required: true, message: '请输入联系电话', trigger: 'blur' },
     {
       pattern: /^1[3-9]\d{9}$/,
       message: '请输入正确的手机号码',
@@ -204,9 +179,6 @@ const rules: FormRules = {
       trigger: 'blur'
     }
   ],
-  companyName: [
-    { required: true, message: '请输入公司名称', trigger: 'blur' }
-  ],
   source: [
     { required: true, message: '请选择来源', trigger: 'change' }
   ],
@@ -214,16 +186,35 @@ const rules: FormRules = {
     { required: true, message: '请选择评级', trigger: 'change' }
   ],
   status: [
-    { required: true, message: '请选择状态', trigger: 'change' }
+    { required: true, type: 'number', message: '请选择状态', trigger: 'change' }
   ]
+}
+
+// 默认表单数据
+const defaultFormData = {
+  name: '',
+  phone: '',
+  email: '',
+  company: '',
+  position: '',
+  source: '',
+  industry: '',
+  rating: 'B',
+  status: 1, // 默认状态：1-新建
+  address: '',
+  remark: ''
 }
 
 // 监听 props 变化，更新表单数据
 watch(
   () => props.formData,
   (newVal) => {
-    if (newVal) {
+    // 如果是编辑模式（有 id），使用传入的数据
+    // 如果是新增模式（无 id），使用默认值
+    if (newVal && newVal.id) {
       Object.assign(formModel, newVal)
+    } else {
+      Object.assign(formModel, defaultFormData)
     }
   },
   { immediate: true, deep: true }

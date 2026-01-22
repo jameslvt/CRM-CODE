@@ -85,9 +85,8 @@ export function batchDeleteUsers(ids: number[]): Promise<Result<void>> {
  * @returns 操作结果
  */
 export function assignRoles(params: AssignRolesParams): Promise<Result<void>> {
-  return request.post(`/system/users/${params.userId}/roles`, {
-    roleIds: params.roleIds
-  })
+  // 后端接口接受 List<Long> 格式，直接发送数组
+  return request.post(`/system/users/${params.userId}/roles`, params.roleIds)
 }
 
 /**

@@ -2,69 +2,74 @@
  * 联系人管理API
  */
 
-import request from '../request'
+import { request } from '../request'
 import type { Contact, ContactFormData, ContactQueryParams } from '@/types/business/contact'
 import type { PageResult } from '@/types/common'
 
 /**
  * 分页查询联系人列表（全局）
  */
-export const pageAllContacts = (params: ContactQueryParams): Promise<PageResult<Contact>> => {
-  return request.get('/business/contact/page', { params })
+export const pageAllContacts = async (params: ContactQueryParams): Promise<PageResult<Contact>> => {
+  const result = await request.get<PageResult<Contact>>('/business/contact/page', { params })
+  return result.data
 }
 
 /**
  * 分页查询联系人列表（按客户）
  */
-export const pageContacts = (
+export const pageContacts = async (
   customerId: number,
   name?: string,
   pageNum = 1,
   pageSize = 10
 ): Promise<PageResult<Contact>> => {
-  return request.get('/business/contact/list', {
+  const result = await request.get<PageResult<Contact>>('/business/contact/list', {
     params: { customerId, name, pageNum, pageSize }
   })
+  return result.data
 }
 
 /**
  * 获取客户的所有联系人
  */
-export const getContactsByCustomerId = (customerId: number): Promise<Contact[]> => {
-  return request.get(`/business/contact/customer/${customerId}`)
+export const getContactsByCustomerId = async (customerId: number): Promise<Contact[]> => {
+  const result = await request.get<Contact[]>(`/business/contact/customer/${customerId}`)
+  return result.data
 }
 
 /**
  * 根据ID获取联系人详情
  */
-export const getContactById = (id: number): Promise<Contact> => {
-  return request.get(`/business/contact/${id}`)
+export const getContactById = async (id: number): Promise<Contact> => {
+  const result = await request.get<Contact>(`/business/contact/${id}`)
+  return result.data
 }
 
 /**
  * 创建联系人
  */
-export const saveContact = (data: ContactFormData): Promise<number> => {
-  return request.post('/business/contact', data)
+export const saveContact = async (data: ContactFormData): Promise<number> => {
+  const result = await request.post<number>('/business/contact', data)
+  return result.data
 }
 
 /**
  * 更新联系人
  */
-export const updateContact = (data: ContactFormData): Promise<void> => {
-  return request.put(`/business/contact/${data.id}`, data)
+export const updateContact = async (data: ContactFormData): Promise<void> => {
+  await request.put(`/business/contact/${data.id}`, data)
 }
 
 /**
  * 删除联系人
  */
-export const deleteContact = (id: number): Promise<void> => {
-  return request.delete(`/business/contact/${id}`)
+export const deleteContact = async (id: number): Promise<void> => {
+  await request.delete(`/business/contact/${id}`)
 }
 
 /**
  * 设置为主要联系人
  */
-export const setPrimaryContact = (id: number): Promise<void> => {
-  return request.post(`/business/contact/${id}/set-primary`)
+export const setPrimaryContact = async (id: number): Promise<void> => {
+  await request.post(`/business/contact/${id}/set-primary`)
 }

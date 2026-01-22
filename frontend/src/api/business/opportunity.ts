@@ -1,4 +1,4 @@
-import request from '@/api/request'
+import { request } from '@/api/request'
 import type { PageResult } from '@/types/common'
 import type {
   Opportunity,
@@ -12,62 +12,68 @@ import type {
 /**
  * 分页查询商机列表
  */
-export function pageOpportunities(params: OpportunityQueryParams): Promise<PageResult<Opportunity>> {
-  return request.get('/api/business/opportunity/page', { params })
+export async function pageOpportunities(params: OpportunityQueryParams): Promise<PageResult<Opportunity>> {
+  const result = await request.get<PageResult<Opportunity>>('/business/opportunity/page', { params })
+  return result.data
 }
 
 /**
  * 根据客户ID获取商机列表
  */
-export function getOpportunitiesByCustomerId(customerId: number): Promise<Opportunity[]> {
-  return request.get(`/api/business/opportunity/customer/${customerId}`)
+export async function getOpportunitiesByCustomerId(customerId: number): Promise<Opportunity[]> {
+  const result = await request.get<Opportunity[]>(`/business/opportunity/customer/${customerId}`)
+  return result.data
 }
 
 /**
  * 根据ID获取商机详情
  */
-export function getOpportunityById(id: number): Promise<Opportunity> {
-  return request.get(`/api/business/opportunity/${id}`)
+export async function getOpportunityById(id: number): Promise<Opportunity> {
+  const result = await request.get<Opportunity>(`/business/opportunity/${id}`)
+  return result.data
 }
 
 /**
  * 创建商机
  */
-export function createOpportunity(data: OpportunityFormData): Promise<number> {
-  return request.post('/api/business/opportunity', data)
+export async function createOpportunity(data: OpportunityFormData): Promise<number> {
+  const result = await request.post<number>('/business/opportunity', data)
+  return result.data
 }
 
 /**
  * 更新商机
  */
-export function updateOpportunity(id: number, data: OpportunityFormData): Promise<void> {
-  return request.put(`/api/business/opportunity/${id}`, data)
+export async function updateOpportunity(id: number, data: OpportunityFormData): Promise<void> {
+  await request.put(`/business/opportunity/${id}`, data)
 }
 
 /**
  * 删除商机
  */
-export function deleteOpportunity(id: number): Promise<void> {
-  return request.delete(`/api/business/opportunity/${id}`)
+export async function deleteOpportunity(id: number): Promise<void> {
+  await request.delete(`/business/opportunity/${id}`)
 }
 
 /**
  * 推进商机阶段
  */
-export function advanceStage(data: StageAdvanceDTO): Promise<void> {
-  return request.post('/api/business/opportunity/advance-stage', data)
+export async function advanceStage(data: StageAdvanceDTO): Promise<void> {
+  await request.post('/business/opportunity/advance-stage', data)
 }
 
 /**
  * 获取商机产品列表
  */
-export function getOpportunityProducts(opportunityId: number): Promise<OpportunityProduct[]> {
-  return request.get(`/api/business/opportunity/${opportunityId}/products`)
+export async function getOpportunityProducts(opportunityId: number): Promise<OpportunityProduct[]> {
+  const result = await request.get<OpportunityProduct[]>(`/business/opportunity/${opportunityId}/products`)
+  return result.data
 }
 
 /**
  * 获取商机统计数据
  */
-export function getOpportunityStatistics(ownerId?: number): Promise<OpportunityStatistics> {
-  return request.get('/api/business/opportunity/statistics', { params: { ownerId } })
+export async function getOpportunityStatistics(ownerId?: number): Promise<OpportunityStatistics> {
+  const result = await request.get<OpportunityStatistics>('/business/opportunity/statistics', { params: { ownerId } })
+  return result.data
 }

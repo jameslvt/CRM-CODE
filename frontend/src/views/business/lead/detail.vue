@@ -11,7 +11,7 @@
             编辑
           </n-button>
           <n-button
-            v-if="leadData?.status !== 'CONVERTED'"
+            v-if="leadData?.status !== 3"
             type="primary"
             @click="handleConvert"
           >
@@ -31,15 +31,15 @@
           <n-card title="基本信息" :bordered="false">
             <n-descriptions :column="2" label-placement="left">
               <n-descriptions-item label="线索名称">
-                {{ leadData.leadName }}
+                {{ leadData.name }}
               </n-descriptions-item>
               <n-descriptions-item label="状态">
-                <n-tag :type="getStatusColor(leadData.status)" size="small">
-                  {{ getStatusLabel(leadData.status) }}
+                <n-tag :type="getStatusColor(String(leadData.status))" size="small">
+                  {{ getStatusLabel(String(leadData.status)) }}
                 </n-tag>
               </n-descriptions-item>
-              <n-descriptions-item label="联系人">
-                {{ leadData.contactName }}
+              <n-descriptions-item label="线索名称">
+                {{ leadData.name }}
               </n-descriptions-item>
               <n-descriptions-item label="联系电话">
                 {{ leadData.phone }}
@@ -48,12 +48,12 @@
                 {{ leadData.email || '-' }}
               </n-descriptions-item>
               <n-descriptions-item label="评级">
-                <n-tag :type="getRatingColor(leadData.rating)" size="small">
-                  {{ getRatingLabel(leadData.rating) }}
+                <n-tag :type="getRatingColor(leadData.rating || '')" size="small">
+                  {{ getRatingLabel(leadData.rating || '') }}
                 </n-tag>
               </n-descriptions-item>
               <n-descriptions-item label="公司名称">
-                {{ leadData.companyName }}
+                {{ leadData.company }}
               </n-descriptions-item>
               <n-descriptions-item label="职位">
                 {{ leadData.position || '-' }}
@@ -88,7 +88,7 @@
                 {{ leadData.updateTime || '-' }}
               </n-descriptions-item>
               <n-descriptions-item
-                v-if="leadData.status === 'CONVERTED'"
+                v-if="leadData.status === 3"
                 label="转化时间"
               >
                 {{ leadData.convertTime || '-' }}
@@ -167,10 +167,10 @@ const convertDialogRef = ref()
 
 // 状态映射
 const statusMap: Record<string, { label: string; color: string }> = {
-  NEW: { label: '新建', color: 'info' },
-  FOLLOWING: { label: '跟进中', color: 'warning' },
-  CONVERTED: { label: '已转化', color: 'success' },
-  INVALID: { label: '已失效', color: 'default' }
+  '1': { label: '新建', color: 'info' },
+  '2': { label: '跟进中', color: 'warning' },
+  '3': { label: '已转化', color: 'success' },
+  '4': { label: '已失效', color: 'default' }
 }
 
 // 评级映射

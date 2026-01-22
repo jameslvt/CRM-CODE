@@ -118,8 +118,8 @@ const formRef = ref<FormInst>()
 const submitting = ref(false)
 const leadData = ref<Lead>()
 
-// 表单数据
-const formModel = reactive<LeadConvertParams>({
+// 表单数据（不包含 leadId，因为 leadId 通过 props 传入）
+const formModel = reactive<Omit<LeadConvertParams, 'leadId'>>({
   customerName: '',
   customerType: 'ENTERPRISE',
   customerLevel: 'NORMAL',
@@ -201,8 +201,8 @@ const rules: FormRules = {
 const loadLeadData = async () => {
   try {
     leadData.value = await getLeadById(props.leadId)
-    // 自动填充客户名称
-    formModel.customerName = leadData.value.companyName || leadData.value.leadName
+    // 自动填充客户名称（使用新字段名 company 和 name）
+    formModel.customerName = leadData.value.company || leadData.value.name
   } catch (error) {
     message.error('加载线索数据失败')
   }

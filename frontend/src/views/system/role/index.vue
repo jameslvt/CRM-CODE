@@ -102,18 +102,18 @@
         label-width="120"
         require-mark-placement="right-hanging"
       >
-        <n-form-item label="角色名称" path="name">
+        <n-form-item label="角色名称" path="roleName">
           <n-input
-            v-model:value="formData.name"
+            v-model:value="formData.roleName"
             placeholder="请输入角色名称（2-50字符）"
             maxlength="50"
             show-count
           />
         </n-form-item>
 
-        <n-form-item label="角色编码" path="code">
+        <n-form-item label="角色编码" path="roleCode">
           <n-input
-            v-model:value="formData.code"
+            v-model:value="formData.roleCode"
             placeholder="请输入角色编码（字母数字下划线）"
             :disabled="formMode === 'edit'"
             maxlength="50"
@@ -129,9 +129,9 @@
           />
         </n-form-item>
 
-        <n-form-item label="排序" path="sort">
+        <n-form-item label="排序" path="sortOrder">
           <n-input-number
-            v-model:value="formData.sort"
+            v-model:value="formData.sortOrder"
             placeholder="请输入排序号"
             :min="0"
             :max="9999"
@@ -334,21 +334,21 @@ const showFormModal = ref(false)
 
 // 表单数据
 const formData = reactive<RoleFormData>({
-  name: '',
-  code: '',
+  roleName: '',
+  roleCode: '',
   dataScope: DataScope.SELF,
-  sort: 0,
+  sortOrder: 0,
   status: RoleStatus.ENABLED,
   remark: undefined
 })
 
 // 表单验证规则
 const formRules: FormRules = {
-  name: [
+  roleName: [
     { required: true, message: '请输入角色名称', trigger: 'blur' },
     { min: 2, max: 50, message: '角色名称长度为2-50个字符', trigger: 'blur' }
   ],
-  code: [
+  roleCode: [
     { required: true, message: '请输入角色编码', trigger: 'blur' },
     {
       pattern: /^[a-zA-Z0-9_]{2,50}$/,
@@ -359,7 +359,7 @@ const formRules: FormRules = {
   dataScope: [
     { required: true, message: '请选择数据权限范围', trigger: 'change', type: 'number' }
   ],
-  sort: [
+  sortOrder: [
     { required: true, message: '请输入排序号', trigger: 'blur', type: 'number' }
   ]
 }
@@ -414,23 +414,23 @@ const getDataScopeTag = (dataScope: DataScope) => {
 const columns: DataTableColumns<Role> = [
   {
     title: '角色名称',
-    key: 'name',
+    key: 'roleName',
     width: 150,
     render: (row) =>
       h('div', { class: 'role-cell' }, [
-        h('span', { class: 'role-name' }, row.name),
-        h('span', { class: 'role-code' }, row.code)
+        h('span', { class: 'role-name' }, row.roleName),
+        h('span', { class: 'role-code' }, row.roleCode)
       ])
   },
   {
     title: '数据权限',
     key: 'dataScope',
     width: 140,
-    render: (row) => getDataScopeTag(row.dataScope)
+    render: (row) => getDataScopeTag(row.dataScope || DataScope.ALL)
   },
   {
     title: '排序',
-    key: 'sort',
+    key: 'sortOrder',
     width: 80
   },
   {
@@ -553,10 +553,10 @@ function handleEdit(row: Role) {
   formMode.value = 'edit'
   Object.assign(formData, {
     id: row.id,
-    name: row.name,
-    code: row.code,
+    roleName: row.roleName,
+    roleCode: row.roleCode,
     dataScope: row.dataScope,
-    sort: row.sort,
+    sortOrder: row.sortOrder,
     status: row.status,
     remark: row.remark
   })
@@ -722,10 +722,10 @@ async function handleAssignPermissions() {
 function resetFormData() {
   Object.assign(formData, {
     id: undefined,
-    name: '',
-    code: '',
+    roleName: '',
+    roleCode: '',
     dataScope: DataScope.SELF,
-    sort: 0,
+    sortOrder: 0,
     status: RoleStatus.ENABLED,
     remark: undefined
   })

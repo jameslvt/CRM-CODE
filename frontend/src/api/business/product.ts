@@ -1,66 +1,70 @@
-import request from '@/api/request'
+import { request } from '@/api/request'
 import type { PageResult } from '@/types/common'
 import type { Product, ProductQueryParams, ProductFormData } from '@/types/business/product'
 
 /**
  * 分页查询产品列表
  */
-export function pageProducts(params: ProductQueryParams): Promise<PageResult<Product>> {
-  return request.get('/api/business/product/page', { params })
+export async function pageProducts(params: ProductQueryParams): Promise<PageResult<Product>> {
+  const result = await request.get<PageResult<Product>>('/business/product/page', { params })
+  return result.data
 }
 
 /**
  * 获取所有启用的产品列表
  */
-export function getEnabledProducts(): Promise<Product[]> {
-  return request.get('/api/business/product/enabled')
+export async function getEnabledProducts(): Promise<Product[]> {
+  const result = await request.get<Product[]>('/business/product/enabled')
+  return result.data
 }
 
 /**
  * 根据ID获取产品详情
  */
-export function getProductById(id: number): Promise<Product> {
-  return request.get(`/api/business/product/${id}`)
+export async function getProductById(id: number): Promise<Product> {
+  const result = await request.get<Product>(`/business/product/${id}`)
+  return result.data
 }
 
 /**
  * 创建产品
  */
-export function createProduct(data: ProductFormData): Promise<number> {
-  return request.post('/api/business/product', data)
+export async function createProduct(data: ProductFormData): Promise<number> {
+  const result = await request.post<number>('/business/product', data)
+  return result.data
 }
 
 /**
  * 更新产品
  */
-export function updateProduct(id: number, data: ProductFormData): Promise<void> {
-  return request.put(`/api/business/product/${id}`, data)
+export async function updateProduct(id: number, data: ProductFormData): Promise<void> {
+  await request.put(`/business/product/${id}`, data)
 }
 
 /**
  * 删除产品
  */
-export function deleteProduct(id: number): Promise<void> {
-  return request.delete(`/api/business/product/${id}`)
+export async function deleteProduct(id: number): Promise<void> {
+  await request.delete(`/business/product/${id}`)
 }
 
 /**
  * 批量删除产品
  */
-export function batchDeleteProducts(ids: number[]): Promise<void> {
-  return request.delete('/api/business/product/batch', { data: ids })
+export async function batchDeleteProducts(ids: number[]): Promise<void> {
+  await request.delete('/business/product/batch', { data: ids })
 }
 
 /**
  * 启用产品
  */
-export function enableProduct(id: number): Promise<void> {
-  return request.put(`/api/business/product/${id}/enable`)
+export async function enableProduct(id: number): Promise<void> {
+  await request.put(`/business/product/${id}/enable`)
 }
 
 /**
  * 停用产品
  */
-export function disableProduct(id: number): Promise<void> {
-  return request.put(`/api/business/product/${id}/disable`)
+export async function disableProduct(id: number): Promise<void> {
+  await request.put(`/business/product/${id}/disable`)
 }
