@@ -133,58 +133,80 @@ export enum DataScope {
 
 /**
  * 角色实体
+ * 字段与后端 RoleDTO 保持一致
  */
 export interface Role {
   /** 角色 ID */
   id: number
-  /** 角色名称 */
-  name: string
-  /** 角色编码 */
-  code: string
+  /** 角色编码（后端字段名：roleCode） */
+  roleCode: string
+  /** 角色名称（后端字段名：roleName） */
+  roleName: string
+  /** 角色描述 */
+  description?: string
   /** 数据权限范围 */
-  dataScope: DataScope
-  /** 排序号 */
-  sort: number
+  dataScope?: DataScope
+  /** 排序号（后端字段名：sortOrder） */
+  sortOrder: number
   /** 状态：1-启用，0-禁用 */
   status: RoleStatus
   /** 备注 */
   remark?: string
-  /** 描述（兼容旧代码） */
-  description?: string
   /** 创建时间 */
   createTime: string
   /** 更新时间 */
   updateTime?: string
+  
+  // 兼容旧代码的别名字段
+  /** @deprecated 使用 roleCode 代替 */
+  code?: string
+  /** @deprecated 使用 roleName 代替 */
+  name?: string
+  /** @deprecated 使用 sortOrder 代替 */
+  sort?: number
 }
 
 /**
  * 角色查询参数
  */
 export interface RoleQueryParams extends PageParams {
-  /** 角色名称或角色编码（模糊查询） */
-  keyword?: string
+  /** 角色名称（模糊查询） */
+  roleName?: string
   /** 状态 */
   status?: RoleStatus
+  /** @deprecated 使用 roleName 代替 */
+  keyword?: string
 }
 
 /**
  * 角色表单数据
+ * 字段与后端 RoleDTO 保持一致
  */
 export interface RoleFormData {
   /** 角色 ID（编辑时必填） */
   id?: number
-  /** 角色名称 */
-  name: string
   /** 角色编码 */
-  code: string
+  roleCode: string
+  /** 角色名称 */
+  roleName: string
+  /** 角色描述 */
+  description?: string
   /** 数据权限范围 */
-  dataScope: DataScope
+  dataScope?: DataScope
   /** 排序号 */
-  sort: number
+  sortOrder: number
   /** 状态 */
   status: RoleStatus
   /** 备注 */
   remark?: string
+  
+  // 兼容旧代码的别名字段
+  /** @deprecated 使用 roleCode 代替 */
+  code?: string
+  /** @deprecated 使用 roleName 代替 */
+  name?: string
+  /** @deprecated 使用 sortOrder 代替 */
+  sort?: number
 }
 
 /**
