@@ -38,9 +38,6 @@
                   {{ getStatusLabel(String(leadData.status)) }}
                 </n-tag>
               </n-descriptions-item>
-              <n-descriptions-item label="线索名称">
-                {{ leadData.name }}
-              </n-descriptions-item>
               <n-descriptions-item label="联系电话">
                 {{ leadData.phone }}
               </n-descriptions-item>
@@ -79,19 +76,19 @@
           <n-card title="其他信息" :bordered="false">
             <n-descriptions :column="1" label-placement="left">
               <n-descriptions-item label="负责人">
-                {{ leadData.ownerName }}
+                {{ leadData.ownerName || '-' }}
               </n-descriptions-item>
               <n-descriptions-item label="创建时间">
-                {{ leadData.createTime }}
+                {{ formatDate(leadData.createTime) }}
               </n-descriptions-item>
               <n-descriptions-item label="更新时间">
-                {{ leadData.updateTime || '-' }}
+                {{ formatDate(leadData.updateTime) }}
               </n-descriptions-item>
               <n-descriptions-item
                 v-if="leadData.status === 3"
                 label="转化时间"
               >
-                {{ leadData.convertTime || '-' }}
+                {{ formatDate(leadData.convertTime) }}
               </n-descriptions-item>
             </n-descriptions>
           </n-card>
@@ -184,6 +181,18 @@ const getStatusLabel = (status: string) => statusMap[status]?.label || status
 const getStatusColor = (status: string) => statusMap[status]?.color || 'default'
 const getRatingLabel = (rating: string) => ratingMap[rating]?.label || rating
 const getRatingColor = (rating: string) => ratingMap[rating]?.color || 'default'
+
+// 格式化时间
+const formatDate = (dateStr: string | undefined) => {
+  if (!dateStr) return '-'
+  return new Date(dateStr).toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
 
 // 加载线索详情
 const loadLeadDetail = async () => {

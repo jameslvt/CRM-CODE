@@ -90,6 +90,11 @@ public class LeadDTO {
     private Long customerId;
 
     /**
+     * 转化时间
+     */
+    private LocalDateTime convertTime;
+
+    /**
      * 备注
      */
     private String remark;

@@ -392,8 +392,18 @@ const columns: DataTableColumns<Contact> = [
   {
     title: '创建时间',
     key: 'createTime',
-    width: 120,
-    render: (row) => row.createTime?.split(' ')[0] || '-'
+    width: 160,
+    render: (row) => {
+      if (!row.createTime) return '-'
+      const date = new Date(row.createTime)
+      return date.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    }
   },
   {
     title: '操作',

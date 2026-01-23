@@ -294,7 +294,16 @@ const columns: DataTableColumns<Contract> = [
   {
     title: '签约日期',
     key: 'signDate',
-    width: 120
+    width: 120,
+    render: (row) => {
+      if (!row.signDate) return '-'
+      const date = new Date(row.signDate)
+      return date.toLocaleDateString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      })
+    }
   },
   {
     title: '负责人',

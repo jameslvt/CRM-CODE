@@ -93,6 +93,12 @@ public class Lead extends BaseEntity {
     private Long customerId;
 
     /**
+     * 转化时间
+     */
+    @TableField("convert_time")
+    private java.time.LocalDateTime convertTime;
+
+    /**
      * 备注
      */
     @TableField("remark")

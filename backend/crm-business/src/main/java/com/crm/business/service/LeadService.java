@@ -34,6 +34,7 @@ public class LeadService {
 
     private final LeadMapper leadMapper;
     private final CustomerService customerService;
+    private final OpportunityService opportunityService;
     private final com.crm.system.service.UserService userService;
 
     /**
@@ -87,71 +88,13 @@ public class LeadService {
         if (lead.getOwnerId() != null) {
             try {
                 com.crm.system.dto.UserDTO user = userService.getUserById(lead.getOwnerId());
-                dto.setOwnerName(user.getNickname());
+                dto.setOwnerName(StringUtils.hasText(user.getNickname()) ? user.getNickname() : user.getUsername());
             } catch (Exception e) {
                 log.warn("获取负责人名称失败: {}", lead.getOwnerId());
             }
         }
 
         return dto;
-    }
-
-    // ... (rest of the methods omitted for brevity, keeping them as is) ...
-    // Note: Since I cannot use "..." in replacement, I must include all unchanged
-    // methods or be very careful with range.
-    // To be safe, I will implement helper methods and update convertToDTO.
-    // Wait, the ReplacementContent must be contiguous.
-    // I will replace the top part to inject UserService, and the bottom part to
-    // update convertToDTO and add populateOwnerNames.
-    // BUT I can't do two separate chunks in one tool call if they are not
-    // contiguous if using single replace_file_content.
-    // I should use multi_replace_file_content or split into steps.
-    // I'll start by injecting UserService at the top.
-
-    // Actually, I'll allow myself to use multi_replace_file_content if available?
-    // Yes, default_api:multi_replace_file_content is available.
-    // I'll use multi_replace_file_content.
-
-    private static final Map<Integer, String> STATUS_MAP = new HashMap<>();
-
-    static {
-        STATUS_MAP.put(1, "新建");
-        STATUS_MAP.put(2, "跟进中");
-        STATUS_MAP.put(3, "已转化");
-        STATUS_MAP.put(4, "已关闭");
-    }
-
-    /**
-     * 分页查询线索列表
-     */
-    public PageResult<LeadDTO> getLeadList(LeadQueryParams params) {
-        LambdaQueryWrapper<Lead> wrapper = buildQueryWrapper(params);
-
-        // 分页查询
-        Page<Lead> page = new Page<>(params.getPageNum(), params.getPageSize());
-        IPage<Lead> leadPage = leadMapper.selectPage(page, wrapper);
-
-        // 转换为DTO
-        List<LeadDTO> dtoList = leadPage.getRecords().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-
-        return new PageResult<>(
-                dtoList,
-                leadPage.getTotal(),
-                leadPage.getCurrent(),
-                leadPage.getSize());
-    }
-
-    /**
-     * 根据ID获取线索详情
-     */
-    public LeadDTO getLeadById(Long id) {
-        Lead lead = leadMapper.selectById(id);
-        if (lead == null) {
-            throw new BusinessException("线索不存在");
-        }
-        return convertToDTO(lead);
     }
 
     /**
@@ -272,6 +215,7 @@ public class LeadService {
         // 更新线索状态为已转化
         lead.setStatus(3);
         lead.setCustomerId(customerId);
+        lead.setConvertTime(java.time.LocalDateTime.now());
         leadMapper.updateById(lead);
 
         log.info("线索转化成功,线索ID: {}, 客户ID: {}, 商机ID: {}", params.getLeadId(), customerId, opportunityId);
@@ -417,5 +361,44 @@ public class LeadService {
         // TODO: 查询负责人姓名（需要关联用户表）
 
         return dto;
+    }
+
+    /**
+     * 批量填充负责人名称
+     */
+    private void populateOwnerNames(List<LeadDTO> dtoList) {
+        if (dtoList == null || dtoList.isEmpty()) {
+            return;
+        }
+
+        // 收集所有负责人ID
+        List<Long> ownerIds = dtoList.stream()
+                .map(LeadDTO::getOwnerId)
+                .filter(id -> id != null)
+                .distinct()
+                .collect(Collectors.toList());
+
+        if (ownerIds.isEmpty()) {
+            return;
+        }
+
+        // 批量查询用户
+        try {
+            List<com.crm.system.dto.UserDTO> users = userService.getUsersByIds(ownerIds);
+            Map<Long, String> userMap = users.stream()
+                    .collect(Collectors.toMap(
+                            com.crm.system.dto.UserDTO::getId,
+                            u -> StringUtils.hasText(u.getNickname()) ? u.getNickname() : u.getUsername(),
+                            (existing, replacement) -> existing));
+
+            // 填充名称
+            dtoList.forEach(dto -> {
+                if (dto.getOwnerId() != null) {
+                    dto.setOwnerName(userMap.get(dto.getOwnerId()));
+                }
+            });
+        } catch (Exception e) {
+            log.error("批量查询负责人失败", e);
+        }
     }
 }
