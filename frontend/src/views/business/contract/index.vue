@@ -3,8 +3,8 @@
     <!-- 页面标题 -->
     <div class="page-header">
       <div class="header-content">
-        <h1 class="page-title">合同管理</h1>
-        <p class="page-subtitle">管理合同全生命周期，跟踪合同状态和回款进度</p>
+        <h1 class="page-title">合同库</h1>
+        <p class="page-subtitle">规范化管理所有业务合同，确保履约合规</p>
       </div>
       <div class="header-actions">
         <n-button type="primary" @click="handleAdd" class="primary-btn">
@@ -548,10 +548,11 @@ onMounted(() => {
 
 .contract-page {
   width: 100%;
-  min-height: 100%;
+  height: calc(100vh - 120px);
   display: flex;
   flex-direction: column;
   gap: 20px;
+  overflow: hidden;
 }
 
 /* ========================================

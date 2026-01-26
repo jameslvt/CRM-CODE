@@ -40,24 +40,35 @@ public class DepartmentService {
      */
     @Transactional(rollbackFor = Exception.class)
     public Long createDepartment(DepartmentDTO departmentDTO) {
-        log.info("创建部门: {}", departmentDTO.getDeptName());
+        log.info("创建部门: {}", departmentDTO.getName());
 
         // 检查部门编码是否已存在
-        Department existDepartment = departmentMapper.selectByDeptCode(departmentDTO.getDeptCode());
+        Department existDepartment = departmentMapper.selectByDeptCode(departmentDTO.getCode());
         if (existDepartment != null) {
-            throw new BusinessException("部门编码已存在: " + departmentDTO.getDeptCode());
+            throw new BusinessException("部门编码已存在: " + departmentDTO.getCode());
         }
 
-        // 如果有父部门，检查父部门是否存在
+        Department department = new Department();
+        BeanUtils.copyProperties(departmentDTO, department);
+
+        // 计算 ancestors（祖先路径）
         if (departmentDTO.getParentId() != null && departmentDTO.getParentId() > 0) {
             Department parentDepartment = departmentMapper.selectById(departmentDTO.getParentId());
             if (parentDepartment == null) {
                 throw new BusinessException("父部门不存在");
             }
+            // ancestors = 父部门的 ancestors + 父部门 ID
+            String parentAncestors = parentDepartment.getAncestors();
+            department.setAncestors(parentAncestors + "," + parentDepartment.getId());
+        } else {
+            // 顶级部门，ancestors = "0"
+            department.setAncestors("0");
         }
 
-        Department department = new Department();
-        BeanUtils.copyProperties(departmentDTO, department);
+        // 设置部门编码到实体
+        department.setCode(departmentDTO.getCode());
+        department.setName(departmentDTO.getName());
+
         departmentMapper.insert(department);
 
         log.info("部门创建成功，ID: {}", department.getId());
@@ -79,9 +90,9 @@ public class DepartmentService {
         }
 
         // 检查部门编码是否被其他部门使用
-        Department existDepartment = departmentMapper.selectByDeptCode(departmentDTO.getDeptCode());
+        Department existDepartment = departmentMapper.selectByDeptCode(departmentDTO.getCode());
         if (existDepartment != null && !existDepartment.getId().equals(departmentDTO.getId())) {
-            throw new BusinessException("部门编码已被使用: " + departmentDTO.getDeptCode());
+            throw new BusinessException("部门编码已被使用: " + departmentDTO.getCode());
         }
 
         // 不能将自己设置为父部门
@@ -89,7 +100,31 @@ public class DepartmentService {
             throw new BusinessException("不能将自己设置为父部门");
         }
 
-        BeanUtils.copyProperties(departmentDTO, department);
+        // 检查父部门是否变更，需要重新计算 ancestors
+        Long oldParentId = department.getParentId();
+        Long newParentId = departmentDTO.getParentId() != null ? departmentDTO.getParentId() : 0L;
+
+        if (!oldParentId.equals(newParentId)) {
+            // 父部门变更，重新计算 ancestors
+            if (newParentId > 0) {
+                Department newParent = departmentMapper.selectById(newParentId);
+                if (newParent == null) {
+                    throw new BusinessException("父部门不存在");
+                }
+                department.setAncestors(newParent.getAncestors() + "," + newParent.getId());
+            } else {
+                department.setAncestors("0");
+            }
+        }
+
+        // 更新字段
+        department.setParentId(newParentId);
+        department.setCode(departmentDTO.getCode());
+        department.setName(departmentDTO.getName());
+        department.setLeaderId(departmentDTO.getLeaderId());
+        department.setSort(departmentDTO.getSort());
+        department.setStatus(departmentDTO.getStatus());
+
         departmentMapper.updateById(department);
 
         log.info("部门更新成功");
@@ -164,7 +199,8 @@ public class DepartmentService {
         IPage<Department> departmentPage = departmentMapper.selectPage(pageParam, queryWrapper);
 
         // 转换为 DTO
-        Page<DepartmentDTO> dtoPage = new Page<>(departmentPage.getCurrent(), departmentPage.getSize(), departmentPage.getTotal());
+        Page<DepartmentDTO> dtoPage = new Page<>(departmentPage.getCurrent(), departmentPage.getSize(),
+                departmentPage.getTotal());
         List<DepartmentDTO> dtoList = departmentPage.getRecords().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -182,8 +218,7 @@ public class DepartmentService {
         List<Department> allDepartments = departmentMapper.selectList(
                 new LambdaQueryWrapper<Department>()
                         .eq(Department::getStatus, 1)
-                        .orderByAsc(Department::getSort)
-        );
+                        .orderByAsc(Department::getSort));
 
         return buildDepartmentTree(allDepartments, 0L);
     }
@@ -230,7 +265,15 @@ public class DepartmentService {
      */
     private DepartmentDTO convertToDTO(Department department) {
         DepartmentDTO dto = new DepartmentDTO();
-        BeanUtils.copyProperties(department, dto);
+        dto.setId(department.getId());
+        dto.setParentId(department.getParentId());
+        dto.setCode(department.getCode());
+        dto.setName(department.getName());
+        dto.setLeaderId(department.getLeaderId());
+        dto.setSort(department.getSort());
+        dto.setStatus(department.getStatus());
+        dto.setCreateTime(department.getCreateTime());
+        dto.setUpdateTime(department.getUpdateTime());
         return dto;
     }
 }

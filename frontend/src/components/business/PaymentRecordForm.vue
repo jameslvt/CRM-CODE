@@ -81,7 +81,7 @@ import type { PaymentRecordFormData } from '@/types/business/payment'
 import { paymentMethodOptions } from '@/types/business/payment'
 
 const props = defineProps<{
-  planId: number
+  planId: number | string
 }>()
 
 const emit = defineEmits<{
@@ -93,11 +93,14 @@ const message = useMessage()
 const formRef = ref<FormInst | null>(null)
 const submitting = ref(false)
 
+// 获取今天日期
+const today = new Date().toISOString().split('T')[0]
+
 // 表单数据
 const formData = ref<PaymentRecordFormData>({
-  planId: props.planId,
+  planId: String(props.planId),
   amount: 0,
-  paymentDate: '',
+  paymentDate: today,
   paymentMethod: undefined,
   remark: ''
 })
@@ -146,12 +149,7 @@ const handleCancel = () => {
   emit('cancel')
 }
 
-// 初始化
-onMounted(() => {
-  // 默认设置今天的日期
-  const today = new Date().toISOString().split('T')[0]
-  formData.value.paymentDate = today
-})
+
 </script>
 
 <style scoped>

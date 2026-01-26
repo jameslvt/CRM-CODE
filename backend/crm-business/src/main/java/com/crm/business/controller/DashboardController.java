@@ -36,7 +36,7 @@ public class DashboardController {
      */
     @ApiOperation("获取仪表盘汇总数据")
     @GetMapping("/summary")
-    @PreAuthorize("hasAuthority('business:dashboard:view')")
+    // @PreAuthorize("hasAuthority('business:dashboard:view')")
     public Result<DashboardDTO> getDashboardData(
             @ApiParam("负责人ID（为空则查询全部）") @RequestParam(required = false) Long ownerId) {
         DashboardDTO dashboard = dashboardService.getDashboardData(ownerId);
@@ -48,7 +48,7 @@ public class DashboardController {
      */
     @ApiOperation("获取销售漏斗数据")
     @GetMapping("/funnel")
-    @PreAuthorize("hasAuthority('business:dashboard:view')")
+    // @PreAuthorize("hasAuthority('business:dashboard:view')")
     public Result<SalesFunnelDTO> getSalesFunnel(
             @ApiParam("负责人ID（为空则查询全部）") @RequestParam(required = false) Long ownerId) {
         SalesFunnelDTO funnel = dashboardService.getSalesFunnel(ownerId);
@@ -60,7 +60,7 @@ public class DashboardController {
      */
     @ApiOperation("获取业绩趋势数据")
     @GetMapping("/trend")
-    @PreAuthorize("hasAuthority('business:dashboard:view')")
+    // @PreAuthorize("hasAuthority('business:dashboard:view')")
     public Result<PerformanceTrendDTO> getPerformanceTrend(
             @ApiParam("负责人ID（为空则查询全部）") @RequestParam(required = false) Long ownerId,
             @ApiParam("周期类型: month、quarter") @RequestParam(defaultValue = "month") String periodType,

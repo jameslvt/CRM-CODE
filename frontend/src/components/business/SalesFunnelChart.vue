@@ -15,6 +15,21 @@
       </div>
     </div>
 
+    <!-- 阶段图例 (移至顶部) -->
+    <div class="funnel-legend">
+      <div
+        v-for="(stage, index) in stages"
+        :key="stage.stageCode"
+        class="legend-item"
+      >
+        <span class="legend-dot" :style="{ background: getStageColor(index) }"></span>
+        <span class="legend-info">
+          <span class="legend-name">{{ stage.stageName }}</span>
+          <span class="legend-probability">{{ stage.probability }}%</span>
+        </span>
+      </div>
+    </div>
+
     <div class="funnel-container">
       <n-spin :show="loading">
         <div v-if="stages.length > 0" class="funnel-stages">
@@ -56,19 +71,6 @@
           <span class="empty-text">暂无漏斗数据</span>
         </div>
       </n-spin>
-    </div>
-
-    <!-- 漏斗说明 -->
-    <div class="funnel-legend">
-      <div
-        v-for="(stage, index) in stages"
-        :key="stage.stageCode"
-        class="legend-item"
-      >
-        <span class="legend-dot" :style="{ background: getStageColor(index) }"></span>
-        <span class="legend-name">{{ stage.stageName }}</span>
-        <span class="legend-probability">{{ stage.probability }}%</span>
-      </div>
     </div>
   </div>
 </template>
@@ -128,6 +130,8 @@ const formatAmount = (amount: number | undefined) => {
   border-radius: 16px;
   border: 1px solid #e2e8f0;
   padding: 24px;
+  display: flex;
+  flex-direction: column;
 }
 
 /* 图表头部 */
@@ -135,7 +139,7 @@ const formatAmount = (amount: number | undefined) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .chart-title {
@@ -176,9 +180,52 @@ const formatAmount = (amount: number | undefined) => {
   color: #e2e8f0;
 }
 
+/* 图例 (移至顶部样式优化) */
+.funnel-legend {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 24px;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.legend-name {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.2;
+}
+
+.legend-probability {
+  font-size: 10px;
+  color: #94a3b8;
+  line-height: 1.2;
+}
+
 /* 漏斗容器 */
 .funnel-container {
   min-height: 300px;
+  flex: 1;
 }
 
 .funnel-stages {
@@ -199,11 +246,13 @@ const formatAmount = (amount: number | undefined) => {
 
 .stage-bar {
   width: var(--stage-width);
-  padding: 16px 24px;
+  padding: 14px 24px; /* 稍微减小高度 */
   border-radius: 8px;
   color: white;
   transition: all 0.3s ease;
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
 
 .stage-bar:hover {
@@ -215,6 +264,8 @@ const formatAmount = (amount: number | undefined) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
+  z-index: 1;
 }
 
 .stage-name {
@@ -224,30 +275,31 @@ const formatAmount = (amount: number | undefined) => {
 
 .stage-count {
   font-size: 13px;
-  opacity: 0.9;
+  opacity: 0.95;
+  font-weight: 500;
 }
 
 /* 阶段信息 */
 .stage-info {
   display: flex;
-  gap: 24px;
-  margin-top: 8px;
+  gap: 20px;
+  margin-top: 6px;
   padding: 0 16px;
 }
 
 .info-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .info-label {
-  font-size: 12px;
+  font-size: 11px;
   color: #94a3b8;
 }
 
 .info-value {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   color: #475569;
 }
@@ -258,7 +310,8 @@ const formatAmount = (amount: number | undefined) => {
 
 /* 连接箭头 */
 .stage-arrow {
-  margin: 4px 0;
+  margin: 2px 0;
+  opacity: 0.5;
 }
 
 /* 空状态 */
@@ -278,41 +331,6 @@ const formatAmount = (amount: number | undefined) => {
 .empty-text {
   font-size: 14px;
   color: #94a3b8;
-}
-
-/* 图例 */
-.funnel-legend {
-  display: flex;
-  justify-content: center;
-  gap: 24px;
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid #f1f5f9;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.legend-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-}
-
-.legend-name {
-  font-size: 12px;
-  color: #64748b;
-}
-
-.legend-probability {
-  font-size: 11px;
-  color: #94a3b8;
-  padding: 2px 6px;
-  background: #f1f5f9;
-  border-radius: 4px;
 }
 
 /* 响应式 */

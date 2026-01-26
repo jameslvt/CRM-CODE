@@ -3,8 +3,8 @@
     <!-- 页面标题 -->
     <div class="page-header">
       <div class="header-content">
-        <h1 class="page-title">回款管理</h1>
-        <p class="page-subtitle">管理回款计划和回款记录，监控现金流状况</p>
+        <h1 class="page-title">回款明细</h1>
+        <p class="page-subtitle">实时监控回款进度，保障企业现金流健康</p>
       </div>
       <div class="header-actions">
         <n-button type="primary" @click="handleAddPlan" class="primary-btn">
@@ -146,7 +146,6 @@
       <payment-records-list
         v-if="currentPlanId"
         :plan-id="currentPlanId"
-        @add="handleAddRecord"
       />
     </n-modal>
   </div>
@@ -223,11 +222,11 @@ const activeTab = ref<number | null>(null)
 
 // 状态标签
 const statusTabs = computed(() => [
-  { label: '全部', value: null, count: statistics.value.pendingCount + statistics.value.partialCount + statistics.value.completedCount + statistics.value.overdueCount },
-  { label: '待回款', value: PaymentPlanStatus.PENDING, count: statistics.value.pendingCount },
-  { label: '部分回款', value: PaymentPlanStatus.PARTIAL, count: statistics.value.partialCount },
-  { label: '已回款', value: PaymentPlanStatus.COMPLETED, count: statistics.value.completedCount },
-  { label: '逾期', value: PaymentPlanStatus.OVERDUE, count: statistics.value.overdueCount }
+  { label: '全部', value: null, count: (statistics.value.pendingCount || 0) + (statistics.value.partialCount || 0) + (statistics.value.completedCount || 0) + (statistics.value.overdueCount || 0) },
+  { label: '待回款', value: PaymentPlanStatus.PENDING, count: statistics.value.pendingCount || 0 },
+  { label: '部分回款', value: PaymentPlanStatus.PARTIAL, count: statistics.value.partialCount || 0 },
+  { label: '已回款', value: PaymentPlanStatus.COMPLETED, count: statistics.value.completedCount || 0 },
+  { label: '逾期', value: PaymentPlanStatus.OVERDUE, count: statistics.value.overdueCount || 0 }
 ])
 
 const loading = ref(false)
@@ -237,7 +236,7 @@ const showRecordModal = ref(false)
 const showRecordsModal = ref(false)
 const planModalTitle = ref('新增回款计划')
 const currentPlan = ref<Partial<PaymentPlan>>({})
-const currentPlanId = ref<number | null>(null)
+const currentPlanId = ref<number | string | null>(null)
 
 // 分页配置
 const pagination = reactive<PaginationProps>({
@@ -367,7 +366,7 @@ const columns: DataTableColumns<PaymentPlan> = [
             'button',
             {
               class: 'action-btn add-record',
-              onClick: () => handleAddRecord(row.id)
+              onClick: () => handleTableAddRecord(row.id)
             },
             [h(NIcon, { size: 14 }, { default: () => h(CashOutline) }), '回款']
           ),
@@ -479,16 +478,18 @@ const handlePlanSubmit = () => {
 }
 
 // 查看回款记录
-const handleViewRecords = (planId: number) => {
+const handleViewRecords = (planId: number | string) => {
   currentPlanId.value = planId
   showRecordsModal.value = true
 }
 
-// 添加回款记录
-const handleAddRecord = (planId: number) => {
+// 列表中的添加回款记录（需设置 ID）
+const handleTableAddRecord = (planId: number | string) => {
   currentPlanId.value = planId
   showRecordModal.value = true
 }
+
+
 
 // 回款记录提交
 const handleRecordSubmit = () => {

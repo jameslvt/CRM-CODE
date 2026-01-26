@@ -23,4 +23,21 @@ public interface UserMapper extends BaseMapper<User> {
      * @return 影响行数
      */
     int deleteUserRolesByUserId(@Param("userId") Long userId);
+
+    /**
+     * 查询用户角色ID列表
+     *
+     * @param userId 用户 ID
+     * @return 角色 ID 列表
+     */
+    java.util.List<Long> selectRoleIdsByUserId(@Param("userId") Long userId);
+
+    /**
+     * 添加用户角色关联
+     *
+     * @param userId 用户 ID
+     * @param roleId 角色 ID
+     * @return 影响行数
+     */
+    int insertUserRole(@Param("userId") Long userId, @Param("roleId") Long roleId);
 }

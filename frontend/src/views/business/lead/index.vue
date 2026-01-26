@@ -1,10 +1,10 @@
 <template>
-  <div class="lead-page">
+  <div class="lead-page" id="lead-page-container">
     <!-- 页面标题 -->
     <div class="page-header">
       <div class="header-content">
-        <h1 class="page-title">线索管理</h1>
-        <p class="page-subtitle">管理和跟踪所有销售线索，推动业务增长</p>
+        <h1 class="page-title">销售线索列表</h1>
+        <p class="page-subtitle">集中管理潜在销售机会，从这里开始转化您的客户</p>
       </div>
       <div class="header-actions">
         <n-button @click="handleImport" class="secondary-btn">
@@ -118,6 +118,7 @@
       preset="card"
       class="form-modal"
       :segmented="{ content: 'soft', footer: 'soft' }"
+      :to="'#lead-page-container'"
     >
       <lead-form
         ref="leadFormRef"
@@ -134,6 +135,7 @@
       preset="card"
       class="convert-modal"
       :segmented="{ content: 'soft', footer: 'soft' }"
+      :to="'#lead-page-container'"
     >
       <lead-convert-dialog
         ref="convertDialogRef"
@@ -309,20 +311,27 @@ const columns: DataTableColumns<Lead> = [
     ellipsis: { tooltip: true },
     render: (row) =>
       h('div', { class: 'lead-name-cell' }, [
-        h('span', { class: 'lead-name' }, row.name),
-        h('span', { class: 'lead-company' }, row.company)
+        h('span', { class: 'lead-name' }, row.name)
       ])
+  },
+  {
+    title: '客户名称',
+    key: 'customerName',
+    width: 150,
+    ellipsis: { tooltip: true },
+    render: (row) => row.customerName || '-'
+  },
+  {
+    title: '联系人',
+    key: 'contactName',
+    width: 100,
+    ellipsis: { tooltip: true },
+    render: (row) => row.contactName || '-'
   },
   {
     title: '联系电话',
     key: 'phone',
     width: 120
-  },
-  {
-    title: '邮箱',
-    key: 'email',
-    width: 150,
-    ellipsis: { tooltip: true }
   },
   {
     title: '状态',
@@ -551,10 +560,12 @@ onMounted(() => {
 
 .lead-page {
   width: 100%;
-  min-height: 100%;
+  height: calc(100vh - 120px); /* 减去顶部导航栏高度 */
   display: flex;
   flex-direction: column;
   gap: 20px;
+  position: relative;
+  overflow: hidden; /* 防止整体滚动 */
 }
 
 /* ========================================
@@ -808,14 +819,15 @@ onMounted(() => {
   background: white;
   border-radius: 16px;
   border: 1px solid #e2e8f0;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
-  min-height: 400px;
+  min-height: 0; /* 重要：允许flex收缩 */
+  overflow: auto; /* 内容超出时显示滚动条 */
 }
 
 .data-table {
   flex: 1;
+  min-height: 0; /* 重要：配合父容器flex */
 }
 
 .data-table :deep(.n-data-table-thead) {

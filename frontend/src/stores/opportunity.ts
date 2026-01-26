@@ -54,7 +54,7 @@ export const useOpportunityStore = defineStore('opportunity', () => {
   /**
    * 加载统计数据
    */
-  async function loadStatistics(ownerId?: number) {
+  async function loadStatistics(ownerId?: string) {
     try {
       statistics.value = await getOpportunityStatistics(ownerId)
       return statistics.value

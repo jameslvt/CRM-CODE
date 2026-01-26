@@ -3,8 +3,8 @@
     <!-- 页面标题 -->
     <div class="page-header">
       <div class="header-content">
-        <h1 class="page-title">客户管理</h1>
-        <p class="page-subtitle">管理企业客户信息，构建长期客户关系</p>
+        <h1 class="page-title">客户名录</h1>
+        <p class="page-subtitle">全方位掌握客户信息，维护长期的合作关系</p>
       </div>
       <div class="header-actions">
         <n-button @click="handleGoToPool" class="secondary-btn">
@@ -184,6 +184,7 @@ import {
 } from '@vicons/ionicons5'
 import { useRouter } from 'vue-router'
 import { pageCustomers, deleteCustomer, releaseToPool, assignCustomer } from '@/api/business/customer'
+import { pageUsers } from '@/api/system/user'
 import type { Customer, CustomerQueryParams } from '@/types/business/customer'
 import CustomerForm from '@/components/business/CustomerForm.vue'
 
@@ -238,7 +239,7 @@ const showFormModal = ref(false)
 const showAssignModal = ref(false)
 const formTitle = ref('新增客户')
 const currentCustomer = ref<Partial<Customer>>({})
-const assignCustomerId = ref<number>(0)
+const assignCustomerId = ref<string>('')
 const assignUserId = ref<number | null>(null)
 const customerFormRef = ref()
 
@@ -305,12 +306,7 @@ const columns: DataTableColumns<Customer> = [
     title: '客户名称',
     key: 'name',
     width: 220,
-    ellipsis: { tooltip: true },
-    render: (row) =>
-      h('div', { class: 'customer-name-cell' }, [
-        h('span', { class: 'customer-name' }, row.name),
-        row.code && h('span', { class: 'customer-code' }, row.code)
-      ])
+    ellipsis: { tooltip: true }
   },
   {
     title: '级别',
@@ -419,10 +415,19 @@ const updateStats = () => {
 const loadData = async () => {
   loading.value = true
   try {
-    const result = await pageCustomers(searchParams)
+    // 并行请求：当前列表数据 + 公海池数量
+    const [result, poolResult] = await Promise.all([
+      pageCustomers(searchParams),
+      pageCustomers({ pageNum: 1, pageSize: 1, status: 2 }) // status 2 为公海
+    ])
+    
     dataList.value = result.records
     pagination.itemCount = result.total
     pagination.page = result.current
+    
+    // 更新公海池数量
+    miniStats.value[3].value = String(poolResult.total)
+    
     updateStats()
   } catch (error) {
     message.error('加载数据失败')
@@ -498,11 +503,25 @@ const handleBatchRelease = () => {
   })
 }
 
+// 加载用户列表
+const loadUsers = async () => {
+  try {
+    const result = await pageUsers({ pageNum: 1, pageSize: 100 })
+    userOptions.value = result.data.records.map((u: any) => ({
+      label: u.nickname || u.username,
+      value: u.id
+    }))
+  } catch (error) {
+    message.error('加载用户列表失败')
+  }
+}
+
 // 分配客户
 const handleAssign = (id: string) => {
   assignCustomerId.value = id
   assignUserId.value = null
   showAssignModal.value = true
+  loadUsers()
 }
 
 // 分配提交
@@ -550,10 +569,11 @@ onMounted(() => {
 
 .customer-page {
   width: 100%;
-  min-height: 100%;
+  height: calc(100vh - 120px);
   display: flex;
   flex-direction: column;
   gap: 20px;
+  overflow: hidden;
 }
 
 /* ========================================

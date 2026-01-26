@@ -7,4 +7,14 @@
         DELETE FROM crm_user_role WHERE user_id = #{userId}
     </delete>
 
+    <!-- 查询用户角色ID列表 -->
+    <select id="selectRoleIdsByUserId" resultType="java.lang.Long">
+        SELECT role_id FROM crm_user_role WHERE user_id = #{userId}
+    </select>
+
+    <!-- 添加用户角色关联 -->
+    <insert id="insertUserRole">
+        INSERT INTO crm_user_role (user_id, role_id) VALUES (#{userId}, #{roleId})
+    </insert>
+
 </mapper>

@@ -63,19 +63,19 @@ public class OpportunityService {
     /**
      * 商机阶段常量
      */
-    public static final String STAGE_REQUIREMENT = "需求确认";
-    public static final String STAGE_PROPOSAL = "方案报价";
-    public static final String STAGE_NEGOTIATION = "商务谈判";
-    public static final String STAGE_WON = "赢单";
-    public static final String STAGE_LOST = "输单";
+    public static final String STAGE_REQUIREMENT = "REQUIREMENT";
+    public static final String STAGE_PROPOSAL = "PROPOSAL";
+    public static final String STAGE_NEGOTIATION = "NEGOTIATION";
+    public static final String STAGE_WON = "WON";
+    public static final String STAGE_LOST = "LOST";
 
     /**
      * 阶段对应的赢单概率
      */
     private static final Map<String, Integer> STAGE_PROBABILITY_MAP = new HashMap<>();
     static {
-        STAGE_PROBABILITY_MAP.put(STAGE_REQUIREMENT, 10);
-        STAGE_PROBABILITY_MAP.put(STAGE_PROPOSAL, 30);
+        STAGE_PROBABILITY_MAP.put(STAGE_REQUIREMENT, 20);
+        STAGE_PROBABILITY_MAP.put(STAGE_PROPOSAL, 40);
         STAGE_PROBABILITY_MAP.put(STAGE_NEGOTIATION, 60);
         STAGE_PROBABILITY_MAP.put(STAGE_WON, 100);
         STAGE_PROBABILITY_MAP.put(STAGE_LOST, 0);

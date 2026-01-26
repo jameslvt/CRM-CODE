@@ -47,7 +47,7 @@ export enum CustomerScale {
  */
 export interface Customer {
   /** 客户ID */
-  id: number
+  id: number | string
   /** 客户名称 */
   name: string
   /** 简称 */
@@ -71,11 +71,11 @@ export interface Customer {
   /** 地址 */
   address?: string
   /** 负责人ID */
-  ownerId?: number
+  ownerId?: number | string
   /** 负责人姓名 */
   ownerName?: string
   /** 来源线索ID */
-  leadId?: number
+  leadId?: number | string
   /** 状态 */
   status: number
   /** 状态名称 */
@@ -83,9 +83,9 @@ export interface Customer {
   /** 备注 */
   remark?: string
   /** 创建人 */
-  createBy?: number
+  createBy?: number | string
   /** 更新人 */
-  updateBy?: number
+  updateBy?: number | string
   /** 创建时间 */
   createTime: string
   /** 更新时间 */
@@ -103,7 +103,7 @@ export interface CustomerQueryParams extends PageParams {
   /** 级别 */
   level?: string
   /** 负责人ID */
-  ownerId?: number
+  ownerId?: number | string
   /** 状态 */
   status?: number
   /** 是否查询公海客户 */
@@ -115,7 +115,7 @@ export interface CustomerQueryParams extends PageParams {
  */
 export interface CustomerFormData {
   /** 客户ID（编辑时必填） */
-  id?: number
+  id?: number | string
   /** 客户名称 */
   name: string
   /** 简称 */
@@ -162,7 +162,7 @@ export interface Customer360 {
  * 商机简要信息
  */
 export interface OpportunitySummary {
-  id: number
+  id: number | string
   name: string
   amount: number
   stage: string
@@ -175,7 +175,7 @@ export interface OpportunitySummary {
  * 合同简要信息
  */
 export interface ContractSummary {
-  id: number
+  id: number | string
   contractNo: string
   name: string
   amount: number
@@ -189,7 +189,7 @@ export interface ContractSummary {
  * 跟进记录简要信息
  */
 export interface ActivitySummary {
-  id: number
+  id: number | string
   type: string
   content: string
   createByName?: string
@@ -221,9 +221,9 @@ export interface CustomerStatistics {
  */
 export interface Contact {
   /** 联系人ID */
-  id: number
+  id: number | string
   /** 客户ID */
-  customerId: number
+  customerId: number | string
   /** 客户名称 */
   customerName?: string
   /** 姓名 */
@@ -261,9 +261,9 @@ export interface Contact {
  */
 export interface ContactFormData {
   /** 联系人ID（编辑时必填） */
-  id?: number
+  id?: number | string
   /** 客户ID */
-  customerId: number
+  customerId: number | string
   /** 姓名 */
   name: string
   /** 性别 */

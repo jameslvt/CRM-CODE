@@ -6,7 +6,7 @@
  * 产品实体
  */
 export interface Product {
-  id: number
+  id: number | string
   name: string
   code?: string
   category?: string
@@ -35,7 +35,7 @@ export interface ProductQueryParams {
  * 产品表单数据
  */
 export interface ProductFormData {
-  id?: number
+  id?: number | string
   name: string
   code?: string
   category?: string

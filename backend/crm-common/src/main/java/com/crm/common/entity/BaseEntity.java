@@ -31,19 +31,19 @@ public class BaseEntity implements Serializable {
     /**
      * 创建时间（自动填充）
      */
-    @TableField(fill = FieldFill.INSERT)
+    @TableField(value = "create_time", fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     /**
      * 更新时间（自动填充）
      */
-    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
     /**
      * 逻辑删除标记（0: 未删除, 1: 已删除）
      */
     @TableLogic
-    @TableField(fill = FieldFill.INSERT)
+    @TableField(value = "deleted", fill = FieldFill.INSERT)
     private Integer deleted;
 }

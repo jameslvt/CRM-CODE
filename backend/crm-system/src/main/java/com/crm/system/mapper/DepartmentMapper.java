@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.crm.system.entity.Department;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -23,6 +24,7 @@ public interface DepartmentMapper extends BaseMapper<Department> {
      * @param deptCode 部门编码
      * @return 部门实体
      */
+    @Select("SELECT * FROM crm_department WHERE code = #{deptCode} AND deleted = 0")
     Department selectByDeptCode(@Param("deptCode") String deptCode);
 
     /**

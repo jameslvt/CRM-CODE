@@ -32,7 +32,7 @@
     </div>
 
     <!-- 操作按钮 -->
-    <div class="actions-bar">
+    <div class="actions-bar" v-if="!isAdding">
       <n-button type="primary" size="small" @click="handleAdd" :disabled="isCompleted">
         <template #icon>
           <n-icon><AddOutline /></n-icon>
@@ -40,6 +40,20 @@
         添加回款记录
       </n-button>
     </div>
+
+    <!-- 内联添加表单 -->
+    <n-collapse-transition :show="isAdding">
+      <div class="inline-form-card">
+        <div class="form-header">
+          <span class="form-title">添加新记录</span>
+        </div>
+        <payment-record-form
+          :plan-id="planId"
+          @submit="handleFormSubmit"
+          @cancel="handleFormCancel"
+        />
+      </div>
+    </n-collapse-transition>
 
     <!-- 记录列表 -->
     <div class="records-content">
@@ -54,7 +68,19 @@
             <div class="record-card">
               <div class="record-header">
                 <span class="record-amount">¥{{ formatAmount(record.amount) }}</span>
-                <span class="record-date">{{ record.paymentDate }}</span>
+                <div class="header-right">
+                  <span class="record-date">{{ record.paymentDate }}</span>
+                  <n-popconfirm @positive-click="handleDelete(record.id)">
+                    <template #trigger>
+                      <n-button text type="error" size="small" class="delete-btn">
+                        <template #icon>
+                          <n-icon><TrashOutline /></n-icon>
+                        </template>
+                      </n-button>
+                    </template>
+                    确定要删除该回款记录吗？
+                  </n-popconfirm>
+                </div>
               </div>
               <div class="record-body">
                 <div class="record-info">
@@ -63,6 +89,7 @@
                   </span>
                   <span v-if="record.remark" class="record-remark">{{ record.remark }}</span>
                 </div>
+                <!-- meta items... -->
                 <div class="record-meta">
                   <span class="meta-item">
                     <n-icon size="12"><PersonOutline /></n-icon>
@@ -74,16 +101,6 @@
                   </span>
                 </div>
               </div>
-              <n-popconfirm @positive-click="handleDelete(record.id)">
-                <template #trigger>
-                  <n-button text type="error" size="small" class="delete-btn">
-                    <template #icon>
-                      <n-icon><TrashOutline /></n-icon>
-                    </template>
-                  </n-button>
-                </template>
-                确定要删除该回款记录吗？
-              </n-popconfirm>
             </div>
           </div>
         </div>
@@ -104,6 +121,7 @@ import {
   NProgress,
   NSpin,
   NPopconfirm,
+  NCollapseTransition,
   useMessage
 } from 'naive-ui'
 import {
@@ -120,19 +138,21 @@ import {
 } from '@/api/business/payment'
 import type { PaymentPlan, PaymentRecord } from '@/types/business/payment'
 import { PaymentPlanStatus } from '@/types/business/payment'
+import PaymentRecordForm from './PaymentRecordForm.vue'
 
 const props = defineProps<{
-  planId: number
+  planId: number | string
 }>()
 
 const emit = defineEmits<{
-  (e: 'add', planId: number): void
+  (e: 'add', planId: number | string): void
 }>()
 
 const message = useMessage()
 const loading = ref(false)
 const planInfo = ref<PaymentPlan | null>(null)
 const records = ref<PaymentRecord[]>([])
+const isAdding = ref(false)
 
 // 剩余金额
 const remainingAmount = computed(() => {
@@ -179,7 +199,18 @@ const loadData = async () => {
 
 // 添加回款记录
 const handleAdd = () => {
-  emit('add', props.planId)
+  isAdding.value = true
+}
+
+// 表单提交
+const handleFormSubmit = () => {
+  isAdding.value = false
+  loadData()
+}
+
+// 表单取消
+const handleFormCancel = () => {
+  isAdding.value = false
 }
 
 // 删除回款记录
@@ -361,10 +392,38 @@ onMounted(() => {
   color: #94a3b8;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .delete-btn {
-  position: absolute;
-  top: 12px;
-  right: 12px;
+  /* position: absolute; removed */
+  /* top: 12px; removed */
+  /* right: 12px; removed */
+  display: flex;
+}
+
+/* 内联表单 */
+.inline-form-card {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  border: 1px solid #e2e8f0;
+}
+
+.form-header {
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #e2e8f0;
+}
+
+.form-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
 }
 
 /* 空状态 */

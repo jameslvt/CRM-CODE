@@ -39,14 +39,14 @@ public class DepartmentDTO implements Serializable {
      */
     @ApiModelProperty(value = "部门编码", required = true, example = "DEPT001")
     @NotBlank(message = "部门编码不能为空")
-    private String deptCode;
+    private String code;
 
     /**
      * 部门名称
      */
     @ApiModelProperty(value = "部门名称", required = true, example = "技术部")
     @NotBlank(message = "部门名称不能为空")
-    private String deptName;
+    private String name;
 
     /**
      * 部门负责人 ID
@@ -61,22 +61,10 @@ public class DepartmentDTO implements Serializable {
     private String leaderName;
 
     /**
-     * 联系电话
-     */
-    @ApiModelProperty(value = "联系电话", example = "010-12345678")
-    private String phone;
-
-    /**
-     * 邮箱
-     */
-    @ApiModelProperty(value = "邮箱", example = "tech@example.com")
-    private String email;
-
-    /**
      * 排序号
      */
     @ApiModelProperty(value = "排序号", example = "1")
-    private Integer sortOrder;
+    private Integer sort;
 
     /**
      * 状态（0: 禁用, 1: 启用）

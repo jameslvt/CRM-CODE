@@ -20,7 +20,7 @@ export enum UserStatus {
  */
 export interface User {
   /** 用户 ID */
-  id: number
+  id: number | string
   /** 用户名 */
   username: string
   /** 真实姓名 */
@@ -32,13 +32,13 @@ export interface User {
   /** 头像 URL */
   avatar?: string
   /** 部门 ID */
-  deptId?: number
+  deptId?: number | string
   /** 部门名称 */
   deptName?: string
   /** 状态：1-启用，0-禁用 */
   status: UserStatus
   /** 角色 ID 列表 */
-  roleIds?: number[]
+  roleIds?: number[] | string[]
   /** 角色名称列表 */
   roleNames?: string[]
   /** 创建时间 */
@@ -56,7 +56,7 @@ export interface UserQueryParams extends PageParams {
   /** 用户名或真实姓名（模糊查询） */
   keyword?: string
   /** 部门 ID */
-  deptId?: number
+  deptId?: number | string
   /** 状态 */
   status?: UserStatus
   /** 开始时间 */
@@ -70,7 +70,7 @@ export interface UserQueryParams extends PageParams {
  */
 export interface UserFormData {
   /** 用户 ID（编辑时必填） */
-  id?: number
+  id?: number | string
   /** 用户名 */
   username: string
   /** 真实姓名 */
@@ -82,7 +82,7 @@ export interface UserFormData {
   /** 密码（新增时必填） */
   password?: string
   /** 部门 ID */
-  deptId?: number
+  deptId?: number | string
   /** 状态 */
   status: UserStatus
 }
@@ -92,9 +92,9 @@ export interface UserFormData {
  */
 export interface AssignRolesParams {
   /** 用户 ID */
-  userId: number
+  userId: number | string
   /** 角色 ID 列表 */
-  roleIds: number[]
+  roleIds: number[] | string[]
 }
 
 /**
@@ -102,7 +102,7 @@ export interface AssignRolesParams {
  */
 export interface ResetPasswordParams {
   /** 用户 ID */
-  userId: number
+  userId: number | string
   /** 新密码 */
   newPassword: string
 }
@@ -137,7 +137,7 @@ export enum DataScope {
  */
 export interface Role {
   /** 角色 ID */
-  id: number
+  id: number | string
   /** 角色编码（后端字段名：roleCode） */
   roleCode: string
   /** 角色名称（后端字段名：roleName） */
@@ -147,7 +147,7 @@ export interface Role {
   /** 数据权限范围 */
   dataScope?: DataScope
   /** 排序号（后端字段名：sortOrder） */
-  sortOrder: number
+  sortOrder: number | string
   /** 状态：1-启用，0-禁用 */
   status: RoleStatus
   /** 备注 */
@@ -163,7 +163,7 @@ export interface Role {
   /** @deprecated 使用 roleName 代替 */
   name?: string
   /** @deprecated 使用 sortOrder 代替 */
-  sort?: number
+  sort?: number | string
 }
 
 /**
@@ -184,7 +184,7 @@ export interface RoleQueryParams extends PageParams {
  */
 export interface RoleFormData {
   /** 角色 ID（编辑时必填） */
-  id?: number
+  id?: number | string
   /** 角色编码 */
   roleCode: string
   /** 角色名称 */
@@ -194,7 +194,7 @@ export interface RoleFormData {
   /** 数据权限范围 */
   dataScope?: DataScope
   /** 排序号 */
-  sortOrder: number
+  sortOrder: number | string
   /** 状态 */
   status: RoleStatus
   /** 备注 */
@@ -206,7 +206,7 @@ export interface RoleFormData {
   /** @deprecated 使用 roleName 代替 */
   name?: string
   /** @deprecated 使用 sortOrder 代替 */
-  sort?: number
+  sort?: number | string
 }
 
 /**
@@ -214,9 +214,9 @@ export interface RoleFormData {
  */
 export interface AssignPermissionsParams {
   /** 角色 ID */
-  roleId: number
+  roleId: number | string
   /** 权限 ID 列表 */
-  permissionIds: number[]
+  permissionIds: number[] | string[]
 }
 
 /**
@@ -256,7 +256,7 @@ export enum PermissionVisible {
  */
 export interface Permission {
   /** 权限 ID */
-  id: number
+  id: number | string
   /** 权限名称 */
   name: string
   /** 权限标识（如 system:user:add） */
@@ -266,7 +266,7 @@ export interface Permission {
   /** 权限类型：1-目录，2-菜单，3-按钮 */
   type: PermissionType
   /** 父权限 ID */
-  parentId?: number
+  parentId?: number | string
   /** 路由路径 */
   path?: string
   /** 组件路径 */
@@ -274,7 +274,7 @@ export interface Permission {
   /** 图标 */
   icon?: string
   /** 排序号 */
-  sort: number
+  sort: number | string
   /** 是否可见：1-显示，0-隐藏 */
   visible: PermissionVisible
   /** 状态：1-启用，0-禁用 */
@@ -304,9 +304,9 @@ export interface PermissionQueryParams {
  */
 export interface PermissionFormData {
   /** 权限 ID（编辑时必填） */
-  id?: number
+  id?: number | string
   /** 父权限 ID */
-  parentId?: number
+  parentId?: number | string
   /** 权限类型 */
   type: PermissionType
   /** 权限名称 */
@@ -322,7 +322,7 @@ export interface PermissionFormData {
   /** 图标 */
   icon?: string
   /** 排序号 */
-  sort: number
+  sort: number | string
   /** 是否可见 */
   visible: PermissionVisible
   /** 状态 */
@@ -344,15 +344,15 @@ export enum DepartmentStatus {
  */
 export interface Department {
   /** 部门 ID */
-  id: number
+  id: number  | string
   /** 部门名称 */
   name: string
-  /** 父部门 ID */
-  parentId?: number
+  /** 父部门 ID */ 
+  parentId?: number | string
   /** 部门编码 */
   code: string
   /** 负责人 ID */
-  leaderId?: number
+  leaderId?: number | string
   /** 负责人姓名 */
   leaderName?: string
   /** 联系电话 */
@@ -386,15 +386,15 @@ export interface DepartmentQueryParams {
  */
 export interface DepartmentFormData {
   /** 部门 ID（编辑时必填） */
-  id?: number
+  id?: number | string
   /** 部门名称 */
   name: string
   /** 父部门 ID */
-  parentId?: number
+  parentId?: number | string
   /** 部门编码 */
   code: string
   /** 负责人 ID */
-  leaderId?: number
+  leaderId?: number | string
   /** 联系电话 */
   phone?: string
   /** 邮箱 */
@@ -410,7 +410,7 @@ export interface DepartmentFormData {
  */
 export interface DictType {
   /** 字典类型 ID */
-  id: number
+  id: number | string
   /** 字典名称 */
   dictName: string
   /** 字典类型（唯一标识） */
@@ -430,9 +430,9 @@ export interface DictType {
  */
 export interface DictData {
   /** 字典数据 ID */
-  id: number
+  id: number | string
   /** 字典排序 */
-  dictSort: number
+  dictSort: number | string
   /** 字典标签 */
   dictLabel: string
   /** 字典键值 */
@@ -444,7 +444,7 @@ export interface DictData {
   /** 表格回显样式 */
   listClass?: string
   /** 是否默认：0-否，1-是 */
-  isDefault: number
+  isDefault: number 
   /** 状态：0-停用，1-正常 */
   status: number
   /** 备注 */

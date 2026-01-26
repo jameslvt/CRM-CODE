@@ -27,6 +27,18 @@ public class Lead extends BaseEntity {
     private String name;
 
     /**
+     * 客户名称
+     */
+    @TableField("customer_name")
+    private String customerName;
+
+    /**
+     * 联系人姓名
+     */
+    @TableField("contact_name")
+    private String contactName;
+
+    /**
      * 来源: 官网、广告、转介绍等
      */
     @TableField("source")

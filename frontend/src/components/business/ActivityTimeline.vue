@@ -1,109 +1,175 @@
 <template>
-  <div class="activity-timeline">
-    <!-- 头部操作栏 -->
+  <div class="activity-timeline-container">
+    <!-- 头部区域 -->
     <div class="timeline-header">
       <div class="header-left">
-        <h3 class="section-title">跟进记录</h3>
-        <span class="record-count">共 {{ activities.length }} 条</span>
+        <div class="header-icon">
+          <n-icon size="18"><ChatbubblesOutline /></n-icon>
+        </div>
+        <div class="header-text">
+          <h3 class="header-title">跟进记录</h3>
+          <span class="header-count">{{ activities.length }} 条记录</span>
+        </div>
       </div>
-      <div class="header-right">
-        <n-button type="primary" size="small" @click="handleAdd">
-          <template #icon>
-            <n-icon><AddOutline /></n-icon>
-          </template>
-          添加跟进
-        </n-button>
-      </div>
+      <n-button
+        type="primary"
+        size="small"
+        @click="handleAdd"
+        :style="{ borderRadius: '8px' }"
+      >
+        <template #icon>
+          <n-icon><AddOutline /></n-icon>
+        </template>
+        添加跟进
+      </n-button>
     </div>
 
     <!-- 筛选标签 -->
-    <div class="filter-tabs">
-      <button
-        v-for="tab in filterTabs"
-        :key="tab.value ?? 'all'"
-        class="filter-tab"
-        :class="{ active: activeFilter === tab.value }"
-        @click="handleFilterChange(tab.value)"
-      >
-        <n-icon v-if="tab.icon" size="14">
-          <component :is="tab.icon" />
-        </n-icon>
-        {{ tab.label }}
-      </button>
+    <div class="filter-section">
+      <div class="filter-tabs">
+        <button
+          v-for="(tab, index) in filterTabs"
+          :key="tab.value ?? 'all'"
+          class="filter-chip"
+          :class="{ active: activeFilter === tab.value }"
+          :style="{ animationDelay: `${index * 30}ms` }"
+          @click="handleFilterChange(tab.value)"
+        >
+          <span class="chip-icon">
+            <n-icon size="13">
+              <component :is="tab.icon" />
+            </n-icon>
+          </span>
+          <span class="chip-label">{{ tab.label }}</span>
+          <span v-if="getFilterCount(tab.value) > 0" class="chip-count">
+            {{ getFilterCount(tab.value) }}
+          </span>
+        </button>
+      </div>
     </div>
 
     <!-- 时间线内容 -->
     <div class="timeline-content">
       <n-spin :show="loading">
-        <div v-if="filteredActivities.length > 0" class="timeline-list">
-          <div
-            v-for="(activity, index) in filteredActivities"
-            :key="activity.id"
-            class="timeline-item"
-          >
-            <!-- 时间线节点 -->
-            <div class="timeline-node" :style="{ background: getTypeColor(activity.type).bg }">
-              <n-icon :size="16" :style="{ color: getTypeColor(activity.type).color }">
-                <component :is="getTypeIcon(activity.type)" />
-              </n-icon>
-            </div>
-
-            <!-- 连接线 -->
-            <div v-if="index < filteredActivities.length - 1" class="timeline-line"></div>
-
-            <!-- 内容卡片 -->
-            <div class="timeline-card">
-              <div class="card-header">
-                <div class="header-info">
-                  <span class="type-tag" :style="{ background: getTypeColor(activity.type).bg, color: getTypeColor(activity.type).color }">
-                    {{ activity.typeName || getTypeName(activity.type) }}
-                  </span>
-                  <span class="activity-time">{{ formatTime(activity.createTime) }}</span>
+        <template v-if="filteredActivities.length > 0">
+          <div class="timeline-list">
+            <div
+              v-for="(activity, index) in filteredActivities"
+              :key="activity.id"
+              class="timeline-item"
+              :style="{ animationDelay: `${index * 60}ms` }"
+            >
+              <!-- 左侧时间轴 -->
+              <div class="timeline-track">
+                <div
+                  class="track-node"
+                  :class="getTypeClass(activity.type)"
+                >
+                  <n-icon size="14">
+                    <component :is="getTypeIcon(activity.type)" />
+                  </n-icon>
                 </div>
-                <div class="header-actions">
-                  <n-button text size="small" @click="handleEdit(activity)">
-                    <template #icon>
-                      <n-icon><CreateOutline /></n-icon>
-                    </template>
-                  </n-button>
-                  <n-popconfirm @positive-click="handleDelete(activity.id)">
-                    <template #trigger>
-                      <n-button text size="small" type="error">
-                        <template #icon>
-                          <n-icon><TrashOutline /></n-icon>
-                        </template>
-                      </n-button>
-                    </template>
-                    确定要删除该跟进记录吗？
-                  </n-popconfirm>
-                </div>
+                <div v-if="index < filteredActivities.length - 1" class="track-line"></div>
               </div>
 
-              <div class="card-content">
-                <p class="activity-content">{{ activity.content }}</p>
-              </div>
-
-              <div class="card-footer">
-                <div class="footer-item">
-                  <n-icon size="12"><PersonOutline /></n-icon>
-                  <span>{{ activity.createByName || '-' }}</span>
+              <!-- 右侧内容卡片 -->
+              <div class="activity-card">
+                <!-- 卡片头部 -->
+                <div class="card-top">
+                  <div class="card-meta">
+                    <span
+                      class="type-badge"
+                      :class="getTypeClass(activity.type)"
+                    >
+                      {{ activity.typeName || getTypeName(activity.type) }}
+                    </span>
+                    <span class="time-badge">
+                      <n-icon size="12"><TimeOutline /></n-icon>
+                      {{ formatTime(activity.createTime) }}
+                    </span>
+                  </div>
+                  <div class="card-actions">
+                    <n-tooltip trigger="hover" placement="top">
+                      <template #trigger>
+                        <button class="action-btn action-edit" @click="handleEdit(activity)">
+                          <n-icon size="14"><CreateOutline /></n-icon>
+                        </button>
+                      </template>
+                      编辑
+                    </n-tooltip>
+                    <n-popconfirm
+                      @positive-click="handleDelete(activity.id)"
+                      positive-text="确认删除"
+                      negative-text="取消"
+                    >
+                      <template #trigger>
+                        <n-tooltip trigger="hover" placement="top">
+                          <template #trigger>
+                            <button class="action-btn action-delete">
+                              <n-icon size="14"><TrashOutline /></n-icon>
+                            </button>
+                          </template>
+                          删除
+                        </n-tooltip>
+                      </template>
+                      <div style="max-width: 200px">
+                        确定要删除这条跟进记录吗？此操作不可恢复。
+                      </div>
+                    </n-popconfirm>
+                  </div>
                 </div>
-                <div v-if="activity.nextTime" class="footer-item next-time">
-                  <n-icon size="12"><AlarmOutline /></n-icon>
-                  <span>下次跟进: {{ formatDate(activity.nextTime) }}</span>
+
+                <!-- 卡片内容 -->
+                <div class="card-body">
+                  <p class="content-text">{{ activity.content }}</p>
+                </div>
+
+                <!-- 卡片底部 -->
+                <div class="card-bottom">
+                  <div class="author-info">
+                    <div class="author-avatar">
+                      {{ getInitials(activity.createByName) }}
+                    </div>
+                    <span class="author-name">{{ activity.createByName || '未知' }}</span>
+                  </div>
+                  <div v-if="activity.nextTime" class="next-follow">
+                    <n-icon size="12"><AlarmOutline /></n-icon>
+                    <span>{{ formatDate(activity.nextTime) }}</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </template>
 
         <!-- 空状态 -->
         <div v-else class="empty-state">
-          <n-icon size="48" class="empty-icon"><ChatbubblesOutline /></n-icon>
-          <span class="empty-text">暂无跟进记录</span>
-          <n-button type="primary" size="small" @click="handleAdd">
-            添加第一条跟进
-          </n-button>
+          <div class="empty-illustration">
+            <div class="empty-circle">
+              <div class="empty-icon-wrapper">
+                <n-icon size="32" color="#94a3b8"><ChatbubblesOutline /></n-icon>
+              </div>
+            </div>
+            <div class="empty-rings">
+              <span class="ring ring-1"></span>
+              <span class="ring ring-2"></span>
+              <span class="ring ring-3"></span>
+            </div>
+          </div>
+          <div class="empty-content">
+            <h4 class="empty-title">暂无跟进记录</h4>
+            <p class="empty-desc">记录每次客户沟通，让销售过程更透明</p>
+            <n-button
+              type="primary"
+              @click="handleAdd"
+              :style="{ borderRadius: '8px', marginTop: '8px' }"
+            >
+              <template #icon>
+                <n-icon><AddOutline /></n-icon>
+              </template>
+              添加第一条跟进
+            </n-button>
+          </div>
         </div>
       </n-spin>
     </div>
@@ -117,13 +183,13 @@ import {
   NIcon,
   NSpin,
   NPopconfirm,
+  NTooltip,
   useMessage
 } from 'naive-ui'
 import {
   AddOutline,
   CreateOutline,
   TrashOutline,
-  PersonOutline,
   AlarmOutline,
   ChatbubblesOutline,
   CallOutline,
@@ -131,11 +197,12 @@ import {
   MailOutline,
   PeopleOutline,
   EllipsisHorizontalOutline,
-  ListOutline
+  ListOutline,
+  TimeOutline
 } from '@vicons/ionicons5'
 import { getActivitiesByTarget, deleteActivity } from '@/api/business/activity'
 import type { Activity } from '@/types/business/activity'
-import { ActivityType, getActivityTypeName, getActivityTypeColor } from '@/types/business/activity'
+import { ActivityType, getActivityTypeName } from '@/types/business/activity'
 
 const props = defineProps<{
   targetType: string
@@ -169,9 +236,22 @@ const filteredActivities = computed(() => {
   return activities.value.filter(a => a.type === activeFilter.value)
 })
 
-// 获取类型颜色
-const getTypeColor = (type: string) => {
-  return getActivityTypeColor(type)
+// 获取筛选数量
+const getFilterCount = (type: ActivityType | null): number => {
+  if (type === null) return activities.value.length
+  return activities.value.filter(a => a.type === type).length
+}
+
+// 获取类型样式类
+const getTypeClass = (type: string): string => {
+  const classMap: Record<string, string> = {
+    [ActivityType.PHONE]: 'type-phone',
+    [ActivityType.VISIT]: 'type-visit',
+    [ActivityType.EMAIL]: 'type-email',
+    [ActivityType.MEETING]: 'type-meeting',
+    [ActivityType.OTHER]: 'type-other'
+  }
+  return classMap[type] || 'type-other'
 }
 
 // 获取类型名称
@@ -189,6 +269,12 @@ const getTypeIcon = (type: string) => {
     [ActivityType.OTHER]: EllipsisHorizontalOutline
   }
   return iconMap[type] || EllipsisHorizontalOutline
+}
+
+// 获取姓名首字母
+const getInitials = (name: string | undefined): string => {
+  if (!name) return '?'
+  return name.charAt(0).toUpperCase()
 }
 
 // 格式化时间
@@ -279,10 +365,12 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.activity-timeline {
+/* 容器 */
+.activity-timeline-container {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  height: 100%;
+  padding: 20px;
 }
 
 /* 头部 */
@@ -290,6 +378,7 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 16px;
 }
 
 .header-left {
@@ -298,54 +387,111 @@ onMounted(() => {
   gap: 12px;
 }
 
-.section-title {
-  font-size: 16px;
+.header-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.header-title {
+  font-size: 15px;
   font-weight: 600;
   color: #0f172a;
   margin: 0;
+  line-height: 1.2;
 }
 
-.record-count {
+.header-count {
   font-size: 12px;
-  color: #94a3b8;
-  padding: 2px 8px;
-  background: #f1f5f9;
-  border-radius: 4px;
+  color: #64748b;
 }
 
-/* 筛选标签 */
+/* 筛选区域 */
+.filter-section {
+  margin-bottom: 20px;
+}
+
 .filter-tabs {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
 }
 
-.filter-tab {
+.filter-chip {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   padding: 6px 12px;
-  border: none;
-  background: #f1f5f9;
-  border-radius: 6px;
-  font-size: 13px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  border-radius: 20px;
+  font-size: 12px;
   color: #64748b;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: chipFadeIn 0.3s ease forwards;
+  opacity: 0;
 }
 
-.filter-tab:hover {
-  background: #e2e8f0;
+@keyframes chipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.filter-tab.active {
-  background: #2563eb;
-  color: white;
+.filter-chip:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.filter-chip.active {
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+.chip-icon {
+  display: flex;
+  align-items: center;
+}
+
+.chip-label {
+  font-weight: 500;
+}
+
+.chip-count {
+  padding: 1px 6px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.filter-chip.active .chip-count {
+  background: rgba(255, 255, 255, 0.25);
 }
 
 /* 时间线内容 */
 .timeline-content {
-  min-height: 200px;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .timeline-list {
@@ -355,95 +501,190 @@ onMounted(() => {
 
 /* 时间线项 */
 .timeline-item {
-  position: relative;
   display: flex;
   gap: 16px;
-  padding-bottom: 24px;
+  animation: itemSlideIn 0.4s ease forwards;
+  opacity: 0;
 }
 
-.timeline-item:last-child {
-  padding-bottom: 0;
+@keyframes itemSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
-/* 时间线节点 */
-.timeline-node {
+/* 时间轴轨道 */
+.timeline-track {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 40px;
+  flex-shrink: 0;
+}
+
+.track-node {
   width: 36px;
   height: 36px;
-  border-radius: 50%;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
   z-index: 1;
-}
-
-/* 连接线 */
-.timeline-line {
-  position: absolute;
-  left: 17px;
-  top: 36px;
-  bottom: 0;
-  width: 2px;
-  background: #e2e8f0;
-}
-
-/* 内容卡片 */
-.timeline-card {
-  flex: 1;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 16px;
   transition: all 0.2s ease;
 }
 
-.timeline-card:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+.track-node.type-phone {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  color: #16a34a;
 }
 
-.card-header {
+.track-node.type-visit {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #2563eb;
+}
+
+.track-node.type-email {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #d97706;
+}
+
+.track-node.type-meeting {
+  background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+  color: #9333ea;
+}
+
+.track-node.type-other {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  color: #64748b;
+}
+
+.track-line {
+  width: 2px;
+  flex: 1;
+  min-height: 20px;
+  background: linear-gradient(to bottom, #e2e8f0, #f1f5f9);
+  margin: 4px 0;
+}
+
+/* 活动卡片 */
+.activity-card {
+  flex: 1;
+  background: #f8fafc;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.activity-card:hover {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.08);
+}
+
+/* 卡片头部 */
+.card-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
-.header-info {
+.card-meta {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.type-tag {
+.type-badge {
+  padding: 3px 10px;
+  border-radius: 6px;
   font-size: 11px;
   font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 4px;
 }
 
-.activity-time {
+.type-badge.type-phone {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.type-badge.type-visit {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.type-badge.type-email {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.type-badge.type-meeting {
+  background: #f3e8ff;
+  color: #9333ea;
+}
+
+.type-badge.type-other {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.time-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: 12px;
   color: #94a3b8;
 }
 
-.header-actions {
+/* 操作按钮 */
+.card-actions {
   display: flex;
   gap: 4px;
   opacity: 0;
   transition: opacity 0.2s ease;
 }
 
-.timeline-card:hover .header-actions {
+.activity-card:hover .card-actions {
   opacity: 1;
 }
 
-.card-content {
+.action-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  color: #64748b;
+}
+
+.action-edit:hover {
+  background: #f1f5f9;
+  color: #2563eb;
+}
+
+.action-delete:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+/* 卡片内容 */
+.card-body {
   margin-bottom: 12px;
 }
 
-.activity-content {
-  font-size: 14px;
+.content-text {
+  font-size: 13px;
   color: #334155;
   line-height: 1.6;
   margin: 0;
@@ -451,22 +692,47 @@ onMounted(() => {
   word-break: break-word;
 }
 
-.card-footer {
+/* 卡片底部 */
+.card-bottom {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 16px;
 }
 
-.footer-item {
+.author-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.author-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.author-name {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.next-follow {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 12px;
-  color: #94a3b8;
-}
-
-.footer-item.next-time {
-  color: #f59e0b;
+  padding: 4px 10px;
+  background: #fef3c7;
+  border-radius: 6px;
+  font-size: 11px;
+  color: #d97706;
+  font-weight: 500;
 }
 
 /* 空状态 */
@@ -474,16 +740,136 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 48px 20px;
+  padding: 48px 24px;
 }
 
-.empty-icon {
-  color: #cbd5e1;
+.empty-illustration {
+  position: relative;
+  margin-bottom: 24px;
 }
 
-.empty-text {
-  font-size: 14px;
+.empty-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.empty-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.empty-rings {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 140px;
+  height: 140px;
+  pointer-events: none;
+}
+
+.ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border: 2px solid #e2e8f0;
+  border-radius: 50%;
+  animation: ringPulse 3s ease-in-out infinite;
+}
+
+.ring-1 {
+  width: 100px;
+  height: 100px;
+  margin: -50px 0 0 -50px;
+  animation-delay: 0s;
+}
+
+.ring-2 {
+  width: 120px;
+  height: 120px;
+  margin: -60px 0 0 -60px;
+  animation-delay: 0.5s;
+}
+
+.ring-3 {
+  width: 140px;
+  height: 140px;
+  margin: -70px 0 0 -70px;
+  animation-delay: 1s;
+}
+
+@keyframes ringPulse {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+}
+
+.empty-content {
+  text-align: center;
+}
+
+.empty-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #334155;
+  margin: 0 0 6px 0;
+}
+
+.empty-desc {
+  font-size: 13px;
   color: #94a3b8;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* 响应式 */
+@media (max-width: 640px) {
+  .activity-timeline-container {
+    padding: 16px;
+  }
+
+  .filter-tabs {
+    gap: 6px;
+  }
+
+  .filter-chip {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
+  .timeline-track {
+    width: 32px;
+  }
+
+  .track-node {
+    width: 32px;
+    height: 32px;
+  }
+
+  .activity-card {
+    padding: 12px;
+  }
+
+  .card-actions {
+    opacity: 1;
+  }
 }
 </style>

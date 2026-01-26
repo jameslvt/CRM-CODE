@@ -38,6 +38,12 @@
                   {{ getStatusLabel(String(leadData.status)) }}
                 </n-tag>
               </n-descriptions-item>
+              <n-descriptions-item label="客户名称">
+                {{ leadData.customerName || '-' }}
+              </n-descriptions-item>
+              <n-descriptions-item label="联系人姓名">
+                {{ leadData.contactName || '-' }}
+              </n-descriptions-item>
               <n-descriptions-item label="联系电话">
                 {{ leadData.phone }}
               </n-descriptions-item>

@@ -93,6 +93,19 @@ public class UserController {
     }
 
     /**
+     * 获取所有用户列表
+     *
+     * @return 用户列表
+     */
+    @ApiOperation(value = "获取所有用户", notes = "获取所有启用状态的用户列表")
+    @GetMapping("/all")
+    public Result<List<UserDTO>> getAllUsers() {
+        log.info("获取所有用户列表");
+        List<UserDTO> userList = userService.getAllUsers();
+        return Result.success(userList);
+    }
+
+    /**
      * 分页查询用户列表
      *
      * @param page         页码
@@ -132,6 +145,21 @@ public class UserController {
         log.info("为用户 {} 分配角色: {}", id, roleIds);
         userService.assignRoles(id, roleIds);
         return Result.success();
+    }
+
+    /**
+     * 获取用户角色
+     *
+     * @param id 用户 ID
+     * @return 角色 ID 列表
+     */
+    @ApiOperation(value = "获取用户角色", notes = "获取用户已分配的角色ID列表")
+    @GetMapping("/{id}/roles")
+    public Result<List<Long>> getUserRoleIds(
+            @ApiParam(value = "用户ID", required = true) @PathVariable Long id) {
+        log.info("获取用户角色: {}", id);
+        List<Long> roleIds = userService.getUserRoleIds(id);
+        return Result.success(roleIds);
     }
 
     /**

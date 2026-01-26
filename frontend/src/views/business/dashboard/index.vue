@@ -3,8 +3,8 @@
     <!-- 页面标题 -->
     <div class="page-header">
       <div class="header-content">
-        <h1 class="page-title">数据分析</h1>
-        <p class="page-subtitle">销售业绩概览与数据分析</p>
+        <h1 class="page-title">L2C数据分析</h1>
+        <p class="page-subtitle">{{ currentDate }} · 实时监控企业销售业绩与运营数据</p>
       </div>
       <div class="header-actions">
         <date-range-picker
@@ -25,7 +25,7 @@
         :sub-value="dashboardData?.leadStats?.monthNewCount || 0"
         sub-label="本月新增"
         clickable
-        @click="navigateTo('/business/lead')"
+        @click="navigateTo('/leads')"
       />
       <metric-card
         :value="dashboardData?.customerStats?.totalCount || 0"
@@ -35,7 +35,7 @@
         :sub-value="dashboardData?.customerStats?.activeCount || 0"
         sub-label="活跃客户"
         clickable
-        @click="navigateTo('/business/customer')"
+        @click="navigateTo('/customers')"
       />
       <metric-card
         :value="dashboardData?.opportunityStats?.totalAmount || 0"
@@ -46,7 +46,7 @@
         :sub-value="`赢单率 ${(dashboardData?.opportunityStats?.winRate || 0).toFixed(1)}%`"
         sub-label=""
         clickable
-        @click="navigateTo('/business/opportunity')"
+        @click="navigateTo('/opportunities')"
       />
       <metric-card
         :value="dashboardData?.contractStats?.totalAmount || 0"
@@ -57,7 +57,7 @@
         :sub-value="dashboardData?.contractStats?.executingCount || 0"
         sub-label="执行中"
         clickable
-        @click="navigateTo('/business/contract')"
+        @click="navigateTo('/contracts')"
       />
       <metric-card
         :value="dashboardData?.paymentStats?.totalActualAmount || 0"
@@ -68,7 +68,7 @@
         :sub-value="`完成率 ${(dashboardData?.paymentStats?.completionRate || 0).toFixed(1)}%`"
         sub-label=""
         clickable
-        @click="navigateTo('/business/payment')"
+        @click="navigateTo('/payments')"
       />
       <metric-card
         :value="dashboardData?.paymentStats?.pendingAmount || 0"
@@ -81,13 +81,27 @@
       />
     </div>
 
+    <!-- 新增：签单计划追踪 + 机构业绩排名 -->
+    <div class="performance-section">
+      <!-- 左侧：签单计划追踪 + 增长热力榜 -->
+      <div class="left-column">
+        <signing-plan-tracker class="tracker-card" />
+        <growth-heatmap class="heatmap-card" />
+      </div>
+      
+      <!-- 右侧：机构业绩排名 -->
+      <div class="region-table-wrapper">
+        <region-performance-table class="full-height-table" />
+      </div>
+    </div>
+
     <!-- 图表区域 -->
     <div class="charts-grid">
       <!-- 销售漏斗 -->
       <div class="chart-section funnel-section">
         <sales-funnel-chart
           :stages="funnelData?.stages || []"
-          :total-count="funnelData?.totalCount || 0"
+          :total-count="Number(funnelData?.totalCount) || 0"
           :total-amount="funnelData?.totalAmount || 0"
           :loading="funnelLoading"
         />
@@ -111,9 +125,7 @@
       <div class="detail-card">
         <div class="detail-header">
           <h3 class="detail-title">线索统计</h3>
-          <n-button text type="primary" @click="navigateTo('/business/lead')">
-            查看详情
-          </n-button>
+          <span class="view-detail-link" @click="navigateTo('/leads')">查看详情</span>
         </div>
         <div class="detail-content">
           <div class="detail-item">
@@ -135,9 +147,7 @@
       <div class="detail-card">
         <div class="detail-header">
           <h3 class="detail-title">商机统计</h3>
-          <n-button text type="primary" @click="navigateTo('/business/opportunity')">
-            查看详情
-          </n-button>
+          <span class="view-detail-link" @click="navigateTo('/opportunities')">查看详情</span>
         </div>
         <div class="detail-content">
           <div class="detail-item">
@@ -159,9 +169,7 @@
       <div class="detail-card">
         <div class="detail-header">
           <h3 class="detail-title">合同统计</h3>
-          <n-button text type="primary" @click="navigateTo('/business/contract')">
-            查看详情
-          </n-button>
+          <span class="view-detail-link" @click="navigateTo('/contracts')">查看详情</span>
         </div>
         <div class="detail-content">
           <div class="detail-item">
@@ -179,9 +187,7 @@
       <div class="detail-card">
         <div class="detail-header">
           <h3 class="detail-title">回款统计</h3>
-          <n-button text type="primary" @click="navigateTo('/business/payment')">
-            查看详情
-          </n-button>
+          <span class="view-detail-link" @click="navigateTo('/payments')">查看详情</span>
         </div>
         <div class="detail-content">
           <div class="detail-item">
@@ -199,9 +205,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { NButton, useMessage } from 'naive-ui'
+// 引入 User Store
+import { useUserStore } from '@/stores/user'
 import {
   PersonOutline,
   PeopleOutline,
@@ -216,9 +224,34 @@ import MetricCard from '@/components/business/MetricCard.vue'
 import SalesFunnelChart from '@/components/business/SalesFunnelChart.vue'
 import PerformanceTrendChart from '@/components/business/PerformanceTrendChart.vue'
 import DateRangePicker from '@/components/common/DateRangePicker.vue'
+// 新增组件导入
+import RegionPerformanceTable from '@/components/business/RegionPerformanceTable.vue'
+import SigningPlanTracker from '@/components/business/SigningPlanTracker.vue'
+import GrowthHeatmap from '@/components/business/GrowthHeatmap.vue'
 
 const router = useRouter()
 const message = useMessage()
+const userStore = useUserStore()
+
+// 计算欢迎语
+const greeting = computed(() => {
+  const hour = new Date().getHours()
+  if (hour < 6) return '夜深了'
+  if (hour < 12) return '早上好'
+  if (hour < 14) return '中午好'
+  if (hour < 18) return '下午好'
+  return '晚上好'
+})
+
+// 当前日期
+const currentDate = computed(() => {
+  const date = new Date()
+  return date.toLocaleDateString('zh-CN', { 
+    month: 'long', 
+    day: 'numeric', 
+    weekday: 'long' 
+  })
+})
 
 // 数据状态
 const dashboardData = ref<DashboardData | null>(null)
@@ -350,15 +383,57 @@ onMounted(() => {
   gap: 16px;
 }
 
+/* 新增：业绩追踪区域 */
+.performance-section {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: 24px;
+  align-items: stretch; /* 让左右高度一致 */
+}
+
+.left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.tracker-card {
+  /* 移除SigningPlanTracker自带的margin/border等，如果需要 */
+}
+
+.heatmap-card {
+  flex: 1; /* 填充剩余高度 */
+}
+
+.region-table-wrapper {
+  height: 100%;
+}
+
+.full-height-table {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 /* 图表网格 */
 .charts-grid {
   display: grid;
   grid-template-columns: 400px 1fr;
   gap: 24px;
+  align-items: stretch; /* 强制等高 */
 }
 
+/* 确保卡片容器撑满高度 */
 .chart-section {
   min-height: 400px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 让内部组件填充 */
+.chart-section > * {
+  flex: 1;
 }
 
 /* 详细统计网格 */
@@ -380,6 +455,19 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+}
+
+.view-detail-link {
+  font-size: 12px;
+  color: #2563eb;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.view-detail-link:hover {
+  background: #eff6ff;
 }
 
 .detail-title {
@@ -434,6 +522,10 @@ onMounted(() => {
 @media (max-width: 1280px) {
   .metrics-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .performance-section {
+    grid-template-columns: 1fr;
   }
 
   .charts-grid {

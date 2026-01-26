@@ -78,6 +78,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { getToken } from '@/api/request'
 import {
   NIcon,
   NButton,
@@ -103,7 +104,7 @@ const props = withDefaults(defineProps<{
   accept: '.pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png',
   maxSize: 10,
   disabled: false,
-  uploadUrl: '/api/common/upload'
+  uploadUrl: '/api/files/upload'
 })
 
 const emit = defineEmits<{
@@ -220,12 +221,16 @@ const uploadFile = async (file: File) => {
     }, 200)
 
     // 实际上传请求
+    const token = getToken()
+    const headers: Record<string, string> = {}
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+    }
+
     const response = await fetch(props.uploadUrl, {
       method: 'POST',
       body: formData,
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-      }
+      headers
     })
 
     clearInterval(progressInterval)

@@ -5,14 +5,14 @@ import type { PageResult } from '@/types/common'
  * 操作日志类型定义
  */
 export interface OperationLog {
-  id: number
+  id: number|string
   module: string
   operation: string
   method: string
   requestUrl: string
   requestParams: string
   responseResult: string
-  userId: number
+  userId: number|string
   username: string
   ip: string
   duration: number

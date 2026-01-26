@@ -26,6 +26,16 @@ public class LeadFormData {
     private String name;
 
     /**
+     * 客户名称
+     */
+    private String customerName;
+
+    /**
+     * 联系人姓名
+     */
+    private String contactName;
+
+    /**
      * 来源: 官网、广告、转介绍等
      */
     private String source;

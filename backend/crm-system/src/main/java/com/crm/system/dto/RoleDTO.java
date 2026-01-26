@@ -60,6 +60,12 @@ public class RoleDTO implements Serializable {
     private Integer status;
 
     /**
+     * 数据权限范围: 1-全部数据, 2-本部门及下级, 3-本部门, 4-仅本人
+     */
+    @ApiModelProperty(value = "数据权限范围", example = "1")
+    private Integer dataScope;
+
+    /**
      * 备注
      */
     @ApiModelProperty(value = "备注", example = "系统内置角色")

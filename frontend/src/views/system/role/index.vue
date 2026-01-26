@@ -195,7 +195,7 @@
           expand-on-click
           :default-expanded-keys="defaultExpandedKeys"
           key-field="id"
-          label-field="name"
+          label-field="permissionName"
           children-field="children"
           class="permission-tree"
           @update:checked-keys="handlePermissionCheck"
@@ -215,7 +215,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, h } from 'vue'
+import { ref, reactive, onMounted, h, markRaw } from 'vue'
 import {
   NButton,
   NIcon,
@@ -267,9 +267,9 @@ const message = useMessage()
 
 // 迷你统计数据
 const miniStats = ref([
-  { key: 'total', label: '全部角色', value: '0', icon: TeamOutlined, class: 'blue' },
-  { key: 'enabled', label: '已启用', value: '0', icon: CheckCircleOutlined, class: 'green' },
-  { key: 'disabled', label: '已禁用', value: '0', icon: CloseCircleOutlined, class: 'gray' }
+  { key: 'total', label: '全部角色', value: '0', icon: markRaw(TeamOutlined), class: 'blue' },
+  { key: 'enabled', label: '已启用', value: '0', icon: markRaw(CheckCircleOutlined), class: 'green' },
+  { key: 'disabled', label: '已禁用', value: '0', icon: markRaw(CloseCircleOutlined), class: 'gray' }
 ])
 
 // 表单引用
@@ -398,13 +398,25 @@ const getStatusTag = (status: number) => {
   )
 }
 
+// 数据权限色彩映射
+const dataScopeColorMap: Record<DataScope, { bg: string; color: string }> = {
+  [DataScope.ALL]: { bg: '#dbeafe', color: '#2563eb' },
+  [DataScope.DEPT_AND_CHILD]: { bg: '#fef3c7', color: '#d97706' },
+  [DataScope.DEPT]: { bg: '#dcfce7', color: '#22c55e' },
+  [DataScope.SELF]: { bg: '#f3e8ff', color: '#8b5cf6' }
+}
+
 // 获取数据权限标签
 const getDataScopeTag = (dataScope: DataScope) => {
+  const colorConfig = dataScopeColorMap[dataScope] || dataScopeColorMap[DataScope.ALL]
   return h(
     'span',
     {
       class: 'scope-tag',
-      style: { background: '#dbeafe', color: '#2563eb' }
+      style: {
+        background: colorConfig.bg,
+        color: colorConfig.color
+      }
     },
     dataScopeLabels[dataScope]
   )
@@ -416,11 +428,7 @@ const columns: DataTableColumns<Role> = [
     title: '角色名称',
     key: 'roleName',
     width: 150,
-    render: (row) =>
-      h('div', { class: 'role-cell' }, [
-        h('span', { class: 'role-name' }, row.roleName),
-        h('span', { class: 'role-code' }, row.roleCode)
-      ])
+    render: (row) => h('span', { class: 'role-name' }, row.roleName)
   },
   {
     title: '数据权限',
@@ -453,15 +461,18 @@ const columns: DataTableColumns<Role> = [
     render: (row) =>
       h('div', { class: 'action-buttons' }, [
         h('button', { class: 'action-btn edit', onClick: () => handleEdit(row) }, [
-          h(NIcon, { size: 14 }, { default: () => h(EditOutlined) }), '编辑'
+          h(NIcon, { size: 16 }, { default: () => h(EditOutlined) }),
+          h('span', { class: 'action-text' }, '编辑')
         ]),
         h('button', { class: 'action-btn permission', onClick: () => handleOpenPermissionModal(row) }, [
-          h(NIcon, { size: 14 }, { default: () => h(SafetyOutlined) }), '权限'
+          h(NIcon, { size: 16 }, { default: () => h(SafetyOutlined) }),
+          h('span', { class: 'action-text' }, '权限')
         ]),
         h(NPopconfirm, { onPositiveClick: () => handleDelete(row.id) }, {
           default: () => '确定要删除该角色吗？',
           trigger: () => h('button', { class: 'action-btn delete' }, [
-            h(NIcon, { size: 14 }, { default: () => h(DeleteOutlined) }), '删除'
+            h(NIcon, { size: 16 }, { default: () => h(DeleteOutlined) }),
+            h('span', { class: 'action-text' }, '删除')
           ])
         })
       ])
@@ -485,10 +496,10 @@ async function loadRoleList() {
     const res = await getRoleList(queryParams)
     if (res.code === 200) {
       tableData.value = res.data.records
-      pagination.page = res.data.current
-      pagination.pageSize = res.data.size
-      pagination.pageCount = res.data.pages
-      pagination.itemCount = res.data.total
+      pagination.page = Number(res.data.current)
+      pagination.pageSize = Number(res.data.size)
+      pagination.pageCount = Number(res.data.pages)
+      pagination.itemCount = Number(res.data.total)
       updateStats()
     }
   } catch (error) {
@@ -743,9 +754,13 @@ onMounted(() => {
 <style scoped>
 /* 页面容器 */
 .role-page {
-  padding: 24px;
-  background: #f8fafc;
-  min-height: 100vh;
+  width: 100%;
+  height: calc(100vh - 120px); /* 减去顶部导航栏高度 */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+  overflow: hidden; /* 防止整体滚动 */
 }
 
 /* 页面标题 */
@@ -761,7 +776,7 @@ onMounted(() => {
 }
 
 .page-title {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
   color: #0f172a;
   margin: 0 0 4px 0;
@@ -779,31 +794,47 @@ onMounted(() => {
   gap: 12px;
 }
 
+.secondary-btn {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-weight: 500;
+  background: white;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  transition: all 0.3s ease;
+}
+
+.secondary-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
 .primary-btn {
   height: 40px;
   padding: 0 20px;
-  font-weight: 600;
-  border-radius: 8px;
+  border-radius: 10px;
+  font-weight: 500;
   background: #2563eb;
-  border-color: #2563eb;
-  transition: all 0.2s ease;
+  border: none;
+  transition: all 0.3s ease;
 }
 
 .primary-btn:hover {
   background: #1d4ed8;
-  border-color: #1d4ed8;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 40px rgba(37, 99, 235, 0.3);
 }
 
 /* 统计卡片行 */
 .stats-row {
   display: flex;
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: 20px;
+  margin-bottom: 0;
 }
 
 .mini-stat {
+  flex: 1;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -811,13 +842,14 @@ onMounted(() => {
   background: white;
   border-radius: 12px;
   border: 1px solid #e2e8f0;
-  min-width: 160px;
-  transition: all 0.2s ease;
+  min-width: 0;
+  transition: all 0.3s ease;
 }
 
 .mini-stat:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-color: transparent;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+
 }
 
 .mini-stat-icon {
@@ -865,10 +897,10 @@ onMounted(() => {
 /* 筛选卡片 */
 .filter-card {
   background: white;
-  border-radius: 12px;
+  border-radius: 16px;
   border: 1px solid #e2e8f0;
-  padding: 16px 20px;
-  margin-bottom: 20px;
+  padding: 20px 24px;
+
 }
 
 .filter-row {
@@ -895,14 +927,14 @@ onMounted(() => {
 
 .search-input {
   width: 100%;
-  height: 40px;
+  height: 42px;
   padding: 0 16px 0 44px;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 14px;
   color: #0f172a;
   background: #f8fafc;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 }
 
 .search-input:focus {
@@ -927,8 +959,8 @@ onMounted(() => {
 }
 
 .filter-select :deep(.n-base-selection) {
-  --n-height: 40px;
-  --n-border-radius: 8px;
+  --n-height: 42px;
+  --n-border-radius: 10px;
   --n-border: 1px solid #e2e8f0;
   --n-border-hover: 1px solid #cbd5e1;
   --n-border-focus: 1px solid #2563eb;
@@ -937,22 +969,22 @@ onMounted(() => {
 }
 
 .filter-btn {
-  height: 40px;
+  height: 42px;
   padding: 0 20px;
-  border-radius: 8px;
+  border-radius: 10px;
   font-weight: 500;
-  background: #f1f5f9;
-  border-color: #e2e8f0;
-  color: #334155;
+  background: #2563eb;
+  border: none;
+  color: white;
+
 }
 
 .filter-btn:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
+  background: #1d4ed8;
 }
 
 .reset-btn {
-  height: 40px;
+  height: 42px;
   padding: 0 16px;
   color: #64748b;
   font-weight: 500;
@@ -964,18 +996,24 @@ onMounted(() => {
 
 /* 表格卡片 */
 .table-card {
+  flex: 1;
   background: white;
-  border-radius: 12px;
+  border-radius: 16px;
   border: 1px solid #e2e8f0;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
 }
 
 .data-table {
+  flex: 1;
   --n-th-color: #f8fafc;
   --n-th-text-color: #475569;
   --n-td-text-color: #334155;
   --n-border-color: #e2e8f0;
   --n-th-font-weight: 600;
+
 }
 
 .data-table :deep(.n-data-table-thead) {
@@ -1029,57 +1067,64 @@ onMounted(() => {
 .scope-tag {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
-  border-radius: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
   font-size: 12px;
   font-weight: 500;
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
 }
 
 /* 操作按钮 */
 .action-buttons {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: flex-start;
+  gap: 20px;
 }
 
 .action-btn {
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
+  padding: 6px 8px;
   border: none;
+  background: transparent;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-width: 40px;
+}
+
+.action-btn .action-text {
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .action-btn.edit {
-  background: #dbeafe;
   color: #2563eb;
 }
 
 .action-btn.edit:hover {
-  background: #bfdbfe;
+  background: #dbeafe;
 }
 
 .action-btn.permission {
-  background: #fef3c7;
-  color: #d97706;
+  color: #8b5cf6;
 }
 
 .action-btn.permission:hover {
-  background: #fde68a;
+  background: #f3e8ff;
 }
 
 .action-btn.delete {
-  background: #fee2e2;
-  color: #dc2626;
+  color: #ef4444;
 }
 
 .action-btn.delete:hover {
-  background: #fecaca;
+  background: #fee2e2;
 }
 
 /* 弹窗样式 */

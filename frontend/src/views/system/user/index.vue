@@ -199,9 +199,9 @@
               v-for="role in roleList"
               :key="role.id"
               :value="role.id"
-              :label="role.name"
+              :label="role.roleName"
             >
-              {{ role.name }}
+              {{ role.roleName }}
               <span v-if="role.description" class="role-description">
                 ({{ role.description }})
               </span>
@@ -270,7 +270,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, h, computed } from 'vue'
+import { ref, reactive, onMounted, h, computed, markRaw } from 'vue'
 import {
   NButton,
   NIcon,
@@ -326,9 +326,9 @@ const message = useMessage()
 
 // 迷你统计数据
 const miniStats = ref([
-  { key: 'total', label: '全部用户', value: '0', icon: TeamOutlined, class: 'blue' },
-  { key: 'enabled', label: '已启用', value: '0', icon: CheckCircleOutlined, class: 'green' },
-  { key: 'disabled', label: '已禁用', value: '0', icon: CloseCircleOutlined, class: 'gray' }
+  { key: 'total', label: '全部用户', value: '0', icon: markRaw(TeamOutlined), class: 'blue' },
+  { key: 'enabled', label: '已启用', value: '0', icon: markRaw(CheckCircleOutlined), class: 'green' },
+  { key: 'disabled', label: '已禁用', value: '0', icon: markRaw(CloseCircleOutlined), class: 'gray' }
 ])
 
 // 表单引用
@@ -576,10 +576,10 @@ async function loadUserList() {
     const res = await getUserList(queryParams)
     if (res.code === 200) {
       tableData.value = res.data.records
-      pagination.page = res.data.current
-      pagination.pageSize = res.data.size
-      pagination.pageCount = res.data.pages
-      pagination.itemCount = res.data.total
+      pagination.page = Number(res.data.current)
+      pagination.pageSize = Number(res.data.size)
+      pagination.pageCount = Number(res.data.pages)
+      pagination.itemCount = Number(res.data.total)
       updateStats()
     }
   } catch (error) {

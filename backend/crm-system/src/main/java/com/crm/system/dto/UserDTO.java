@@ -97,4 +97,16 @@ public class UserDTO implements Serializable {
      */
     @ApiModelProperty(value = "更新时间")
     private LocalDateTime updateTime;
+
+    /**
+     * 角色名称列表
+     */
+    @ApiModelProperty(value = "角色名称列表")
+    private java.util.List<String> roleNames;
+
+    /**
+     * 角色ID列表
+     */
+    @ApiModelProperty(value = "角色ID列表")
+    private java.util.List<Long> roleIds;
 }

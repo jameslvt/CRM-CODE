@@ -3,7 +3,7 @@
     <!-- 页面标题 -->
     <div class="page-header">
       <div class="header-content">
-        <h1 class="page-title">联系人管理</h1>
+        <h1 class="page-title">通讯录</h1>
         <p class="page-subtitle">管理客户联系人信息，维护客户关系</p>
       </div>
       <div class="header-actions">
@@ -296,12 +296,13 @@ const formData = reactive<ContactFormData>({
 })
 
 // 客户选项
-const customerOptions = ref<{ label: string; value: number }[]>([])
+// 客户选项
+const customerOptions = ref<{ label: string; value: number | string }[]>([])
 const customerLoading = ref(false)
 
 // 表单验证规则
 const formRules: FormRules = {
-  customerId: { required: true, type: 'number', message: '请选择客户', trigger: 'change' },
+  customerId: { required: true, message: '请选择客户', trigger: 'change' },
   name: { required: true, message: '请输入姓名', trigger: 'blur' }
 }
 
@@ -378,10 +379,10 @@ const columns: DataTableColumns<Contact> = [
     render: (row) => getGenderTag(row.gender)
   },
   {
-    title: '手机',
-    key: 'mobile',
+    title: '联系电话',
+    key: 'phone',
     width: 130,
-    render: (row) => h('span', { class: 'phone-text' }, row.mobile || '-')
+    render: (row) => h('span', { class: 'phone-text' }, row.phone || '-')
   },
   {
     title: '邮箱',
@@ -624,10 +625,11 @@ onMounted(() => {
 
 .contact-page {
   width: 100%;
-  min-height: 100%;
+  height: calc(100vh - 120px);
   display: flex;
   flex-direction: column;
   gap: 20px;
+  overflow: hidden;
 }
 
 /* ========================================

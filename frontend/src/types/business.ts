@@ -56,6 +56,10 @@ export interface Lead {
   id: string
   /** 线索名称 */
   name: string
+  /** 客户名称 */
+  customerName?: string
+  /** 联系人姓名 */
+  contactName?: string
   /** 联系电话 */
   phone: string
   /** 邮箱 */
@@ -128,6 +132,10 @@ export interface LeadFormData {
   id?: string
   /** 线索名称 */
   name: string
+  /** 客户名称 */
+  customerName?: string
+  /** 联系人姓名 */
+  contactName?: string
   /** 联系电话 */
   phone?: string
   /** 邮箱 */
@@ -166,14 +174,34 @@ export interface LeadConvertParams {
   customerType?: string
   /** 客户级别 */
   customerLevel?: string
+  /** 负责人ID */
+  ownerId?: number | string
+  /** 行业 */
+  industry?: string
+  /** 规模 */
+  scale?: string
+  /** 来源 */
+  source?: string
+  /** 客户联系电话 */
+  customerPhone?: string
+  /** 联系人姓名 */
+  contactName?: string
+  /** 联系人电话 */
+  contactPhone?: string
+  /** 联系人邮箱 */
+  contactEmail?: string
+  /** 联系人职位 */
+  contactPosition?: string
+  /** 联系人性别 */
+  contactGender?: number
   /** 是否创建商机 */
   createOpportunity?: boolean
   /** 商机名称（如果创建商机） */
   opportunityName?: string
-  /** 预计金额（如果创建商机） */
-  expectedAmount?: number
-  /** 预计成交日期（如果创建商机） */
-  expectedCloseDate?: string
+  /** 商机金额（如果创建商机） */
+  opportunityAmount?: number
+  /** 预计成交日期（如果创建商机）时间戳 */
+  expectedCloseDate?: number
   /** 备注 */
   remark?: string
 }

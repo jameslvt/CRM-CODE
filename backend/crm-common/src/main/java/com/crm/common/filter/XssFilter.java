@@ -41,29 +41,31 @@ public class XssFilter implements Filter {
 
         // XSS攻击模式
         private static final Pattern[] XSS_PATTERNS = {
-            // Script标签
-            Pattern.compile("<script>(.*?)</script>", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("</script>", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("<script(.*?)>", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
-            // src属性
-            Pattern.compile("src[\r\n]*=[\r\n]*\\'(.*?)\\'", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
-            Pattern.compile("src[\r\n]*=[\r\n]*\\\"(.*?)\\\"", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
-            // eval表达式
-            Pattern.compile("eval\\((.*?)\\)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
-            // expression表达式
-            Pattern.compile("expression\\((.*?)\\)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
-            // javascript:
-            Pattern.compile("javascript:", Pattern.CASE_INSENSITIVE),
-            // vbscript:
-            Pattern.compile("vbscript:", Pattern.CASE_INSENSITIVE),
-            // onload事件
-            Pattern.compile("onload(.*?)=", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
-            // onerror事件
-            Pattern.compile("onerror(.*?)=", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
-            // onclick事件
-            Pattern.compile("onclick(.*?)=", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
-            // onmouseover事件
-            Pattern.compile("onmouseover(.*?)=", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL)
+                // Script标签
+                Pattern.compile("<script>(.*?)</script>", Pattern.CASE_INSENSITIVE),
+                Pattern.compile("</script>", Pattern.CASE_INSENSITIVE),
+                Pattern.compile("<script(.*?)>", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
+                // src属性
+                Pattern.compile("src[\r\n]*=[\r\n]*\\'(.*?)\\'",
+                        Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
+                Pattern.compile("src[\r\n]*=[\r\n]*\\\"(.*?)\\\"",
+                        Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
+                // eval表达式
+                Pattern.compile("eval\\((.*?)\\)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
+                // expression表达式
+                Pattern.compile("expression\\((.*?)\\)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
+                // javascript:
+                Pattern.compile("javascript:", Pattern.CASE_INSENSITIVE),
+                // vbscript:
+                Pattern.compile("vbscript:", Pattern.CASE_INSENSITIVE),
+                // onload事件
+                Pattern.compile("onload(.*?)=", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
+                // onerror事件
+                Pattern.compile("onerror(.*?)=", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
+                // onclick事件
+                Pattern.compile("onclick(.*?)=", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
+                // onmouseover事件
+                Pattern.compile("onmouseover(.*?)=", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL)
         };
 
         public XssHttpServletRequestWrapper(HttpServletRequest request) {
@@ -115,8 +117,7 @@ public class XssFilter implements Filter {
                     .replace("<", "&lt;")
                     .replace(">", "&gt;")
                     .replace("\"", "&quot;")
-                    .replace("'", "&#x27;")
-                    .replace("/", "&#x2F;");
+                    .replace("'", "&#x27;");
 
             return cleanValue;
         }

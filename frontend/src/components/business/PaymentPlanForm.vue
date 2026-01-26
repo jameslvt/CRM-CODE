@@ -117,7 +117,7 @@ const isEdit = computed(() => !!props.formData?.id)
 
 // 表单数据
 const formData = ref<LocalPaymentPlanFormData>({
-  contractId: undefined as unknown as number,
+  contractId: undefined as unknown as number | string,
   period: 1,
   planAmount: 0,
   planDate: null,
@@ -125,13 +125,13 @@ const formData = ref<LocalPaymentPlanFormData>({
 })
 
 // 合同选项
-const contractOptions = ref<{ label: string; value: number }[]>([])
+const contractOptions = ref<{ label: string; value: number | string }[]>([])
 const contractLoading = ref(false)
 
 // 表单验证规则
 const rules: FormRules = {
   contractId: [
-    { required: true, type: 'number', message: '请选择合同', trigger: 'change' }
+    { required: true, message: '请选择合同', trigger: 'change' }
   ],
   period: [
     { required: true, type: 'number', message: '请输入期数', trigger: 'blur' },
@@ -151,7 +151,7 @@ const initFormData = () => {
   if (props.formData) {
     formData.value = {
       id: props.formData.id,
-      contractId: props.formData.contractId as number,
+      contractId: props.formData.contractId as (number | string),
       period: props.formData.period || 1,
       planAmount: props.formData.planAmount || 0,
       planDate: props.formData.planDate || null,
@@ -169,8 +169,7 @@ const initFormData = () => {
 }
 
 // 搜索合同
-const handleContractSearch = async (query: string) => {
-  if (!query) return
+const handleContractSearch = async (query: string = '') => {
   contractLoading.value = true
   try {
     const result = await pageContracts({ pageNum: 1, pageSize: 20, name: query })
@@ -230,6 +229,9 @@ const handleCancel = () => {
 
 onMounted(() => {
   initFormData()
+  if (!isEdit.value) {
+    handleContractSearch()
+  }
 })
 </script>
 

@@ -44,7 +44,7 @@ export function createPermission(data: PermissionFormData): Promise<Result<void>
  * @param data 权限表单数据
  * @returns 操作结果
  */
-export function updatePermission(id: number, data: PermissionFormData): Promise<Result<void>> {
+export function updatePermission(id: string, data: PermissionFormData): Promise<Result<void>> {
   return request.put(`/system/permission/${id}`, data)
 }
 

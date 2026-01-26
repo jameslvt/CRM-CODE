@@ -189,14 +189,14 @@ const formData = ref<LocalContractFormData>({
 })
 
 // 客户选项
-const customerOptions = ref<{ label: string; value: number }[]>([])
+const customerOptions = ref<{ label: string; value: number | string }[]>([])
 const customerLoading = ref(false)
 
 // 商机选项
-const opportunityOptions = ref<{ label: string; value: number }[]>([])
+const opportunityOptions = ref<{ label: string; value: number | string }[]>([])
 
 // 用户选项
-const userOptions = ref<{ label: string; value: number }[]>([])
+const userOptions = ref<{ label: string; value: number | string }[]>([])
 
 // 表单验证规则
 const rules: FormRules = {
@@ -205,7 +205,7 @@ const rules: FormRules = {
     { min: 2, max: 200, message: '合同名称长度必须在2-200个字符之间', trigger: 'blur' }
   ],
   customerId: [
-    { required: true, type: 'number', message: '请选择客户', trigger: 'change' }
+    { required: true, message: '请选择客户', trigger: 'change' } // Removed type: 'number'
   ],
   amount: [
     { required: true, type: 'number', message: '请输入合同金额', trigger: 'blur' },
@@ -243,8 +243,7 @@ const initFormData = () => {
 }
 
 // 搜索客户
-const handleCustomerSearch = async (query: string) => {
-  if (!query) return
+const handleCustomerSearch = async (query: string = '') => {
   customerLoading.value = true
   try {
     const result = await pageCustomers({ pageNum: 1, pageSize: 20, name: query })
@@ -346,6 +345,7 @@ const handleCancel = () => {
 onMounted(() => {
   initFormData()
   loadUsers()
+  handleCustomerSearch('') // 预加载客户列表
 })
 </script>
 

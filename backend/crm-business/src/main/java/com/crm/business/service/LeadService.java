@@ -185,13 +185,22 @@ public class LeadService {
             throw new BusinessException("该线索已转化");
         }
 
-        // 调用CustomerService创建客户记录
+        // 调用CustomerService创建客户记录（同时自动创建联系人）
         Long customerId = customerService.createFromLead(
                 params.getLeadId(),
                 params.getCustomerName(),
                 params.getCustomerType(),
                 params.getCustomerLevel(),
-                lead.getOwnerId());
+                params.getOwnerId() != null ? params.getOwnerId() : lead.getOwnerId(),
+                params.getIndustry(),
+                params.getScale(),
+                params.getSource(),
+                params.getCustomerPhone(),
+                params.getContactName(),
+                params.getContactPhone(),
+                params.getContactEmail(),
+                params.getContactPosition(),
+                params.getContactGender());
 
         // 如果需要创建商机
         Long opportunityId = null;
@@ -208,6 +217,9 @@ public class LeadService {
                 opportunityDTO.setExpectedDate(
                         new java.sql.Date(params.getExpectedCloseDate()).toLocalDate());
             }
+            // 默认来源为线索转化
+            opportunityDTO.setSource("LEAD");
+
             opportunityId = opportunityService.createOpportunity(opportunityDTO);
             log.info("线索转化时创建商机成功,商机ID: {}", opportunityId);
         }

@@ -24,6 +24,22 @@
         />
       </n-form-item-gi>
 
+      <n-form-item-gi label="客户名称" path="customerName">
+        <n-input
+          v-model:value="formModel.customerName"
+          placeholder="请输入客户名称（转化时优先使用）"
+          clearable
+        />
+      </n-form-item-gi>
+
+      <n-form-item-gi label="联系人姓名" path="contactName">
+        <n-input
+          v-model:value="formModel.contactName"
+          placeholder="请输入联系人姓名（转化时优先使用）"
+          clearable
+        />
+      </n-form-item-gi>
+
       <n-form-item-gi label="邮箱" path="email">
         <n-input
           v-model:value="formModel.email"
@@ -48,6 +64,16 @@
         />
       </n-form-item-gi>
 
+      <n-form-item-gi label="负责人" path="ownerId">
+        <n-select
+          v-model:value="formModel.ownerId"
+          placeholder="请选择负责人"
+          :options="userOptions"
+          filterable
+          clearable
+        />
+      </n-form-item-gi>
+
       <n-form-item-gi label="来源" path="source">
         <n-select
           v-model:value="formModel.source"
@@ -58,9 +84,10 @@
       </n-form-item-gi>
 
       <n-form-item-gi label="行业" path="industry">
-        <n-input
+        <n-select
           v-model:value="formModel.industry"
-          placeholder="请输入行业"
+          placeholder="请选择行业"
+          :options="industryOptions"
           clearable
         />
       </n-form-item-gi>
@@ -112,9 +139,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, onMounted } from 'vue'
 import { useMessage, type FormInst, type FormRules } from 'naive-ui'
 import { saveLead, updateLead } from '@/api/business/lead'
+import { getUserList } from '@/api/system/user'
+import { useUserStore } from '@/stores/user'
 import type { Lead } from '@/types/business'
 
 interface Props {
@@ -135,6 +164,9 @@ const submitting = ref(false)
 
 // 表单数据 - 字段名与后端 LeadFormData 保持一致
 const formModel = reactive<Partial<Lead>>({})
+
+// 用户选项
+const userOptions = ref<Array<{ label: string; value: number | string }>>([])
 
 // 来源选项
 const sourceOptions = [
@@ -158,6 +190,19 @@ const statusOptions = [
   { label: '新建', value: 1 },
   { label: '跟进中', value: 2 },
   { label: '已失效', value: 4 }
+]
+
+// 行业选项
+const industryOptions = [
+  { label: '互联网/IT', value: '互联网/IT' },
+  { label: '金融', value: '金融' },
+  { label: '制造业', value: '制造业' },
+  { label: '零售', value: '零售' },
+  { label: '教育', value: '教育' },
+  { label: '医疗', value: '医疗' },
+  { label: '房地产', value: '房地产' },
+  { label: '物流', value: '物流' },
+  { label: '其他', value: '其他' }
 ]
 
 // 表单验证规则 - 字段名与后端保持一致
@@ -197,12 +242,28 @@ const defaultFormData = {
   email: '',
   company: '',
   position: '',
+  ownerId: undefined,
   source: '',
   industry: '',
   rating: 'B',
   status: 1, // 默认状态：1-新建
   address: '',
   remark: ''
+}
+
+// 加载用户列表
+const loadUsers = async () => {
+  try {
+    const res = await getUserList({ pageNum: 1, pageSize: 100 })
+    // API返回 Result<PageResult<User>>，数据在 res.data.records 中
+    const records = res.data?.records || res.records || []
+    userOptions.value = records.map((user: any) => ({
+      label: user.nickname || user.username,
+      value: user.id
+    }))
+  } catch (error) {
+    console.error('加载用户列表失败', error)
+  }
 }
 
 // 监听 props 变化，更新表单数据
@@ -214,11 +275,20 @@ watch(
     if (newVal && newVal.id) {
       Object.assign(formModel, newVal)
     } else {
-      Object.assign(formModel, defaultFormData)
+      const userStore = useUserStore()
+      Object.assign(formModel, {
+        ...defaultFormData,
+        ownerId: userStore.userInfo?.id // 默认为当前登录用户
+      })
     }
   },
   { immediate: true, deep: true }
 )
+
+// 组件挂载时加载用户列表
+onMounted(() => {
+  loadUsers()
+})
 
 // 提交表单
 const handleSubmit = async () => {

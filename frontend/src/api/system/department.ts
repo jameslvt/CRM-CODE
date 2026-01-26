@@ -45,7 +45,7 @@ export function createDepartment(data: DepartmentFormData): Promise<Result<void>
  * @param data 部门表单数据
  * @returns 操作结果
  */
-export function updateDepartment(id: number, data: DepartmentFormData): Promise<Result<void>> {
+export function updateDepartment(id: string, data: DepartmentFormData): Promise<Result<void>> {
   return request.put(`/system/departments/${id}`, data)
 }
 
@@ -79,7 +79,7 @@ export function checkDepartmentDeletable(id: string): Promise<Result<{
  * @param status 状态：1-启用，0-禁用
  * @returns 操作结果
  */
-export function updateDepartmentStatus(id: number, status: number): Promise<Result<void>> {
+export function updateDepartmentStatus(id: string, status: number): Promise<Result<void>> {
   return request.put(`/system/departments/${id}/status`, { status })
 }
 
@@ -108,6 +108,6 @@ export function checkDepartmentCodeExists(code: string, excludeId?: number): Pro
  * @param deptId 部门 ID
  * @returns 用户列表
  */
-export function getDepartmentUsers(deptId: number): Promise<Result<User[]>> {
+export function getDepartmentUsers(deptId: string): Promise<Result<User[]>> {
   return request.get(`/system/departments/${deptId}/users`)
 }

@@ -4,7 +4,7 @@ import request from '../request'
  * 商机阶段配置接口
  */
 export interface OpportunityStage {
-  id?: number
+  id?: number | string
   stageName: string
   stageCode: string
   winRate: number
@@ -53,6 +53,6 @@ export function deleteOpportunityStage(id: string): Promise<void> {
 /**
  * 调整阶段排序
  */
-export function updateOpportunityStageSort(id: number, sort: number): Promise<void> {
+export function updateOpportunityStageSort(id: string, sort: number): Promise<void> {
   return request.put(`/system/opportunity-stage/${id}/sort`, null, { params: { sort } })
 }

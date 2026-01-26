@@ -83,8 +83,20 @@ const mainRoutes: RouteRecordRaw[] = [
         name: 'Dashboard',
         component: () => import('@/views/dashboard/index.vue'),
         meta: {
-          title: '仪表盘',
+          title: '工作台',
           icon: 'dashboard',
+          requiresAuth: true,
+          keepAlive: true
+        }
+      },
+      // 业务仪表盘 (L2C数据分析)
+      {
+        path: '/business/dashboard',
+        name: 'BusinessDashboard',
+        component: () => import('@/views/business/dashboard/index.vue'),
+        meta: {
+          title: '数据分析',
+          icon: 'chart',
           requiresAuth: true,
           keepAlive: true
         }
@@ -96,7 +108,7 @@ const mainRoutes: RouteRecordRaw[] = [
         name: 'Leads',
         component: () => import('@/views/business/lead/index.vue'),
         meta: {
-          title: '线索管理',
+          title: '销售线索列表',
           icon: 'leads',
           requiresAuth: true,
           permissions: ['lead:view'],
@@ -123,7 +135,20 @@ const mainRoutes: RouteRecordRaw[] = [
         name: 'Customers',
         component: () => import('@/views/business/customer/index.vue'),
         meta: {
-          title: '客户管理',
+          title: '客户名录',
+          icon: 'customers',
+          requiresAuth: true,
+          permissions: ['customer:view'],
+          keepAlive: true
+        }
+      },
+      // 客户详情
+      {
+        path: '/business/customer/pool',
+        name: 'CustomerPool',
+        component: () => import('@/views/business/customer/pool.vue'),
+        meta: {
+          title: '公海池',
           icon: 'customers',
           requiresAuth: true,
           permissions: ['customer:view'],
@@ -150,7 +175,7 @@ const mainRoutes: RouteRecordRaw[] = [
         name: 'Contacts',
         component: () => import('@/views/business/contact/index.vue'),
         meta: {
-          title: '联系人管理',
+          title: '通讯录',
           icon: 'contacts',
           requiresAuth: true,
           permissions: ['contact:view'],
@@ -164,7 +189,7 @@ const mainRoutes: RouteRecordRaw[] = [
         name: 'Opportunities',
         component: () => import('@/views/business/opportunity/index.vue'),
         meta: {
-          title: '商机管理',
+          title: '商机看板',
           icon: 'opportunities',
           requiresAuth: true,
           permissions: ['opportunity:view'],
@@ -191,7 +216,7 @@ const mainRoutes: RouteRecordRaw[] = [
         name: 'Products',
         component: () => import('@/views/business/product/index.vue'),
         meta: {
-          title: '产品管理',
+          title: '产品目录',
           icon: 'products',
           requiresAuth: true,
           permissions: ['product:view'],
@@ -205,7 +230,7 @@ const mainRoutes: RouteRecordRaw[] = [
         name: 'Contracts',
         component: () => import('@/views/business/contract/index.vue'),
         meta: {
-          title: '合同管理',
+          title: '合同库',
           icon: 'contracts',
           requiresAuth: true,
           permissions: ['contract:view'],
@@ -232,7 +257,7 @@ const mainRoutes: RouteRecordRaw[] = [
         name: 'Payments',
         component: () => import('@/views/business/payment/index.vue'),
         meta: {
-          title: '回款管理',
+          title: '回款明细',
           icon: 'payments',
           requiresAuth: true,
           permissions: ['payment:view'],

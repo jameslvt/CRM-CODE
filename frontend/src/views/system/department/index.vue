@@ -1,95 +1,166 @@
 <template>
-  <div class="department-page">
-    <!-- 页面标题 -->
-    <div class="page-header">
-      <div class="header-content">
-        <h1 class="page-title">部门管理</h1>
-        <p class="page-subtitle">管理企业组织架构，设置部门层级关系</p>
-      </div>
-      <div class="header-actions">
-        <n-button @click="handleToggleExpand" class="secondary-btn">
-          <template #icon>
-            <n-icon :component="expandAll ? UpOutlined : DownOutlined" />
-          </template>
-          {{ expandAll ? '收起所有' : '展开所有' }}
-        </n-button>
-        <n-button type="primary" @click="handleAdd" class="primary-btn">
+  <div class="org-manager">
+    <!-- 左侧：组织树导航 -->
+    <aside class="org-sidebar">
+      <div class="sidebar-header">
+        <h2 class="sidebar-title">
+          <n-icon :component="ApartmentOutlined" size="20" />
+          组织架构
+        </h2>
+        <n-button quaternary circle size="small" @click="handleAdd" class="add-root-btn">
           <template #icon>
             <n-icon :component="PlusOutlined" />
           </template>
-          新增部门
         </n-button>
       </div>
-    </div>
-
-    <!-- 统计卡片 -->
-    <div class="stats-row">
-      <div class="mini-stat" v-for="stat in miniStats" :key="stat.key">
-        <div class="mini-stat-icon" :class="stat.class">
-          <n-icon size="18">
-            <component :is="stat.icon" />
-          </n-icon>
+      
+      <!-- 搜索框 -->
+      <div class="sidebar-search">
+        <n-icon :component="SearchOutlined" size="16" class="search-icon" />
+        <input
+          v-model="queryParams.keyword"
+          type="text"
+          placeholder="搜索部门..."
+          class="search-input"
+          @keyup.enter="handleSearch"
+        />
+      </div>
+      
+      <!-- 组织树 -->
+      <div class="org-tree-wrapper">
+        <n-spin :show="loading" size="small">
+          <div class="org-tree">
+            <OrgTreeNode
+              v-for="dept in tableData"
+              :key="dept.id"
+              :dept="dept"
+              :level="0"
+              :selected-id="selectedDeptId"
+              @select="handleSelectDept"
+              @add-child="handleAddChild"
+              @edit="handleEdit"
+              @delete="handleDelete"
+            />
+            <div v-if="!loading && tableData.length === 0" class="empty-state">
+              <n-icon :component="ApartmentOutlined" size="32" color="#94a3b8" />
+              <p>暂无部门数据</p>
+              <n-button size="small" type="primary" @click="handleAdd">创建第一个部门</n-button>
+            </div>
+          </div>
+        </n-spin>
+      </div>
+      
+      <!-- 统计信息 -->
+      <div class="sidebar-stats">
+        <div class="stat-item">
+          <span class="stat-value">{{ stats.total }}</span>
+          <span class="stat-label">总部门</span>
         </div>
-        <div class="mini-stat-info">
-          <span class="mini-stat-value">{{ stat.value }}</span>
-          <span class="mini-stat-label">{{ stat.label }}</span>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-value enabled">{{ stats.enabled }}</span>
+          <span class="stat-label">已启用</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-value disabled">{{ stats.disabled }}</span>
+          <span class="stat-label">已禁用</span>
         </div>
       </div>
-    </div>
-
-    <!-- 搜索和筛选 -->
-    <div class="filter-card">
-      <div class="filter-row">
-        <div class="search-box">
-          <n-icon class="search-icon" size="18">
-            <SearchOutlined />
-          </n-icon>
-          <input
-            v-model="queryParams.keyword"
-            type="text"
-            placeholder="搜索部门名称、编码..."
-            class="search-input"
-            @keyup.enter="handleSearch"
-          />
+    </aside>
+    
+    <!-- 右侧：部门详情 -->
+    <main class="org-content">
+      <template v-if="selectedDept">
+        <!-- 部门详情卡片 -->
+        <div class="detail-card">
+          <div class="detail-header">
+            <div class="dept-badge" :class="{ disabled: selectedDept.status === 0 }">
+              <n-icon :component="ApartmentOutlined" size="24" />
+            </div>
+            <div class="dept-info">
+              <h1 class="dept-title">{{ selectedDept.name }}</h1>
+              <div class="dept-meta">
+                <span class="dept-code">{{ selectedDept.code }}</span>
+                <span class="status-badge" :class="selectedDept.status === 1 ? 'active' : 'inactive'">
+                  {{ selectedDept.status === 1 ? '启用' : '禁用' }}
+                </span>
+              </div>
+            </div>
+            <div class="detail-actions">
+              <n-button @click="handleEdit(selectedDept)" class="action-btn edit-btn">
+                <template #icon><n-icon :component="EditOutlined" /></template>
+                编辑
+              </n-button>
+              <n-button @click="handleDelete(selectedDept.id)" class="action-btn delete-btn">
+                <template #icon><n-icon :component="DeleteOutlined" /></template>
+                删除
+              </n-button>
+            </div>
+          </div>
+          
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">负责人</span>
+              <span class="detail-value">{{ selectedDept.leaderName || '-' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">排序号</span>
+              <span class="detail-value">{{ selectedDept.sort }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">创建时间</span>
+              <span class="detail-value">{{ formatTime(selectedDept.createTime) }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">更新时间</span>
+              <span class="detail-value">{{ formatTime(selectedDept.updateTime) }}</span>
+            </div>
+          </div>
+          
+          <!-- 子部门列表 -->
+          <div v-if="selectedDept.children && selectedDept.children.length > 0" class="children-section">
+            <h3 class="section-title">
+              <n-icon :component="DownOutlined" size="14" />
+              下级部门 ({{ selectedDept.children.length }})
+            </h3>
+            <div class="children-list">
+              <div
+                v-for="child in selectedDept.children"
+                :key="child.id"
+                class="child-card"
+                @click="handleSelectDept(child)"
+              >
+                <div class="child-icon">
+                  <n-icon :component="ApartmentOutlined" size="16" />
+                </div>
+                <div class="child-info">
+                  <span class="child-name">{{ child.name }}</span>
+                  <span class="child-code">{{ child.code }}</span>
+                </div>
+                <span class="child-status" :class="child.status === 1 ? 'active' : 'inactive'">
+                  {{ child.status === 1 ? '启用' : '禁用' }}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="filter-group">
-          <n-select
-            v-model:value="queryParams.status"
-            :options="statusOptions"
-            placeholder="状态"
-            clearable
-            class="filter-select"
-          />
-          <n-button @click="handleSearch" class="filter-btn">
-            <template #icon>
-              <n-icon><SearchOutlined /></n-icon>
-            </template>
-            搜索
-          </n-button>
-          <n-button @click="handleReset" quaternary class="reset-btn">
-            重置
-          </n-button>
+      </template>
+      
+      <!-- 空状态 -->
+      <div v-else class="empty-content">
+        <div class="empty-illustration">
+          <n-icon :component="ApartmentOutlined" size="64" color="#cbd5e1" />
         </div>
+        <h3 class="empty-title">选择一个部门查看详情</h3>
+        <p class="empty-desc">在左侧组织架构树中选择部门，或创建新部门</p>
+        <n-button type="primary" @click="handleAdd">
+          <template #icon><n-icon :component="PlusOutlined" /></template>
+          创建部门
+        </n-button>
       </div>
-    </div>
-
-    <!-- 树形表格 -->
-    <div class="table-card">
-      <n-data-table
-        :columns="columns"
-        :data="tableData"
-        :loading="loading"
-        :row-key="(row: Department) => row.id"
-        :scroll-x="1200"
-        :expanded-row-keys="expandedRowKeys"
-        :bordered="false"
-        :single-line="false"
-        flex-height
-        class="data-table"
-        @update:expanded-row-keys="handleExpandedRowKeysChange"
-      />
-    </div>
-
+    </main>
+    
     <!-- 新增/编辑部门弹窗 -->
     <n-modal
       v-model:show="showFormModal"
@@ -104,7 +175,7 @@
         :model="formData"
         :rules="formRules"
         label-placement="left"
-        label-width="100"
+        label-width="80"
         require-mark-placement="right-hanging"
       >
         <n-form-item label="上级部门" path="parentId">
@@ -130,8 +201,7 @@
         <n-form-item label="部门编码" path="code">
           <n-input
             v-model:value="formData.code"
-            placeholder="请输入部门编码（字母数字下划线）"
-            :disabled="formMode === 'edit'"
+            placeholder="请输入部门编码"
             maxlength="50"
             show-count
           />
@@ -147,22 +217,6 @@
           />
         </n-form-item>
 
-        <n-form-item label="联系电话" path="phone">
-          <n-input
-            v-model:value="formData.phone"
-            placeholder="请输入11位手机号"
-            maxlength="11"
-          />
-        </n-form-item>
-
-        <n-form-item label="邮箱" path="email">
-          <n-input
-            v-model:value="formData.email"
-            placeholder="请输入邮箱地址"
-            maxlength="100"
-          />
-        </n-form-item>
-
         <n-form-item label="排序" path="sort">
           <n-input-number
             v-model:value="formData.sort"
@@ -175,8 +229,10 @@
 
         <n-form-item label="状态" path="status">
           <n-radio-group v-model:value="formData.status">
-            <n-radio :value="DepartmentStatus.ENABLED">启用</n-radio>
-            <n-radio :value="DepartmentStatus.DISABLED">禁用</n-radio>
+            <n-space>
+              <n-radio :value="1">启用</n-radio>
+              <n-radio :value="0">禁用</n-radio>
+            </n-space>
           </n-radio-group>
         </n-form-item>
       </n-form>
@@ -185,34 +241,34 @@
         <n-space justify="end">
           <n-button @click="showFormModal = false">取消</n-button>
           <n-button type="primary" :loading="submitting" @click="handleSubmit">
-            保存
+            {{ formMode === 'add' ? '创建' : '保存' }}
           </n-button>
         </n-space>
       </template>
     </n-modal>
 
-    <!-- 删除确认对话框 -->
+    <!-- 删除确认弹窗 -->
     <n-modal
       v-model:show="showDeleteModal"
       preset="dialog"
       title="删除确认"
       type="warning"
-      :positive-text="deleteCheckResult?.deletable ? '确定删除' : '知道了'"
-      :negative-text="deleteCheckResult?.deletable ? '取消' : undefined"
-      :loading="submitting"
-      @positive-click="handleConfirmDelete"
+      :positive-text="deleteCheckResult.deletable ? '确认删除' : undefined"
+      negative-text="取消"
+      :loading="deleteChecking"
+      @positive-click="confirmDelete"
     >
       <n-spin :show="deleteChecking">
-        <div v-if="deleteCheckResult" class="delete-warning">
+        <div class="delete-warning">
           <template v-if="deleteCheckResult.deletable">
-            <p>确定要删除该部门吗？</p>
+            <p>确定要删除该部门吗？此操作不可恢复。</p>
           </template>
           <template v-else>
-            <n-alert type="error" title="无法删除" :bordered="false">
+            <n-alert type="warning" :bordered="false">
               <template v-if="deleteCheckResult.hasChildren">
                 <p>该部门下有 <strong>{{ deleteCheckResult.childrenCount }}</strong> 个子部门，请先删除或移动子部门。</p>
               </template>
-              <template v-if="deleteCheckResult.hasUsers">
+              <template v-else-if="deleteCheckResult.hasUsers">
                 <p>该部门下有 <strong>{{ deleteCheckResult.usersCount }}</strong> 个用户，请先移动用户到其他部门。</p>
               </template>
             </n-alert>
@@ -224,13 +280,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, h } from 'vue'
+import { ref, reactive, computed, onMounted, h, defineComponent } from 'vue'
 import {
   NButton,
   NIcon,
   NSelect,
   NTreeSelect,
-  NDataTable,
   NModal,
   NForm,
   NFormItem,
@@ -241,9 +296,7 @@ import {
   NSpace,
   NSpin,
   NAlert,
-  NPopconfirm,
   useMessage,
-  type DataTableColumns,
   type FormInst,
   type FormRules
 } from 'naive-ui'
@@ -252,13 +305,10 @@ import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  UpOutlined,
   DownOutlined,
-  ApartmentOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined
+  ApartmentOutlined
 } from '@vicons/antd'
-import type { Department, DepartmentQueryParams, DepartmentFormData, User } from '@/types/system'
+import type { Department, DepartmentFormData, User } from '@/types/system'
 import { DepartmentStatus } from '@/types/system'
 import {
   getDepartmentTree,
@@ -270,279 +320,192 @@ import {
 } from '@/api/system/department'
 import dayjs from 'dayjs'
 
+// 组织树节点组件
+const OrgTreeNode = defineComponent({
+  name: 'OrgTreeNode',
+  props: {
+    dept: { type: Object as () => Department, required: true },
+    level: { type: Number, default: 0 },
+    selectedId: { type: [Number, String], default: null }
+  },
+  emits: ['select', 'add-child', 'edit', 'delete'],
+  setup(props, { emit }) {
+    const expanded = ref(true)
+    const hasChildren = computed(() => props.dept.children && props.dept.children.length > 0)
+    const isSelected = computed(() => props.selectedId === props.dept.id)
+    
+    const toggleExpand = (e: Event) => {
+      e.stopPropagation()
+      expanded.value = !expanded.value
+    }
+    
+    const handleSelect = () => {
+      emit('select', props.dept)
+    }
+    
+    const handleAddChild = (e: Event) => {
+      e.stopPropagation()
+      emit('add-child', props.dept)
+    }
+    
+    return () => h('div', { class: 'tree-node-container' }, [
+      // 连接线
+      props.level > 0 ? h('div', {
+        class: 'tree-connector',
+        style: { left: `${(props.level - 1) * 24 + 12}px` }
+      }) : null,
+      
+      // 节点卡片
+      h('div', {
+        class: ['tree-node', { selected: isSelected.value, disabled: props.dept.status === 0 }],
+        style: { marginLeft: `${props.level * 24}px` },
+        onClick: handleSelect
+      }, [
+        // 展开/收起按钮
+        hasChildren.value ? h('button', {
+          class: ['expand-btn', { expanded: expanded.value }],
+          onClick: toggleExpand
+        }, [
+          h(NIcon, { size: 12 }, { default: () => h(DownOutlined) })
+        ]) : h('div', { class: 'expand-placeholder' }),
+        
+        // 部门图标
+        h('div', { class: 'node-icon' }, [
+          h(NIcon, { component: ApartmentOutlined, size: 14 })
+        ]),
+        
+        // 部门名称
+        h('span', { class: 'node-name' }, props.dept.name),
+        
+        // 悬停操作
+        h('div', { class: 'node-actions' }, [
+          h('button', {
+            class: 'node-action add',
+            onClick: handleAddChild,
+            title: '添加子部门'
+          }, [h(NIcon, { size: 12 }, { default: () => h(PlusOutlined) })])
+        ])
+      ]),
+      
+      // 子节点
+      hasChildren.value && expanded.value ? h('div', { class: 'tree-children' },
+        props.dept.children!.map(child =>
+          h(OrgTreeNode, {
+            key: child.id,
+            dept: child,
+            level: props.level + 1,
+            selectedId: props.selectedId,
+            onSelect: (d: Department) => emit('select', d),
+            onAddChild: (d: Department) => emit('add-child', d),
+            onEdit: (d: Department) => emit('edit', d),
+            onDelete: (id: number) => emit('delete', id)
+          })
+        )
+      ) : null
+    ])
+  }
+})
+
 // 消息提示实例
 const message = useMessage()
 
-// 迷你统计数据
-const miniStats = ref([
-  { key: 'total', label: '全部部门', value: '0', icon: ApartmentOutlined, class: 'blue' },
-  { key: 'enabled', label: '已启用', value: '0', icon: CheckCircleOutlined, class: 'green' },
-  { key: 'disabled', label: '已禁用', value: '0', icon: CloseCircleOutlined, class: 'gray' }
-])
-
-// 表单引用
-const formRef = ref<FormInst | null>(null)
-
-// 加载状态
+// 状态
 const loading = ref(false)
 const submitting = ref(false)
 const deleteChecking = ref(false)
+const tableData = ref<Department[]>([])
+const selectedDeptId = ref<number | string | null>(null)
+const selectedDept = computed(() => findDeptById(tableData.value, selectedDeptId.value))
 
 // 查询参数
-const queryParams = reactive<DepartmentQueryParams>({
+const queryParams = reactive<{ keyword?: string; status?: number }>({
   keyword: undefined,
   status: undefined
 })
 
-// 表格数据
-const tableData = ref<Department[]>([])
+// 统计
+const stats = computed(() => {
+  let total = 0, enabled = 0, disabled = 0
+  const count = (depts: Department[]) => {
+    depts.forEach(d => {
+      total++
+      d.status === 1 ? enabled++ : disabled++
+      if (d.children) count(d.children)
+    })
+  }
+  count(tableData.value)
+  return { total, enabled, disabled }
+})
 
-// 展开的行键
-const expandedRowKeys = ref<number[]>([])
-
-// 是否展开所有
-const expandAll = ref(false)
-
-// 状态选项
-const statusOptions = [
-  { label: '全部', value: undefined },
-  { label: '启用', value: DepartmentStatus.ENABLED },
-  { label: '禁用', value: DepartmentStatus.DISABLED }
-]
-
-// 表单模式：add-新增，edit-编辑
-const formMode = ref<'add' | 'edit'>('add')
-
-// 显示表单弹窗
+// 表单相关
 const showFormModal = ref(false)
-
-// 表单数据
+const formMode = ref<'add' | 'edit'>('add')
+const formRef = ref<FormInst | null>(null)
 const formData = reactive<DepartmentFormData>({
+  id: undefined,
+  parentId: undefined,
   name: '',
   code: '',
-  parentId: undefined,
   leaderId: undefined,
-  phone: undefined,
-  email: undefined,
   sort: 0,
   status: DepartmentStatus.ENABLED
 })
 
-// 表单验证规则
 const formRules: FormRules = {
   name: [
     { required: true, message: '请输入部门名称', trigger: 'blur' },
     { min: 2, max: 50, message: '部门名称长度为2-50个字符', trigger: 'blur' }
   ],
   code: [
-    { required: true, message: '请输入部门编码', trigger: 'blur' },
-    {
-      pattern: /^[a-zA-Z0-9_]{2,50}$/,
-      message: '部门编码为2-50位字母、数字或下划线',
-      trigger: 'blur'
-    }
-  ],
-  phone: [
-    {
-      pattern: /^1[3-9]\d{9}$/,
-      message: '请输入正确的手机号',
-      trigger: 'blur'
-    }
-  ],
-  email: [
-    {
-      pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-      message: '请输入正确的邮箱地址',
-      trigger: 'blur'
-    }
+    { required: true, message: '请输入部门编码', trigger: 'blur' }
   ],
   sort: [
     { required: true, message: '请输入排序号', trigger: 'blur', type: 'number' }
   ]
 }
 
-// 部门树选项（用于选择上级部门）
 const departmentTreeOptions = ref<any[]>([])
-
-// 用户选项（用于选择负责人）
 const userOptions = ref<any[]>([])
 
-// 显示删除确认对话框
+// 删除相关
 const showDeleteModal = ref(false)
-
-// 当前要删除的部门 ID
 const currentDeleteId = ref<number>(0)
-
-// 删除检查结果
 const deleteCheckResult = ref<{
   deletable: boolean
   hasChildren: boolean
   hasUsers: boolean
   childrenCount: number
   usersCount: number
-} | null>(null)
+}>({
+  deletable: true,
+  hasChildren: false,
+  hasUsers: false,
+  childrenCount: 0,
+  usersCount: 0
+})
 
-// 状态颜色映射
-const statusColorMap: Record<number, { bg: string; color: string; label: string }> = {
-  [DepartmentStatus.ENABLED]: { bg: '#dcfce7', color: '#22c55e', label: '启用' },
-  [DepartmentStatus.DISABLED]: { bg: '#f1f5f9', color: '#64748b', label: '禁用' }
-}
-
-// 获取状态标签
-const getStatusTag = (status: number) => {
-  const config = statusColorMap[status] || statusColorMap[DepartmentStatus.DISABLED]
-  return h(
-    'span',
-    {
-      class: 'status-tag',
-      style: { background: config.bg, color: config.color }
-    },
-    config.label
-  )
-}
-
-// 表格列配置
-const columns: DataTableColumns<Department> = [
-  {
-    title: '部门名称',
-    key: 'name',
-    width: 250,
-    render: (row) =>
-      h('div', { class: 'dept-name-cell' }, [
-        h(NIcon, { component: ApartmentOutlined, size: 16, color: '#2563eb' }),
-        h('span', { class: 'dept-name' }, row.name)
-      ])
-  },
-  {
-    title: '部门编码',
-    key: 'code',
-    width: 150
-  },
-  {
-    title: '负责人',
-    key: 'leaderName',
-    width: 120,
-    render: (row) => row.leaderName || '-'
-  },
-  {
-    title: '联系电话',
-    key: 'phone',
-    width: 140,
-    render: (row) => row.phone || '-'
-  },
-  {
-    title: '排序',
-    key: 'sort',
-    width: 80
-  },
-  {
-    title: '状态',
-    key: 'status',
-    width: 100,
-    render: (row) => getStatusTag(row.status)
-  },
-  {
-    title: '创建时间',
-    key: 'createTime',
-    width: 160,
-    render: (row) => dayjs(row.createTime).format('YYYY-MM-DD HH:mm')
-  },
-  {
-    title: '操作',
-    key: 'actions',
-    width: 220,
-    fixed: 'right',
-    render: (row) =>
-      h('div', { class: 'action-buttons' }, [
-        h('button', { class: 'action-btn add', onClick: () => handleAddChild(row) }, [
-          h(NIcon, { size: 14 }, { default: () => h(PlusOutlined) }), '子部门'
-        ]),
-        h('button', { class: 'action-btn edit', onClick: () => handleEdit(row) }, [
-          h(NIcon, { size: 14 }, { default: () => h(EditOutlined) }), '编辑'
-        ]),
-        h('button', { class: 'action-btn delete', onClick: () => handleDelete(row.id) }, [
-          h(NIcon, { size: 14 }, { default: () => h(DeleteOutlined) }), '删除'
-        ])
-      ])
-  }
-]
-
-// 统计部门数量
-function countDepartments(departments: Department[]): { total: number; enabled: number; disabled: number } {
-  let total = 0, enabled = 0, disabled = 0
-  function traverse(nodes: Department[]) {
-    nodes.forEach(node => {
-      total++
-      if (node.status === DepartmentStatus.ENABLED) enabled++
-      else disabled++
-      if (node.children && node.children.length > 0) traverse(node.children)
-    })
-  }
-  traverse(departments)
-  return { total, enabled, disabled }
-}
-
-// 更新统计数据
-function updateStats() {
-  const stats = countDepartments(tableData.value)
-  miniStats.value[0].value = String(stats.total)
-  miniStats.value[1].value = String(stats.enabled)
-  miniStats.value[2].value = String(stats.disabled)
-}
-
-// 加载部门树
-async function loadDepartmentTree() {
-  loading.value = true
-  try {
-    const res = await getDepartmentTree(queryParams)
-    if (res.code === 200) {
-      tableData.value = res.data
-      updateStats()
-      if (expandAll.value) {
-        expandedRowKeys.value = getAllDepartmentKeys(res.data)
-      }
+// 工具函数
+function findDeptById(depts: Department[], id: number | string | null): Department | null {
+  if (!id) return null
+  for (const dept of depts) {
+    if (dept.id === id) return dept
+    if (dept.children) {
+      const found = findDeptById(dept.children, id)
+      if (found) return found
     }
-  } catch (error) {
-    message.error('加载部门列表失败')
-  } finally {
-    loading.value = false
   }
+  return null
 }
 
-// 加载用户列表（用于选择负责人）
-async function loadUserList() {
-  try {
-    const res = await getAllUsers()
-    if (res.code === 200) {
-      userOptions.value = res.data.map((user: User) => ({
-        label: `${user.realName} (${user.username})`,
-        value: user.id
-      }))
-    }
-  } catch (error) {
-    // 加载失败
-  }
+function formatTime(time?: string): string {
+  return time ? dayjs(time).format('YYYY-MM-DD HH:mm') : '-'
 }
 
-// 获取所有部门 ID（用于展开所有）
-function getAllDepartmentKeys(departments: Department[]): number[] {
-  const keys: number[] = []
-  function traverse(nodes: Department[]) {
-    nodes.forEach(node => {
-      keys.push(node.id)
-      if (node.children && node.children.length > 0) traverse(node.children)
-    })
-  }
-  traverse(departments)
-  return keys
-}
-
-// 转换部门树为树选择器格式（排除当前编辑的部门及其子部门）
 function convertDepartmentTree(departments: Department[], excludeId?: number): any[] {
   return departments
     .filter(dept => dept.id !== excludeId)
     .map((dept) => {
-      const option: any = { label: dept.name, value: dept.id }
+      const option: any = { label: dept.name, key: dept.id }
       if (dept.children && dept.children.length > 0) {
         const children = convertDepartmentTree(dept.children, excludeId)
         if (children.length > 0) option.children = children
@@ -551,35 +514,60 @@ function convertDepartmentTree(departments: Department[], excludeId?: number): a
     })
 }
 
-// 搜索
+function resetFormData() {
+  Object.assign(formData, {
+    id: undefined,
+    parentId: undefined,
+    name: '',
+    code: '',
+    leaderId: undefined,
+    sort: 0,
+    status: DepartmentStatus.ENABLED
+  })
+}
+
+// API 调用
+async function loadDepartmentTree() {
+  loading.value = true
+  try {
+    const res = await getDepartmentTree(queryParams)
+    if (res.code === 200) {
+      tableData.value = res.data
+      // 自动选择第一个部门
+      if (res.data.length > 0 && !selectedDeptId.value) {
+        selectedDeptId.value = res.data[0].id
+      }
+    }
+  } catch (error) {
+    console.error('加载部门树失败', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+async function loadUserList() {
+  try {
+    const res = await getAllUsers()
+    if (res.code === 200) {
+      userOptions.value = res.data.map((user: User) => ({
+        label: `${user.nickname || user.username} (${user.username})`,
+        value: user.id
+      }))
+    }
+  } catch (error) {
+    console.error('加载用户列表失败', error)
+  }
+}
+
+// 事件处理
 function handleSearch() {
   loadDepartmentTree()
 }
 
-// 重置
-function handleReset() {
-  queryParams.keyword = undefined
-  queryParams.status = undefined
-  handleSearch()
+function handleSelectDept(dept: Department) {
+  selectedDeptId.value = dept.id
 }
 
-// 展开/收起所有
-function handleToggleExpand() {
-  expandAll.value = !expandAll.value
-  if (expandAll.value) {
-    expandedRowKeys.value = getAllDepartmentKeys(tableData.value)
-  } else {
-    expandedRowKeys.value = []
-  }
-}
-
-// 展开行键变化
-function handleExpandedRowKeysChange(keys: Array<string | number>) {
-  expandedRowKeys.value = keys as number[]
-  expandAll.value = false
-}
-
-// 新增部门
 function handleAdd() {
   formMode.value = 'add'
   resetFormData()
@@ -587,16 +575,14 @@ function handleAdd() {
   showFormModal.value = true
 }
 
-// 新增子部门
 function handleAddChild(row: Department) {
   formMode.value = 'add'
   resetFormData()
-  formData.parentId = row.id
+  formData.parentId = row.id as number
   departmentTreeOptions.value = convertDepartmentTree(tableData.value)
   showFormModal.value = true
 }
 
-// 编辑部门
 function handleEdit(row: Department) {
   formMode.value = 'edit'
   Object.assign(formData, {
@@ -605,16 +591,13 @@ function handleEdit(row: Department) {
     code: row.code,
     parentId: row.parentId,
     leaderId: row.leaderId,
-    phone: row.phone,
-    email: row.email,
     sort: row.sort,
     status: row.status
   })
-  departmentTreeOptions.value = convertDepartmentTree(tableData.value, row.id)
+  departmentTreeOptions.value = convertDepartmentTree(tableData.value, row.id as number)
   showFormModal.value = true
 }
 
-// 提交表单
 async function handleSubmit() {
   try {
     await formRef.value?.validate()
@@ -642,65 +625,45 @@ async function handleSubmit() {
   }
 }
 
-// 删除部门
-async function handleDelete(id: string) {
-  currentDeleteId.value = id
+async function handleDelete(id: number | string) {
+  currentDeleteId.value = id as number
   showDeleteModal.value = true
   deleteChecking.value = true
-  deleteCheckResult.value = null
 
   try {
-    const res = await checkDepartmentDeletable(id)
+    const res = await checkDepartmentDeletable(id as number)
     if (res.code === 200) {
       deleteCheckResult.value = res.data
     }
   } catch (error) {
-    message.error('检查部门状态失败')
-    showDeleteModal.value = false
+    deleteCheckResult.value = {
+      deletable: false,
+      hasChildren: false,
+      hasUsers: false,
+      childrenCount: 0,
+      usersCount: 0
+    }
   } finally {
     deleteChecking.value = false
   }
 }
 
-// 确认删除
-async function handleConfirmDelete() {
-  if (!deleteCheckResult.value?.deletable) {
-    showDeleteModal.value = false
-    return
-  }
-
-  submitting.value = true
+async function confirmDelete() {
   try {
     const res = await deleteDepartment(currentDeleteId.value)
     if (res.code === 200) {
       message.success('删除部门成功')
-      showDeleteModal.value = false
+      if (selectedDeptId.value === currentDeleteId.value) {
+        selectedDeptId.value = null
+      }
       loadDepartmentTree()
     }
   } catch (error) {
-    message.error('删除部门失败')
-  } finally {
-    submitting.value = false
+    message.error('删除失败')
   }
 }
 
-// 重置表单数据
-function resetFormData() {
-  Object.assign(formData, {
-    id: undefined,
-    name: '',
-    code: '',
-    parentId: undefined,
-    leaderId: undefined,
-    phone: undefined,
-    email: undefined,
-    sort: 0,
-    status: DepartmentStatus.ENABLED
-  })
-  formRef.value?.restoreValidation()
-}
-
-// 组件挂载时加载数据
+// 初始化
 onMounted(() => {
   loadDepartmentTree()
   loadUserList()
@@ -709,450 +672,662 @@ onMounted(() => {
 
 <style scoped>
 /* ========================================
-   部门管理页面样式
-   遵循章程UI/UX设计规范
+   CSS 变量 - 亮色现代风格
    ======================================== */
-
-.department-page {
-  width: 100%;
-  min-height: 100%;
+.org-manager {
+  --primary: #2563eb;
+  --primary-light: #dbeafe;
+  --primary-dark: #1d4ed8;
+  --success: #10b981;
+  --success-light: #d1fae5;
+  --content-bg: #f1f5f9;
+  --card-bg: #ffffff;
+  --border: #e2e8f0;
+  --border-light: #f1f5f9;
+  --text: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --danger: #ef4444;
+  --danger-light: #fee2e2;
+  
   display: flex;
-  flex-direction: column;
+  height: 100%;
   gap: 20px;
+  padding: 20px;
+  background: var(--content-bg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
 }
 
 /* ========================================
-   页面标题
+   左侧边栏 - 亮色卡片风格
    ======================================== */
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.page-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0 0 4px 0;
-  letter-spacing: -0.02em;
-}
-
-.page-subtitle {
-  font-size: 14px;
-  color: #64748b;
-  margin: 0;
-}
-
-.header-actions {
-  display: flex;
-  gap: 12px;
-}
-
-.secondary-btn {
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 10px;
-  font-weight: 500;
-  background: white;
-  border: 1px solid #e2e8f0;
-  color: #475569;
-  transition: all 0.3s ease;
-}
-
-.secondary-btn:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-}
-
-.primary-btn {
-  height: 40px;
-  padding: 0 20px;
-  border-radius: 10px;
-  font-weight: 500;
-  background: #2563eb;
-  border: none;
-  transition: all 0.3s ease;
-}
-
-.primary-btn:hover {
-  background: #1d4ed8;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 40px rgba(37, 99, 235, 0.3);
-}
-
-/* ========================================
-   迷你统计卡片
-   ======================================== */
-.stats-row {
-  display: flex;
-  gap: 16px;
-}
-
-.mini-stat {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px 20px;
-  background: white;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  transition: all 0.3s ease;
-}
-
-.mini-stat:hover {
-  border-color: transparent;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-}
-
-.mini-stat-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.mini-stat-icon.blue {
-  background: #dbeafe;
-  color: #2563eb;
-}
-
-.mini-stat-icon.green {
-  background: #dcfce7;
-  color: #22c55e;
-}
-
-.mini-stat-icon.gray {
-  background: #f1f5f9;
-  color: #64748b;
-}
-
-.mini-stat-info {
+.org-sidebar {
+  width: 340px;
+  min-width: 300px;
+  background: var(--card-bg);
   display: flex;
   flex-direction: column;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  overflow: hidden;
 }
 
-.mini-stat-value {
-  font-size: 20px;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.02em;
-}
-
-.mini-stat-label {
-  font-size: 12px;
-  color: #64748b;
-}
-
-/* ========================================
-   筛选卡片
-   ======================================== */
-.filter-card {
-  background: white;
-  border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  padding: 20px 24px;
-}
-
-.filter-row {
+.sidebar-header {
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  border-bottom: 1px solid var(--border);
 }
 
-.search-box {
-  flex: 1;
-  max-width: 320px;
+.sidebar-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.sidebar-title :deep(.n-icon) {
+  color: var(--primary);
+}
+
+.add-root-btn {
+  color: var(--text-muted);
+  transition: all 0.2s;
+}
+
+.add-root-btn:hover {
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.sidebar-search {
   position: relative;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-light);
 }
 
-.search-icon {
+.sidebar-search .search-icon {
   position: absolute;
-  left: 14px;
+  left: 28px;
   top: 50%;
   transform: translateY(-50%);
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
-.search-input {
+.sidebar-search .search-input {
   width: 100%;
-  height: 42px;
-  padding: 0 16px 0 44px;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  font-size: 14px;
-  color: #0f172a;
-  background: #f8fafc;
-  transition: all 0.3s ease;
+  padding: 10px 12px 10px 36px;
+  background: var(--content-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s;
 }
 
-.search-input:focus {
-  outline: none;
-  border-color: #2563eb;
-  background: white;
+.sidebar-search .search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.sidebar-search .search-input:focus {
+  border-color: var(--primary);
+  background: #fff;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-.search-input::placeholder {
-  color: #94a3b8;
-}
-
-.filter-group {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.filter-select {
-  width: 140px;
-}
-
-.filter-select :deep(.n-base-selection) {
-  --n-height: 42px;
-  --n-border-radius: 10px;
-}
-
-.filter-btn {
-  height: 42px;
-  padding: 0 20px;
-  border-radius: 10px;
-  font-weight: 500;
-  background: #2563eb;
-  border: none;
-  color: white;
-}
-
-.filter-btn:hover {
-  background: #1d4ed8;
-}
-
-.reset-btn {
-  height: 42px;
-  color: #64748b;
-}
-
-.reset-btn:hover {
-  color: #0f172a;
-}
-
-/* ========================================
-   数据表格
-   ======================================== */
-.table-card {
+/* 组织树 */
+.org-tree-wrapper {
   flex: 1;
-  background: white;
-  border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  overflow: hidden;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.org-tree {
+  padding: 0;
+}
+
+.empty-state {
   display: flex;
   flex-direction: column;
-  min-height: 400px;
+  align-items: center;
+  gap: 12px;
+  padding: 40px 20px;
+  text-align: center;
 }
 
-.data-table {
-  flex: 1;
-}
-
-.data-table :deep(.n-data-table-thead) {
-  background: #f8fafc;
-}
-
-.data-table :deep(.n-data-table-th) {
-  font-weight: 600;
-  color: #475569;
+.empty-state p {
+  margin: 0;
+  color: var(--text-muted);
   font-size: 13px;
-  padding: 14px 16px;
-  border-bottom: 1px solid #e2e8f0;
 }
 
-.data-table :deep(.n-data-table-td) {
-  padding: 14px 16px;
-  font-size: 14px;
-  color: #334155;
-  border-bottom: 1px solid #f1f5f9;
+/* 树节点 - 亮色风格 */
+:deep(.tree-node-container) {
+  position: relative;
 }
 
-.data-table :deep(.n-data-table-tr:hover .n-data-table-td) {
-  background: #f8fafc;
+:deep(.tree-connector) {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 20px;
+  background: var(--border);
 }
 
-/* 部门名称单元格 */
-:deep(.dept-name-cell) {
+:deep(.tree-connector::before) {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 12px;
+  height: 1px;
+  background: var(--border);
+}
+
+:deep(.tree-node) {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 10px 12px;
+  margin: 2px 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
 }
 
-:deep(.dept-name) {
-  font-weight: 500;
-  color: #0f172a;
+:deep(.tree-node:hover) {
+  background: var(--content-bg);
+  border-color: var(--border);
 }
 
-/* 状态标签 */
-:deep(.status-tag) {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
+:deep(.tree-node.selected) {
+  background: var(--primary-light);
+  border-color: var(--primary);
 }
 
-/* 操作按钮 */
-:deep(.action-buttons) {
+:deep(.tree-node.selected .node-icon) {
+  background: var(--primary);
+  color: white;
+}
+
+:deep(.tree-node.selected .node-name) {
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+
+:deep(.tree-node.disabled) {
+  opacity: 0.5;
+}
+
+:deep(.expand-btn) {
   display: flex;
   align-items: center;
-  gap: 4px;
-}
-
-:deep(.action-btn) {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 10px;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
   border: none;
+  border-radius: 4px;
   background: transparent;
-  border-radius: 6px;
-  font-size: 13px;
+  color: var(--text-muted);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
 }
 
-:deep(.action-btn.add) {
-  color: #22c55e;
+:deep(.expand-btn:hover) {
+  background: var(--border);
+  color: var(--text-secondary);
 }
 
-:deep(.action-btn.add:hover) {
-  background: #dcfce7;
+:deep(.expand-btn.expanded) {
+  transform: rotate(0deg);
 }
 
-:deep(.action-btn.edit) {
-  color: #2563eb;
+:deep(.expand-btn:not(.expanded)) {
+  transform: rotate(-90deg);
 }
 
-:deep(.action-btn.edit:hover) {
-  background: #dbeafe;
+:deep(.expand-placeholder) {
+  width: 20px;
+  height: 20px;
 }
 
-:deep(.action-btn.delete) {
-  color: #ef4444;
+:deep(.node-icon) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--primary-light);
+  color: var(--primary);
+  flex-shrink: 0;
 }
 
-:deep(.action-btn.delete:hover) {
+:deep(.node-name) {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:deep(.node-actions) {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+:deep(.tree-node:hover .node-actions) {
+  opacity: 1;
+}
+
+:deep(.tree-node.selected .node-actions) {
+  opacity: 1;
+}
+
+:deep(.node-action) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 6px;
+  background: var(--card-bg);
+  color: var(--primary);
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+:deep(.node-action:hover) {
+  background: var(--primary);
+  color: white;
+  transform: scale(1.05);
+}
+
+:deep(.tree-children) {
+  position: relative;
+}
+
+/* 统计信息 - 亮色风格 */
+.sidebar-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.stat-value.enabled {
+  color: var(--success);
+}
+
+.stat-value.disabled {
+  color: var(--text-muted);
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 28px;
+  background: var(--border);
+}
+
+/* ========================================
+   右侧内容区
+   ======================================== */
+.org-content {
+  flex: 1;
+  padding: 24px 32px;
+  overflow-y: auto;
+}
+
+.empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 16px;
+}
+
+.empty-illustration {
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #f1f5f9;
+}
+
+.empty-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.empty-desc {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* 详情卡片 */
+.detail-card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid var(--border);
+}
+
+.dept-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.dept-badge.disabled {
+  background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+  box-shadow: 0 4px 12px rgba(100, 116, 139, 0.2);
+}
+
+.dept-info {
+  flex: 1;
+}
+
+.dept-title {
+  margin: 0 0 6px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.dept-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dept-code {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.status-badge {
+  display: inline-flex;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-badge.active {
+  background: var(--primary-light);
+  color: #059669;
+}
+
+.status-badge.inactive {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.edit-btn {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: var(--text);
+}
+
+.edit-btn:hover {
+  background: #e2e8f0;
+}
+
+.delete-btn {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: var(--danger);
+}
+
+.delete-btn:hover {
   background: #fee2e2;
 }
 
-/* 树形表格缩进 */
-:deep(.n-data-table-indent) {
-  width: 24px;
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  padding: 1px;
 }
 
-:deep(.n-data-table-expand-trigger) {
-  color: #2563eb;
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 20px;
+  background: var(--card-bg);
+}
+
+.detail-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detail-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* 子部门区域 */
+.children-section {
+  padding: 20px 24px;
+  border-top: 1px solid var(--border);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.children-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.child-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 10px;
   cursor: pointer;
+  transition: all 0.15s;
+}
+
+.child-card:hover {
+  background: #f1f5f9;
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.child-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.child-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.child-name {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.child-code {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.child-status {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 100px;
+}
+
+.child-status.active {
+  background: var(--primary-light);
+  color: #059669;
+}
+
+.child-status.inactive {
+  background: #fef3c7;
+  color: #d97706;
 }
 
 /* ========================================
    弹窗样式
    ======================================== */
 .form-modal {
-  width: 600px;
+  width: 560px;
 }
 
-.form-modal :deep(.n-card-header) {
-  padding: 20px 24px;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.form-modal :deep(.n-card-header__main) {
-  font-size: 18px;
-  font-weight: 600;
-  color: #0f172a;
-}
-
-/* 删除警告 */
 .delete-warning {
   padding: 8px 0;
 }
 
 .delete-warning p {
-  margin: 8px 0;
+  margin: 0;
   line-height: 1.6;
 }
 
 .delete-warning strong {
-  color: #ef4444;
+  color: var(--danger);
   font-weight: 600;
 }
 
 /* ========================================
-   响应式设计
+   响应式
    ======================================== */
 @media (max-width: 1024px) {
-  .stats-row {
-    flex-wrap: wrap;
+  .org-sidebar {
+    width: 280px;
+    min-width: 240px;
   }
-
-  .mini-stat {
-    flex: 1 1 calc(50% - 8px);
-    min-width: 180px;
+  
+  .detail-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 768px) {
-  .page-header {
+  .org-manager {
     flex-direction: column;
-    gap: 16px;
   }
-
-  .header-actions {
+  
+  .org-sidebar {
     width: 100%;
-    flex-wrap: wrap;
+    max-height: 40vh;
   }
-
-  .stats-row {
-    flex-direction: column;
+  
+  .org-content {
+    padding: 16px;
   }
-
-  .mini-stat {
-    flex: none;
-    width: 100%;
+  
+  .detail-grid {
+    grid-template-columns: 1fr;
   }
-
-  .filter-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .search-box {
-    max-width: none;
-  }
-
-  .filter-group {
-    flex-wrap: wrap;
-  }
-
-  .filter-select {
-    flex: 1;
-    min-width: 120px;
-  }
-
+  
   .form-modal {
     width: 100% !important;
-    max-width: 600px;
-  }
-}
-
-/* ========================================
-   减少动画 - 无障碍
-   ======================================== */
-@media (prefers-reduced-motion: reduce) {
-  .mini-stat:hover,
-  .primary-btn:hover {
-    transform: none;
   }
 }
 </style>

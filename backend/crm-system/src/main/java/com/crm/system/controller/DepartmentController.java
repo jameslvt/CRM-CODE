@@ -39,7 +39,7 @@ public class DepartmentController {
     @ApiOperation(value = "创建部门", notes = "创建新部门")
     @PostMapping
     public Result<Long> createDepartment(@Valid @RequestBody DepartmentDTO departmentDTO) {
-        log.info("创建部门: {}", departmentDTO.getDeptName());
+        log.info("创建部门: {}", departmentDTO.getName());
         Long departmentId = departmentService.createDepartment(departmentDTO);
         return Result.success(departmentId);
     }

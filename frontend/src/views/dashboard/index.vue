@@ -1,174 +1,247 @@
 <template>
-  <div class="dashboard-page">
-    <!-- 页面标题 -->
-    <div class="page-header">
-      <div class="header-content">
-        <h1 class="page-title">仪表盘</h1>
-        <p class="page-subtitle">欢迎回来，{{ userStore.realName || userStore.username }}！这是您的业务概览。</p>
-      </div>
-      <div class="header-actions">
-        <n-button type="primary" class="action-btn">
-          <template #icon>
-            <n-icon><AddOutline /></n-icon>
-          </template>
-          新建线索
-        </n-button>
-      </div>
-    </div>
-
-    <!-- 统计卡片 -->
-    <div class="stats-grid">
-      <div
-        v-for="(stat, index) in statsData"
-        :key="stat.key"
-        class="stat-card"
-        :style="{ animationDelay: `${index * 0.1}s` }"
-      >
-        <div class="stat-icon" :class="stat.iconClass">
-          <component :is="stat.icon" />
-        </div>
-        <div class="stat-content">
-          <span class="stat-label">{{ stat.label }}</span>
-          <div class="stat-value-row">
-            <span class="stat-value">{{ stat.value }}</span>
-            <span v-if="stat.trend" class="stat-trend" :class="stat.trend > 0 ? 'up' : 'down'">
-              <n-icon size="14">
-                <TrendingUpOutline v-if="stat.trend > 0" />
-                <TrendingDownOutline v-else />
-              </n-icon>
-              {{ Math.abs(stat.trend) }}%
-            </span>
-          </div>
-          <span class="stat-desc">{{ stat.desc }}</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 主要内容区 -->
-    <div class="main-content">
-      <!-- 左侧：图表和活动 -->
-      <div class="content-left">
-        <!-- 销售趋势图表 -->
-        <div class="chart-card">
+  <div class="workbench-container">
+    <div class="workbench-layout">
+      <!-- 左侧：主要工作区 -->
+      <div class="main-section">
+        <!-- 智能待办 -->
+        <div class="section-card todo-card">
           <div class="card-header">
-            <h3 class="card-title">销售趋势</h3>
-            <div class="card-actions">
-              <n-radio-group v-model:value="chartPeriod" size="small">
-                <n-radio-button value="week">本周</n-radio-button>
-                <n-radio-button value="month">本月</n-radio-button>
-                <n-radio-button value="year">本年</n-radio-button>
-              </n-radio-group>
+            <h3 class="card-title">
+              <span class="icon-wrapper bg-blue-100 text-blue-600">
+                <n-icon><ListOutline /></n-icon>
+              </span>
+              智能待办
+            </h3>
+            <div class="view-all-link">
+              <span>查看全部</span>
+              <n-icon class="arrow-icon"><ArrowForwardOutline /></n-icon>
             </div>
           </div>
-          <div class="chart-container">
-            <div class="chart-placeholder">
-              <!-- 简化的图表展示 -->
-              <div class="chart-bars">
-                <div
-                  v-for="(bar, index) in chartData"
-                  :key="index"
-                  class="chart-bar-wrapper"
-                >
-                  <div
-                    class="chart-bar"
-                    :style="{ height: `${bar.value}%`, animationDelay: `${index * 0.05}s` }"
-                  ></div>
-                  <span class="chart-label">{{ bar.label }}</span>
+          <div class="card-body">
+            <n-tabs type="line" animated>
+              <n-tab-pane name="today" tab="今日需跟进 (8)">
+                <n-list>
+                  <n-list-item v-for="item in todayTodos" :key="item.id">
+                    <template #prefix>
+                      <n-checkbox v-model:checked="item.done" />
+                    </template>
+                    <div class="todo-content">
+                      <div class="todo-title" :class="{ done: item.done }">{{ item.title }}</div>
+                      <div class="todo-meta">
+                        <n-tag size="small" :type="item.tagType" :bordered="false">{{ item.tag }}</n-tag>
+                        <span class="todo-time">{{ item.time }}</span>
+                      </div>
+                    </div>
+                    <template #suffix>
+                      <n-button size="tiny" secondary @click="handleAction(item)">处理</n-button>
+                    </template>
+                  </n-list-item>
+                </n-list>
+              </n-tab-pane>
+              <n-tab-pane name="urgent" tab="急需处理 (3)">
+                <n-list>
+                  <n-list-item v-for="item in urgentTodos" :key="item.id">
+                    <template #prefix>
+                      <n-icon size="20" color="#ef4444"><AlertCircleOutline /></n-icon>
+                    </template>
+                    <div class="todo-content">
+                      <div class="todo-title">{{ item.title }}</div>
+                      <div class="todo-meta warning">
+                        <span>{{ item.deadline }} 到期</span>
+                      </div>
+                    </div>
+                    <template #suffix>
+                      <n-button size="tiny" type="error" ghost>立即处理</n-button>
+                    </template>
+                  </n-list-item>
+                </n-list>
+              </n-tab-pane>
+              <n-tab-pane name="approval" tab="待审批 (5)">
+                <n-empty description="暂无待审批事项" class="py-8" v-if="approvalTodos.length === 0" />
+                <n-list v-else>
+                   <n-list-item v-for="item in approvalTodos" :key="item.id">
+                    <div class="todo-content">
+                      <div class="todo-title">{{ item.title }}</div>
+                      <div class="todo-meta">申请人: {{ item.applicant }} · {{ item.time }}</div>
+                    </div>
+                    <template #suffix>
+                      <div class="approval-actions">
+                        <button class="btn-action pass">
+                          <n-icon><CheckmarkCircleOutline /></n-icon>
+                          通过
+                        </button>
+                        <button class="btn-action reject">
+                          <n-icon><CloseCircleOutline /></n-icon>
+                          驳回
+                        </button>
+                      </div>
+                    </template>
+                  </n-list-item>
+                </n-list>
+              </n-tab-pane>
+            </n-tabs>
+          </div>
+        </div>
+
+        <!-- 最近足迹 -->
+        <div class="section-card recent-card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <span class="icon-wrapper bg-purple-100 text-purple-600">
+                <n-icon><FootstepsOutline /></n-icon>
+              </span>
+              最近足迹
+            </h3>
+          </div>
+          <div class="card-body">
+            <div class="recent-grid">
+              <div v-for="item in recentRecords" :key="item.id" class="recent-item" @click="handleNavigate(item)">
+                <div class="recent-icon" :class="item.type">
+                  <n-icon>
+                    <component :is="item.icon" />
+                  </n-icon>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 最近活动 -->
-        <div class="activity-card">
-          <div class="card-header">
-            <h3 class="card-title">最近活动</h3>
-            <a href="javascript:;" class="view-all">查看全部</a>
-          </div>
-          <div class="activity-list">
-            <div
-              v-for="(activity, index) in recentActivities"
-              :key="index"
-              class="activity-item"
-            >
-              <div class="activity-icon" :class="activity.type">
-                <n-icon size="16">
-                  <component :is="activity.icon" />
-                </n-icon>
-              </div>
-              <div class="activity-content">
-                <p class="activity-text">{{ activity.text }}</p>
-                <span class="activity-time">{{ activity.time }}</span>
+                <div class="recent-info">
+                  <div class="recent-name">{{ item.name }}</div>
+                  <div class="recent-desc">{{ item.desc }} · {{ item.time }}</div>
+                </div>
+                <n-icon class="arrow-icon"><ArrowForwardOutline /></n-icon>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 右侧：待办和快捷操作 -->
-      <div class="content-right">
-        <!-- 销售漏斗 -->
-        <div class="funnel-card">
+      <!-- 右侧：工具与状态 -->
+      <div class="side-section">
+        <!-- 个人业绩简报 -->
+        <div class="section-card kpi-card">
           <div class="card-header">
-            <h3 class="card-title">销售漏斗</h3>
+            <h3 class="card-title">本月目标</h3>
+            <n-button text size="tiny">详情</n-button>
           </div>
-          <div class="funnel-container">
-            <div
-              v-for="(stage, index) in funnelData"
-              :key="index"
-              class="funnel-stage"
-              :style="{ width: `${100 - index * 15}%` }"
-            >
-              <div class="funnel-bar" :class="stage.class">
-                <span class="funnel-label">{{ stage.label }}</span>
-                <span class="funnel-value">{{ stage.value }}</span>
+          <div class="card-body">
+            <div class="kpi-item">
+              <div class="kpi-label">
+                <span>销售额</span>
+                <span class="kpi-value">¥128,000 / ¥200,000</span>
               </div>
+              <n-progress
+                type="line"
+                :percentage="64"
+                :color="{ stops: ['#3b82f6', '#2563eb'] }"
+                :height="8"
+                border-radius="4"
+              />
             </div>
-          </div>
-        </div>
-
-        <!-- 待办事项 -->
-        <div class="todo-card">
-          <div class="card-header">
-            <h3 class="card-title">待办事项</h3>
-            <n-badge :value="todoItems.filter(t => !t.done).length" :max="99">
-              <span class="badge-label">待处理</span>
-            </n-badge>
-          </div>
-          <div class="todo-list">
-            <div
-              v-for="(todo, index) in todoItems"
-              :key="index"
-              class="todo-item"
-              :class="{ done: todo.done }"
-            >
-              <n-checkbox v-model:checked="todo.done" />
-              <div class="todo-content">
-                <span class="todo-text">{{ todo.text }}</span>
-                <span class="todo-due" :class="{ urgent: todo.urgent }">{{ todo.due }}</span>
+             <div class="kpi-item">
+              <div class="kpi-label">
+                <span>回款额</span>
+                <span class="kpi-value">¥45,000 / ¥80,000</span>
               </div>
+              <n-progress
+                type="line"
+                :percentage="56"
+                :color="{ stops: ['#10b981', '#059669'] }"
+                :height="8"
+                border-radius="4"
+              />
+            </div>
+             <div class="kpi-item">
+              <div class="kpi-label">
+                <span>新客数</span>
+                <span class="kpi-value">8 / 15</span>
+              </div>
+              <n-progress
+                type="line"
+                :percentage="53"
+                :color="{ stops: ['#f59e0b', '#d97706'] }"
+                :height="8"
+                border-radius="4"
+              />
             </div>
           </div>
         </div>
 
         <!-- 快捷操作 -->
-        <div class="quick-actions-card">
+        <div class="section-card quick-card">
           <div class="card-header">
             <h3 class="card-title">快捷操作</h3>
           </div>
-          <div class="quick-actions">
-            <button
-              v-for="action in quickActions"
-              :key="action.key"
-              class="quick-action-btn"
-              @click="handleQuickAction(action.key)"
-            >
-              <n-icon size="20">
-                <component :is="action.icon" />
-              </n-icon>
-              <span>{{ action.label }}</span>
-            </button>
+          <div class="quick-grid">
+            <div class="quick-item" @click="router.push('/leads')">
+              <div class="quick-icon bg-blue-50 text-blue-600">
+                <n-icon><PersonAddOutline /></n-icon>
+              </div>
+              <span>新建线索</span>
+            </div>
+            <div class="quick-item" @click="router.push('/customers')">
+              <div class="quick-icon bg-green-50 text-green-600">
+                <n-icon><PeopleOutline /></n-icon>
+              </div>
+              <span>新建客户</span>
+            </div>
+            <div class="quick-item" @click="router.push('/opportunities')">
+              <div class="quick-icon bg-orange-50 text-orange-600">
+                <n-icon><TrendingUpOutline /></n-icon>
+              </div>
+              <span>新建商机</span>
+            </div>
+            <div class="quick-item" @click="router.push('/contracts')">
+              <div class="quick-icon bg-purple-50 text-purple-600">
+                <n-icon><DocumentTextOutline /></n-icon>
+              </div>
+              <span>草拟合同</span>
+            </div>
+            <div class="quick-item" @click="message.info('开发中...')">
+              <div class="quick-icon bg-gray-50 text-gray-600">
+                <n-icon><CalendarOutline /></n-icon>
+              </div>
+              <span>日程安排</span>
+            </div>
+            <div class="quick-item" @click="message.info('开发中...')">
+              <div class="quick-icon bg-gray-50 text-gray-600">
+                <n-icon><ChatbubblesOutline /></n-icon>
+              </div>
+              <span>写跟进</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 团队公告 -->
+        <div class="section-card news-card">
+          <div class="card-header">
+            <h3 class="card-title">团队动态</h3>
+            <n-button text size="tiny">更多</n-button>
+          </div>
+          <div class="news-feed">
+             <div class="feed-item">
+               <div class="feed-icon-box win">
+                 <n-icon><TrophyOutline /></n-icon>
+               </div>
+               <div class="feed-content">
+                 <div class="feed-text">恭喜 <strong>王小明</strong> 签下 <span class="highlight-gold">¥500,000</span> 大单！</div>
+                 <div class="feed-time">10分钟前</div>
+               </div>
+             </div>
+             <div class="feed-item">
+               <div class="feed-icon-box notice">
+                 <n-icon><MegaphoneOutline /></n-icon>
+               </div>
+               <div class="feed-content">
+                 <div class="feed-text">关于五一放假及调休的通知</div>
+                 <div class="feed-time">2小时前</div>
+               </div>
+             </div>
+             <div class="feed-item">
+               <div class="feed-icon-box system">
+                 <n-icon><ServerOutline /></n-icon>
+               </div>
+               <div class="feed-content">
+                 <div class="feed-text">系统将于周五晚 24:00 进行维护更新</div>
+                 <div class="feed-time">昨天</div>
+               </div>
+             </div>
           </div>
         </div>
       </div>
@@ -177,750 +250,447 @@
 </template>
 
 <script setup lang="ts">
-import { ref, h } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { NButton, NIcon, NRadioGroup, NRadioButton, NCheckbox, NBadge } from 'naive-ui'
+import { 
+  NButton, NIcon, NTabs, NTabPane, NList, NListItem, NCheckbox, NTag,
+  NProgress, NEmpty, NButtonGroup, useMessage 
+} from 'naive-ui'
 import {
-  AddOutline,
-  TrendingUpOutline,
-  TrendingDownOutline,
-  PersonOutline,
+  ListOutline,
+  AlertCircleOutline,
+  FootstepsOutline,
+  ArrowForwardOutline,
+  PersonAddOutline,
   PeopleOutline,
-  BriefcaseOutline,
+  TrendingUpOutline,
   DocumentTextOutline,
-  WalletOutline,
-  CallOutline,
-  MailOutline,
   CalendarOutline,
+  ChatbubblesOutline,
+  PersonOutline,
+  BriefcaseOutline,
+  WalletOutline,
   CheckmarkCircleOutline,
-  TimeOutline,
-  CreateOutline
+  CloseCircleOutline,
+  TrophyOutline,
+  MegaphoneOutline,
+  ServerOutline
 } from '@vicons/ionicons5'
-import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
-const userStore = useUserStore()
+const message = useMessage()
 
-const chartPeriod = ref('month')
-
-// 统计数据
-const statsData = ref([
-  {
-    key: 'leads',
-    label: '线索总数',
-    value: '1,234',
-    trend: 12.5,
-    desc: '较上月增长',
-    icon: PersonOutline,
-    iconClass: 'blue'
-  },
-  {
-    key: 'customers',
-    label: '客户总数',
-    value: '567',
-    trend: 8.2,
-    desc: '较上月增长',
-    icon: PeopleOutline,
-    iconClass: 'green'
-  },
-  {
-    key: 'opportunities',
-    label: '商机总数',
-    value: '89',
-    trend: -3.1,
-    desc: '较上月下降',
-    icon: BriefcaseOutline,
-    iconClass: 'purple'
-  },
-  {
-    key: 'contracts',
-    label: '合同金额',
-    value: '¥2.4M',
-    trend: 15.8,
-    desc: '较上月增长',
-    icon: DocumentTextOutline,
-    iconClass: 'orange'
-  }
+// 模拟数据：今日跟进
+const todayTodos = ref([
+  { id: 1, title: '回访客户：深圳市科技有限公司', tag: '客户回访', tagType: 'primary', time: '10:00', done: false },
+  { id: 2, title: '跟进商机：年度采购项目', tag: '商机跟进', tagType: 'warning', time: '14:30', done: false },
+  { id: 3, title: '发送报价单：李总', tag: '发送资料', tagType: 'info', time: '16:00', done: true },
+  { id: 4, title: '合同续签确认：王经理', tag: '合同管理', tagType: 'success', time: '17:00', done: false },
 ])
 
-// 图表数据
-const chartData = ref([
-  { label: '1月', value: 45 },
-  { label: '2月', value: 62 },
-  { label: '3月', value: 55 },
-  { label: '4月', value: 78 },
-  { label: '5月', value: 68 },
-  { label: '6月', value: 85 },
-  { label: '7月', value: 72 },
-  { label: '8月', value: 90 },
-  { label: '9月', value: 82 },
-  { label: '10月', value: 95 },
-  { label: '11月', value: 88 },
-  { label: '12月', value: 100 }
+// 模拟数据：急需处理
+const urgentTodos = ref([
+  { id: 101, title: '合同即将到期：广州贸易有限公司', deadline: '明天' },
+  { id: 102, title: '逾期未回访：张大伟', deadline: '已逾期2天' },
+  { id: 103, title: '商机由阶段3退回', deadline: '今天' },
 ])
 
-// 销售漏斗数据
-const funnelData = ref([
-  { label: '线索', value: 1234, class: 'stage-1' },
-  { label: '意向客户', value: 567, class: 'stage-2' },
-  { label: '商机', value: 234, class: 'stage-3' },
-  { label: '报价', value: 89, class: 'stage-4' },
-  { label: '成交', value: 45, class: 'stage-5' }
+// 模拟数据：待审批
+const approvalTodos = ref([
+  { id: 201, title: '合同审批：2023年度框架协议', applicant: '张三', time: '10分钟前' },
+  { id: 202, title: '费用报销：差旅费', applicant: '李四', time: '2小时前' },
+  { id: 203, title: '折扣申请：9折优惠特批', applicant: '王五', time: '昨天' },
 ])
 
-// 最近活动
-const recentActivities = ref([
-  {
-    type: 'lead',
-    icon: PersonOutline,
-    text: '新增线索：张三 - 科技有限公司',
-    time: '10分钟前'
-  },
-  {
-    type: 'call',
-    icon: CallOutline,
-    text: '完成通话：李四 - 跟进产品需求',
-    time: '30分钟前'
-  },
-  {
-    type: 'email',
-    icon: MailOutline,
-    text: '发送邮件：王五 - 报价单',
-    time: '1小时前'
-  },
-  {
-    type: 'contract',
-    icon: DocumentTextOutline,
-    text: '合同签署：赵六 - ¥50,000',
-    time: '2小时前'
-  },
-  {
-    type: 'meeting',
-    icon: CalendarOutline,
-    text: '预约会议：周一 14:00 - 产品演示',
-    time: '3小时前'
-  }
+// 模拟数据：最近足迹
+const recentRecords = ref([
+  { id: 1, type: 'lead', name: '李经理 - 采购意向', desc: '线索', time: '10分钟前', icon: PersonOutline, path: '/business/lead/1' },
+  { id: 2, type: 'customer', name: '上海网络科技有限公司', desc: '客户', time: '30分钟前', icon: PeopleOutline, path: '/business/customer/1' },
+  { id: 3, type: 'opportunity', name: 'Q1季度服务器采购', desc: '商机', time: '2小时前', icon: BriefcaseOutline, path: '/business/opportunity/1' },
+  { id: 4, type: 'contract', name: '年度运维服务合同', desc: '合同', time: '昨天', icon: DocumentTextOutline, path: '/business/contract/1' },
 ])
 
-// 待办事项
-const todoItems = ref([
-  { text: '跟进科技公司商机', due: '今天', urgent: true, done: false },
-  { text: '发送产品报价单', due: '今天', urgent: true, done: false },
-  { text: '准备周会汇报材料', due: '明天', urgent: false, done: false },
-  { text: '回访老客户', due: '本周', urgent: false, done: true }
-])
+const handleAction = (item: any) => {
+  message.success(`开始处理：${item.title}`)
+}
 
-// 快捷操作
-const quickActions = ref([
-  { key: 'lead', label: '新建线索', icon: PersonOutline },
-  { key: 'customer', label: '新建客户', icon: PeopleOutline },
-  { key: 'opportunity', label: '新建商机', icon: BriefcaseOutline },
-  { key: 'contract', label: '新建合同', icon: DocumentTextOutline }
-])
-
-const handleQuickAction = (key: string) => {
-  const routes: Record<string, string> = {
-    lead: '/leads',
-    customer: '/customers',
-    opportunity: '/opportunities',
-    contract: '/contracts'
-  }
-  if (routes[key]) {
-    router.push(routes[key])
-  }
+const handleNavigate = (item: any) => {
+  if(item.path) router.push(item.path)
+  else message.info('跳转详情页')
 }
 </script>
 
 <style scoped>
-/* ========================================
-   企业级CRM仪表盘样式
-   遵循章程UI/UX设计规范
-   ======================================== */
-
-.dashboard-page {
-  width: 100%;
+.workbench-container {
+  padding: 0;
   min-height: 100%;
 }
 
-/* ========================================
-   页面标题
-   ======================================== */
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 24px;
-}
-
-.page-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0 0 4px 0;
-  letter-spacing: -0.02em;
-}
-
-.page-subtitle {
-  font-size: 14px;
-  color: #64748b;
-  margin: 0;
-}
-
-.action-btn {
-  height: 40px;
-  padding: 0 20px;
-  border-radius: 10px;
-  font-weight: 500;
-  background: #2563eb;
-  border: none;
-  transition: all 0.3s ease;
-}
-
-.action-btn:hover {
-  background: #1d4ed8;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 40px rgba(37, 99, 235, 0.3);
-}
-
-/* ========================================
-   统计卡片网格
-   ======================================== */
-.stats-grid {
+.workbench-layout {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: 1fr 360px;
   gap: 20px;
-  margin-bottom: 24px;
-}
-
-.stat-card {
-  background: white;
-  border-radius: 16px;
-  padding: 24px;
-  display: flex;
-  gap: 16px;
-  border: 1px solid #e2e8f0;
-  transition: all 0.3s ease;
-  animation: slideUp 0.5s ease-out backwards;
-}
-
-.stat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-  border-color: transparent;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.stat-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.stat-icon svg {
-  width: 28px;
-  height: 28px;
-}
-
-.stat-icon.blue {
-  background: #dbeafe;
-  color: #2563eb;
-}
-
-.stat-icon.green {
-  background: #dcfce7;
-  color: #22c55e;
-}
-
-.stat-icon.purple {
-  background: #f3e8ff;
-  color: #9333ea;
-}
-
-.stat-icon.orange {
-  background: #ffedd5;
-  color: #f97316;
-}
-
-.stat-content {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.stat-label {
-  font-size: 13px;
-  color: #64748b;
-  margin-bottom: 4px;
-}
-
-.stat-value-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.stat-value {
-  font-size: 28px;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.02em;
-}
-
-.stat-trend {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 6px;
-}
-
-.stat-trend.up {
-  background: #dcfce7;
-  color: #22c55e;
-}
-
-.stat-trend.down {
-  background: #fee2e2;
-  color: #ef4444;
-}
-
-.stat-desc {
-  font-size: 12px;
-  color: #94a3b8;
-  margin-top: 4px;
-}
-
-/* ========================================
-   主要内容区
-   ======================================== */
-.main-content {
-  display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 24px;
   align-items: start;
 }
 
-.content-left {
+.main-section, .side-section {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
-.content-right {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-/* ========================================
-   通用卡片样式
-   ======================================== */
-.chart-card,
-.activity-card,
-.funnel-card,
-.todo-card,
-.quick-actions-card {
+.section-card {
   background: white;
-  border-radius: 16px;
+  border-radius: 12px;
   border: 1px solid #e2e8f0;
   overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.section-card:hover {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  border-color: transparent;
 }
 
 .card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 24px;
-  border-bottom: 1px solid #f1f5f9;
 }
 
 .card-title {
   font-size: 16px;
   font-weight: 600;
   color: #0f172a;
-  margin: 0;
-}
-
-.view-all {
-  font-size: 13px;
-  color: #2563eb;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s ease;
-}
-
-.view-all:hover {
-  color: #1d4ed8;
-}
-
-/* ========================================
-   图表卡片
-   ======================================== */
-.chart-container {
-  padding: 24px;
-}
-
-.chart-placeholder {
-  height: 280px;
   display: flex;
-  align-items: flex-end;
-}
-
-.chart-bars {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  width: 100%;
-  height: 100%;
-  padding-bottom: 30px;
-  position: relative;
-}
-
-.chart-bar-wrapper {
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  flex: 1;
-  height: 100%;
-  justify-content: flex-end;
+  gap: 8px;
 }
 
-.chart-bar {
-  width: 24px;
-  background: linear-gradient(180deg, #2563eb 0%, #3b82f6 100%);
-  border-radius: 6px 6px 0 0;
-  transition: all 0.3s ease;
-  animation: growUp 0.8s ease-out backwards;
-}
-
-.chart-bar:hover {
-  background: linear-gradient(180deg, #1d4ed8 0%, #2563eb 100%);
-  transform: scaleY(1.05);
-}
-
-@keyframes growUp {
-  from {
-    height: 0 !important;
-  }
-}
-
-.chart-label {
-  font-size: 11px;
-  color: #94a3b8;
-  margin-top: 8px;
-  position: absolute;
-  bottom: 0;
-}
-
-/* ========================================
-   活动列表
-   ======================================== */
-.activity-list {
-  padding: 8px 0;
-}
-
-.activity-item {
-  display: flex;
-  gap: 12px;
-  padding: 12px 24px;
-  transition: background 0.2s ease;
-}
-
-.activity-item:hover {
-  background: #f8fafc;
-}
-
-.activity-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+.icon-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  font-size: 16px;
 }
 
-.activity-icon.lead {
-  background: #dbeafe;
-  color: #2563eb;
+.card-body {
+  padding: 20px;
 }
 
-.activity-icon.call {
-  background: #dcfce7;
-  color: #22c55e;
-}
-
-.activity-icon.email {
-  background: #fef3c7;
-  color: #f59e0b;
-}
-
-.activity-icon.contract {
-  background: #f3e8ff;
-  color: #9333ea;
-}
-
-.activity-icon.meeting {
-  background: #fce7f3;
-  color: #ec4899;
-}
-
-.activity-content {
+/* 待办列表 */
+.todo-content {
   flex: 1;
-  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.activity-text {
+.todo-title {
   font-size: 14px;
-  color: #334155;
-  margin: 0 0 2px 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  color: #1e293b;
+  font-weight: 500;
 }
 
-.activity-time {
-  font-size: 12px;
+.todo-title.done {
+  text-decoration: line-through;
   color: #94a3b8;
 }
 
-/* ========================================
-   销售漏斗
-   ======================================== */
-.funnel-container {
-  padding: 16px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-
-.funnel-stage {
-  transition: all 0.3s ease;
-  width: 100%;
-}
-
-.funnel-bar {
-  height: 36px;
-  border-radius: 6px;
+.todo-meta {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 14px;
-  transition: all 0.3s ease;
-}
-
-.funnel-bar:hover {
-  transform: scale(1.02);
-}
-
-.funnel-bar.stage-1 {
-  background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
-}
-
-.funnel-bar.stage-2 {
-  background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
-}
-
-.funnel-bar.stage-3 {
-  background: linear-gradient(90deg, #60a5fa 0%, #93c5fd 100%);
-}
-
-.funnel-bar.stage-4 {
-  background: linear-gradient(90deg, #93c5fd 0%, #bfdbfe 100%);
-}
-
-.funnel-bar.stage-5 {
-  background: linear-gradient(90deg, #22c55e 0%, #4ade80 100%);
-}
-
-.funnel-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: white;
-}
-
-.funnel-value {
-  font-size: 14px;
-  font-weight: 700;
-  color: white;
-}
-
-/* ========================================
-   待办事项
-   ======================================== */
-.badge-label {
+  gap: 8px;
   font-size: 12px;
   color: #64748b;
 }
 
-.todo-list {
-  padding: 4px 0;
+.todo-meta.warning {
+  color: #ef4444;
 }
 
-.todo-item {
+/* 最近足迹 */
+.recent-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.recent-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 20px;
+  gap: 12px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.todo-item:hover {
-  background: #f8fafc;
+.recent-item:hover {
+  background: #f1f5f9;
+  transform: translateX(4px);
 }
 
-.todo-item.done {
-  opacity: 0.5;
-}
-
-.todo-item.done .todo-text {
-  text-decoration: line-through;
-}
-
-.todo-content {
-  flex: 1;
+.recent-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.recent-icon.lead { background: #eff6ff; color: #3b82f6; }
+.recent-icon.customer { background: #f0fdf4; color: #22c55e; }
+.recent-icon.opportunity { background: #fff7ed; color: #f97316; }
+.recent-icon.contract { background: #f3e8ff; color: #a855f7; }
+
+.recent-info {
+  flex: 1;
   min-width: 0;
 }
 
-.todo-text {
+.recent-name {
   font-size: 14px;
-  color: #334155;
+  font-weight: 500;
+  color: #1e293b;
+  margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.todo-due {
+.recent-desc {
   font-size: 12px;
-  color: #94a3b8;
-  flex-shrink: 0;
-  margin-left: 8px;
+  color: #64748b;
 }
 
-.todo-due.urgent {
-  color: #ef4444;
-  font-weight: 500;
+.arrow-icon {
+  color: #cbd5e1;
 }
 
-/* ========================================
-   快捷操作
-   ======================================== */
-.quick-actions {
+/* KPI 卡片 */
+.kpi-item {
+  margin-bottom: 16px;
+}
+
+.kpi-item:last-child {
+  margin-bottom: 0;
+}
+
+.kpi-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.kpi-value {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* 快捷操作 */
+.quick-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  padding: 20px 24px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
 }
 
-.quick-action-btn {
+.quick-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 20px 16px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+}
+
+.quick-item:hover {
+  transform: translateY(-2px);
+}
+
+.quick-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  transition: all 0.2s ease;
+}
+
+.quick-item:hover .quick-icon {
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.quick-item span {
+  font-size: 12px;
   color: #475569;
 }
 
-.quick-action-btn:hover {
-  background: #2563eb;
-  border-color: #2563eb;
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.2);
+/* 团队动态 - Feed 风格 */
+.news-feed {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.quick-action-btn span {
+.feed-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.feed-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.feed-icon-box.win {
+  background: #fffbeb;
+  color: #f59e0b;
+  border: 1px solid #fde68a;
+}
+
+.feed-icon-box.notice {
+  background: #eff6ff;
+  color: #3b82f6;
+  border: 1px solid #dbeafe;
+}
+
+.feed-icon-box.system {
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+.feed-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.feed-text {
   font-size: 13px;
+  color: #334155;
+  line-height: 1.4;
+}
+
+.feed-time {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.highlight-gold {
+  color: #d97706;
+  font-weight: 600;
+  font-family: monospace; /* 数字等宽更专业 */
+}
+
+/* Tailwind 颜色辅助类 (模拟) */
+.bg-blue-50 { background-color: #eff6ff; }
+.bg-blue-100 { background-color: #dbeafe; }
+.text-blue-600 { color: #2563eb; }
+
+.bg-green-50 { background-color: #f0fdf4; }
+.text-green-600 { color: #16a34a; }
+
+.bg-orange-50 { background-color: #fff7ed; }
+.text-orange-600 { color: #ea580c; }
+
+.bg-purple-50 { background-color: #faf5ff; }
+.bg-purple-100 { background-color: #f3e8ff; }
+.text-purple-600 { color: #9333ea; }
+
+.bg-gray-50 { background-color: #f9fafb; }
+.text-gray-600 { color: #4b5563; }
+
+/* 查看全部链接 - 精致交互 */
+.view-all-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.view-all-link:hover {
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+.view-all-link .arrow-icon {
+  font-size: 14px;
+  transition: transform 0.2s ease;
+}
+
+.view-all-link:hover .arrow-icon {
+  transform: translateX(2px);
+}
+
+/* 审批按钮 - Soft UI 风格 */
+.approval-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-action {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: none;
+  font-size: 12px;
   font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap; /* 强制不换行 */
+  flex-shrink: 0; /* 防止被压缩 */
+  transition: all 0.2s ease;
 }
 
-/* ========================================
-   响应式设计
-   ======================================== */
-@media (max-width: 1280px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .main-content {
-    grid-template-columns: 1fr;
-  }
-
-  .content-right {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .funnel-card {
-    grid-column: span 2;
-  }
+.btn-action.pass {
+  background: #f0fdf4; /* 浅绿色背景 */
+  color: #16a34a;      /* 深绿色文字 */
 }
 
-@media (max-width: 768px) {
-  .page-header {
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .content-right {
-    grid-template-columns: 1fr;
-  }
-
-  .funnel-card {
-    grid-column: span 1;
-  }
-
-  .stat-card {
-    padding: 20px;
-  }
-
-  .stat-value {
-    font-size: 24px;
-  }
+.btn-action.pass:hover {
+  background: #dcfce7;
+  transform: translateY(-1px);
 }
 
-/* ========================================
-   减少动画 - 无障碍
-   ======================================== */
-@media (prefers-reduced-motion: reduce) {
-  .stat-card,
-  .chart-bar {
-    animation: none;
-  }
+.btn-action.reject {
+  background: #fef2f2; /* 浅红色背景 */
+  color: #dc2626;      /* 深红色文字 */
+}
 
-  .stat-card:hover,
-  .quick-action-btn:hover,
-  .action-btn:hover {
-    transform: none;
-  }
+.btn-action.reject:hover {
+  background: #fee2e2;
+  transform: translateY(-1px);
 }
 </style>

@@ -3,8 +3,8 @@
     <!-- 页面标题 -->
     <div class="page-header">
       <div class="header-content">
-        <h1 class="page-title">商机管理</h1>
-        <p class="page-subtitle">跟踪销售机会，推进商机阶段，提升成交转化率</p>
+        <h1 class="page-title">商机看板</h1>
+        <p class="page-subtitle">追踪销售全流程，推动每个商机走向赢单</p>
       </div>
       <div class="header-actions">
         <n-button type="primary" @click="handleAdd" class="primary-btn">
@@ -422,6 +422,7 @@ const loadData = async () => {
     pagination.page = result.current
     updateStats()
   } catch (error) {
+    console.error('加载数据失败', error)
     message.error('加载数据失败')
   } finally {
     loading.value = false
@@ -537,10 +538,11 @@ onMounted(() => {
 
 .opportunity-page {
   width: 100%;
-  min-height: 100%;
+  height: calc(100vh - 120px);
   display: flex;
   flex-direction: column;
   gap: 20px;
+  overflow: hidden;
 }
 
 /* ========================================

@@ -71,6 +71,9 @@ public class ContactService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
 
+        // 填充客户名称
+        populateCustomerNames(dtoList);
+
         return new PageResult<>(
                 dtoList,
                 contactPage.getTotal(),
@@ -119,6 +122,9 @@ public class ContactService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
 
+        // 填充客户名称
+        populateCustomerNames(dtoList);
+
         return new PageResult<>(
                 dtoList,
                 contactPage.getTotal(),
@@ -139,9 +145,14 @@ public class ContactService {
                 .orderByDesc(Contact::getCreateTime);
 
         List<Contact> contacts = contactMapper.selectList(wrapper);
-        return contacts.stream()
+        List<ContactDTO> dtoList = contacts.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+
+        // 填充客户名称
+        populateCustomerNames(dtoList);
+
+        return dtoList;
     }
 
     /**
@@ -284,6 +295,9 @@ public class ContactService {
     /**
      * 转换为DTO
      */
+    /**
+     * 转换为DTO
+     */
     private ContactDTO convertToDTO(Contact contact) {
         ContactDTO dto = new ContactDTO();
         BeanUtils.copyProperties(contact, dto);
@@ -293,8 +307,41 @@ public class ContactService {
             dto.setGenderName(contact.getGender() == 1 ? "男" : "女");
         }
 
-        // TODO: 查询客户名称（需要关联客户表）
-
         return dto;
+    }
+
+    /**
+     * 批量填充客户名称
+     */
+    private void populateCustomerNames(List<ContactDTO> dtoList) {
+        if (dtoList == null || dtoList.isEmpty()) {
+            return;
+        }
+
+        // 收集所有客户ID
+        List<Long> customerIds = dtoList.stream()
+                .map(ContactDTO::getCustomerId)
+                .distinct()
+                .collect(Collectors.toList());
+
+        if (customerIds.isEmpty()) {
+            return;
+        }
+
+        // 批量查询客户
+        try {
+            List<Customer> customers = customerMapper.selectBatchIds(customerIds);
+            java.util.Map<Long, String> customerMap = customers.stream()
+                    .collect(Collectors.toMap(Customer::getId, Customer::getName));
+
+            // 填充名称
+            dtoList.forEach(dto -> {
+                if (dto.getCustomerId() != null) {
+                    dto.setCustomerName(customerMap.get(dto.getCustomerId()));
+                }
+            });
+        } catch (Exception e) {
+            log.error("批量查询客户失败", e);
+        }
     }
 }

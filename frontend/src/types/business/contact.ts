@@ -19,9 +19,9 @@ export enum Gender {
  */
 export interface Contact {
   /** 联系人ID */
-  id: number
+  id: number | string
   /** 客户ID */
-  customerId: number
+  customerId: number | string
   /** 客户名称 */
   customerName?: string
   /** 姓名 */
@@ -59,7 +59,7 @@ export interface Contact {
  */
 export interface ContactQueryParams extends PageParams {
   /** 客户ID */
-  customerId?: number
+  customerId?: number | string
   /** 姓名 */
   name?: string
   /** 手机 */
@@ -73,9 +73,9 @@ export interface ContactQueryParams extends PageParams {
  */
 export interface ContactFormData {
   /** 联系人ID（编辑时必填） */
-  id?: number
+  id?: number | string
   /** 客户ID */
-  customerId: number
+  customerId: number | string
   /** 姓名 */
   name: string
   /** 性别 */

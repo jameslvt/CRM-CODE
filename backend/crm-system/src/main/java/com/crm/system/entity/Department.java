@@ -28,6 +28,18 @@ public class Department extends BaseEntity {
     private Long parentId;
 
     /**
+     * 祖先路径（逗号分隔，如 "0,1,2"）
+     */
+    @TableField("ancestors")
+    private String ancestors;
+
+    /**
+     * 部门编码（唯一）
+     */
+    @TableField("code")
+    private String code;
+
+    /**
      * 部门名称
      */
     @TableField("name")

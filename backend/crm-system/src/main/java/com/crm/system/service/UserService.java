@@ -6,8 +6,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.crm.common.exception.BusinessException;
 import com.crm.system.dto.UserDTO;
 import com.crm.system.entity.Department;
+import com.crm.system.entity.Role;
 import com.crm.system.entity.User;
 import com.crm.system.mapper.DepartmentMapper;
+import com.crm.system.mapper.RoleMapper;
 import com.crm.system.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -36,6 +38,9 @@ public class UserService {
 
     @Resource
     private DepartmentMapper departmentMapper;
+
+    @Resource
+    private RoleMapper roleMapper;
 
     @Resource
     private PasswordEncoder passwordEncoder;
@@ -237,7 +242,6 @@ public class UserService {
      * @param userId  用户 ID
      * @param roleIds 角色 ID 列表
      */
-    @Transactional(rollbackFor = Exception.class)
     public void assignRoles(Long userId, List<Long> roleIds) {
         log.info("为用户 {} 分配角色: {}", userId, roleIds);
 
@@ -249,10 +253,24 @@ public class UserService {
         // 删除原有角色关联
         userMapper.deleteUserRolesByUserId(userId);
 
-        // 插入新的角色关联（暂时简化，后续可通过批量插入实现）
-        // TODO: 实现角色分配功能
+        // 插入新的角色关联
+        if (roleIds != null && !roleIds.isEmpty()) {
+            for (Long roleId : roleIds) {
+                userMapper.insertUserRole(userId, roleId);
+            }
+        }
 
         log.info("角色分配成功");
+    }
+
+    /**
+     * 获取用户角色ID列表
+     *
+     * @param userId 用户 ID
+     * @return 角色 ID 列表
+     */
+    public List<Long> getUserRoleIds(Long userId) {
+        return userMapper.selectRoleIdsByUserId(userId);
     }
 
     /**
@@ -322,6 +340,19 @@ public class UserService {
     }
 
     /**
+     * 获取所有用户列表
+     *
+     * @return 用户 DTO 列表
+     */
+    public List<UserDTO> getAllUsers() {
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getStatus, 1); // 仅查询启用状态的用户
+        queryWrapper.orderByDesc(User::getCreateTime);
+        List<User> users = userMapper.selectList(queryWrapper);
+        return users.stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    /**
      * 实体转 DTO
      *
      * @param user 用户实体
@@ -340,6 +371,13 @@ public class UserService {
             if (department != null) {
                 dto.setDeptName(department.getName());
             }
+        }
+
+        // 查询用户角色
+        List<Role> roles = roleMapper.selectByUserId(user.getId());
+        if (roles != null && !roles.isEmpty()) {
+            dto.setRoleNames(roles.stream().map(Role::getRoleName).collect(Collectors.toList()));
+            dto.setRoleIds(roles.stream().map(Role::getId).collect(Collectors.toList()));
         }
 
         return dto;

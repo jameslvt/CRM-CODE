@@ -36,6 +36,56 @@ public class LeadConvertParams {
     private String customerLevel;
 
     /**
+     * 负责人ID
+     */
+    private Long ownerId;
+
+    /**
+     * 行业
+     */
+    private String industry;
+
+    /**
+     * 规模
+     */
+    private String scale;
+
+    /**
+     * 来源
+     */
+    private String source;
+
+    /**
+     * 客户联系电话
+     */
+    private String customerPhone;
+
+    /**
+     * 联系人姓名
+     */
+    private String contactName;
+
+    /**
+     * 联系人电话
+     */
+    private String contactPhone;
+
+    /**
+     * 联系人邮箱
+     */
+    private String contactEmail;
+
+    /**
+     * 联系人职位
+     */
+    private String contactPosition;
+
+    /**
+     * 联系人性别
+     */
+    private Integer contactGender;
+
+    /**
      * 是否创建商机
      */
     private Boolean createOpportunity = false;
@@ -59,4 +109,9 @@ public class LeadConvertParams {
      * 商机阶段（如果创建商机）
      */
     private Integer opportunityStage;
+
+    /**
+     * 备注
+     */
+    private String remark;
 }

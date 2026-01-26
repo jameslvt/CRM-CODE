@@ -168,8 +168,7 @@ public class RoleService {
         List<Role> roles = roleMapper.selectList(
                 new LambdaQueryWrapper<Role>()
                         .eq(Role::getStatus, 1)
-                        .orderByAsc(Role::getSort)
-        );
+                        .orderByAsc(Role::getSort));
 
         return roles.stream()
                 .map(this::convertToDTO)
@@ -237,6 +236,7 @@ public class RoleService {
         dto.setRoleName(role.getRoleName());
         dto.setRoleCode(role.getRoleKey());
         dto.setSortOrder(role.getSort());
+        dto.setDataScope(role.getDataScope());
         dto.setStatus(role.getStatus());
         dto.setRemark(role.getRemark());
         dto.setCreateTime(role.getCreateTime());

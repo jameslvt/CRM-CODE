@@ -46,7 +46,7 @@ export function createRole(data: RoleFormData): Promise<Result<void>> {
  * @param data 角色表单数据
  * @returns 操作结果
  */
-export function updateRole(id: number, data: RoleFormData): Promise<Result<void>> {
+export function updateRole(id: string, data: RoleFormData): Promise<Result<void>> {
   return request.put(`/system/roles/${id}`, data)
 }
 
@@ -64,7 +64,7 @@ export function deleteRole(id: string): Promise<Result<void>> {
  * @param ids 角色 ID 列表
  * @returns 操作结果
  */
-export function batchDeleteRoles(ids: number[]): Promise<Result<void>> {
+export function batchDeleteRoles(ids: string[]): Promise<Result<void>> {
   return request.post('/system/roles/batch-delete', { ids })
 }
 
@@ -83,7 +83,7 @@ export function assignPermissions(params: AssignPermissionsParams): Promise<Resu
  * @param roleId 角色 ID
  * @returns 权限 ID 列表
  */
-export function getRolePermissions(roleId: number): Promise<Result<number[]>> {
+export function getRolePermissions(roleId: string): Promise<Result<string[]>> {
   return request.get(`/system/roles/${roleId}/permissions`)
 }
 
@@ -101,7 +101,7 @@ export function getPermissionTree(): Promise<Result<Permission[]>> {
  * @param status 状态：1-启用，0-禁用
  * @returns 操作结果
  */
-export function updateRoleStatus(id: number, status: number): Promise<Result<void>> {
+export function updateRoleStatus(id: string, status: number): Promise<Result<void>> {
   return request.put(`/system/roles/${id}/status`, { status })
 }
 

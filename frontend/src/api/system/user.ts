@@ -57,7 +57,7 @@ export function createUser(data: UserFormData): Promise<Result<void>> {
  * @param data 用户表单数据
  * @returns 操作结果
  */
-export function updateUser(id: number, data: UserFormData): Promise<Result<void>> {
+export function updateUser(id: string, data: UserFormData): Promise<Result<void>> {
   return request.put(`/system/users/${id}`, data)
 }
 
@@ -75,7 +75,7 @@ export function deleteUser(id: string): Promise<Result<void>> {
  * @param ids 用户 ID 列表
  * @returns 操作结果
  */
-export function batchDeleteUsers(ids: number[]): Promise<Result<void>> {
+export function batchDeleteUsers(ids: string[]): Promise<Result<void>> {
   return request.post('/system/users/batch-delete', { ids })
 }
 
@@ -94,7 +94,7 @@ export function assignRoles(params: AssignRolesParams): Promise<Result<void>> {
  * @param userId 用户 ID
  * @returns 角色 ID 列表
  */
-export function getUserRoles(userId: number): Promise<Result<number[]>> {
+export function getUserRoles(userId: string): Promise<Result<number[]>> {
   return request.get(`/system/users/${userId}/roles`)
 }
 
@@ -115,7 +115,7 @@ export function resetPassword(params: ResetPasswordParams): Promise<Result<void>
  * @param status 状态：1-启用，0-禁用
  * @returns 操作结果
  */
-export function updateUserStatus(id: number, status: number): Promise<Result<void>> {
+export function updateUserStatus(id: string, status: number): Promise<Result<void>> {
   return request.put(`/system/users/${id}/status`, { status })
 }
 

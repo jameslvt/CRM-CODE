@@ -38,6 +38,77 @@
         />
       </n-form-item>
 
+      <n-form-item label="负责人" path="ownerId">
+        <n-select
+          v-model:value="formModel.ownerId"
+          placeholder="请选择负责人"
+          :options="userOptions"
+          filterable
+          clearable
+        />
+      </n-form-item>
+
+      <n-form-item label="行业" path="industry">
+        <n-select
+          v-model:value="formModel.industry"
+          placeholder="请选择行业"
+          :options="industryOptions"
+          filterable
+          clearable
+        />
+      </n-form-item>
+
+      <n-form-item label="规模" path="scale">
+        <n-select
+          v-model:value="formModel.scale"
+          placeholder="请选择规模"
+          :options="scaleOptions"
+          clearable
+        />
+      </n-form-item>
+
+      <n-form-item label="来源" path="source">
+        <n-input
+          v-model:value="formModel.source"
+          placeholder="客户来源"
+          disabled
+        />
+      </n-form-item>
+
+      <n-divider title-placement="left">联系人信息</n-divider>
+
+      <n-form-item label="联系人姓名">
+        <n-input
+          v-model:value="formModel.contactName"
+          placeholder="联系人姓名"
+          disabled
+        />
+      </n-form-item>
+
+      <n-form-item label="联系人电话">
+        <n-input
+          v-model:value="formModel.contactPhone"
+          placeholder="联系人电话"
+          disabled
+        />
+      </n-form-item>
+
+      <n-form-item label="联系人邮箱">
+        <n-input
+          v-model:value="formModel.contactEmail"
+          placeholder="联系人邮箱"
+          disabled
+        />
+      </n-form-item>
+
+      <n-form-item label="联系人职位">
+        <n-input
+          v-model:value="formModel.contactPosition"
+          placeholder="联系人职位"
+          disabled
+        />
+      </n-form-item>
+
       <n-form-item label="是否创建商机" path="createOpportunity">
         <n-switch v-model:value="formModel.createOpportunity" />
       </n-form-item>
@@ -53,9 +124,9 @@
           />
         </n-form-item>
 
-        <n-form-item label="预计金额" path="expectedAmount">
+        <n-form-item label="预计金额" path="opportunityAmount">
           <n-input-number
-            v-model:value="formModel.expectedAmount"
+            v-model:value="formModel.opportunityAmount"
             placeholder="请输入预计金额"
             :min="0"
             :precision="2"
@@ -96,9 +167,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, onMounted } from 'vue'
 import { useMessage, type FormInst, type FormRules } from 'naive-ui'
 import { convertLead, getLeadById } from '@/api/business/lead'
+import { getUserList } from '@/api/system/user'
 import type { Lead, LeadConvertParams } from '@/types/business'
 
 interface Props {
@@ -123,9 +195,19 @@ const formModel = reactive<Omit<LeadConvertParams, 'leadId'>>({
   customerName: '',
   customerType: 'ENTERPRISE',
   customerLevel: 'B',
+  ownerId: undefined,
+  industry: '',
+  scale: '',
+  source: '',
+  customerPhone: '',
+  contactName: '',
+  contactPhone: '',
+  contactEmail: '',
+  contactPosition: '',
+  contactGender: 1, // 默认为男性或根据业务调整，这里给个初始值，loadLeadData会覆盖
   createOpportunity: false,
   opportunityName: '',
-  expectedAmount: undefined,
+  opportunityAmount: undefined,
   expectedCloseDate: undefined,
   remark: ''
 })
@@ -142,6 +224,29 @@ const customerLevelOptions = [
   { label: 'B级 (普通客户)', value: 'B' },
   { label: 'C级 (一般客户)', value: 'C' },
   { label: 'D级 (低优先级)', value: 'D' }
+]
+
+// 用户选项
+const userOptions = ref<Array<{ label: string; value: number | string }>>([])
+
+// 行业选项
+const industryOptions = [
+  { label: '互联网', value: '互联网' },
+  { label: '制造业', value: '制造业' },
+  { label: '金融业', value: '金融业' },
+  { label: '零售业', value: '零售业' },
+  { label: '教育培训', value: '教育培训' },
+  { label: '医疗健康', value: '医疗健康' },
+  { label: '房地产', value: '房地产' },
+  { label: '其他', value: '其他' }
+]
+
+// 规模选项
+const scaleOptions = [
+  { label: '小型 (1-50人)', value: '小型' },
+  { label: '中型 (51-200人)', value: '中型' },
+  { label: '大型 (201-1000人)', value: '大型' },
+  { label: '集团 (1000人以上)', value: '集团' }
 ]
 
 // 表单验证规则
@@ -168,7 +273,7 @@ const rules: FormRules = {
       }
     }
   ],
-  expectedAmount: [
+  opportunityAmount: [
     {
       required: true,
       type: 'number',
@@ -202,12 +307,43 @@ const rules: FormRules = {
 const loadLeadData = async () => {
   try {
     leadData.value = await getLeadById(props.leadId)
-    // 自动填充客户名称（使用新字段名 company 和 name）
-    formModel.customerName = leadData.value.company || leadData.value.name
+    // 自动填充客户信息
+    formModel.customerName = leadData.value.customerName || leadData.value.company || leadData.value.name
+    formModel.industry = leadData.value.industry || ''
+    formModel.source = leadData.value.source || ''
+    formModel.ownerId = leadData.value.ownerId || undefined
+    formModel.customerPhone = leadData.value.phone || '' // 客户联系电话
+    
+    // 自动填充联系人信息
+    formModel.contactName = leadData.value.contactName || leadData.value.name
+    formModel.contactPhone = leadData.value.phone
+    formModel.contactEmail = leadData.value.email || ''
+    formModel.contactPosition = leadData.value.position || ''
+    formModel.contactGender = leadData.value.gender // 联系人性别
   } catch (error) {
     message.error('加载线索数据失败')
   }
 }
+
+// 加载用户列表
+const loadUsers = async () => {
+  try {
+    const res = await getUserList({ pageNum: 1, pageSize: 100 })
+    // API返回 Result<PageResult<User>>，数据在 res.data.records 中
+    const records = res.data?.records || res.records || []
+    userOptions.value = records.map((user: any) => ({
+      label: user.nickname || user.username,
+      value: user.id
+    }))
+  } catch (error) {
+    console.error('加载用户列表失败', error)
+  }
+}
+
+// 组件挂载时加载用户列表
+onMounted(() => {
+  loadUsers()
+})
 
 // 监听 leadId 变化
 watch(

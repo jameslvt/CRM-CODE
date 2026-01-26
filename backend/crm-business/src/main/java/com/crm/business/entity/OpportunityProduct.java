@@ -1,26 +1,34 @@
 package com.crm.business.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.crm.common.entity.BaseEntity;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
  * 商机产品关联实体
  * 对应数据库表 crm_opportunity_product
+ * 
+ * 注意：此表为关联表，不继承 BaseEntity，因为不需要时间戳和审计字段
  *
  * @author CRM System
  * @since 1.0.0
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @TableName("crm_opportunity_product")
-public class OpportunityProduct extends BaseEntity {
+public class OpportunityProduct implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    /**
+     * 主键 ID
+     */
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
+    private Long id;
 
     /**
      * 商机 ID

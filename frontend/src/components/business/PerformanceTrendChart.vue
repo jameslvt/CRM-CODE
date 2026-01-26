@@ -33,33 +33,7 @@
     <div class="chart-container">
       <n-spin :show="loading">
         <div v-if="trendPoints.length > 0" class="chart-content">
-          <!-- 简化的柱状图 -->
-          <div class="bar-chart">
-            <div class="chart-grid">
-              <div
-                v-for="(point, index) in trendPoints"
-                :key="point.period"
-                class="bar-item"
-              >
-                <div class="bar-wrapper">
-                  <div
-                    class="bar"
-                    :style="{
-                      height: getBarHeight(point) + '%',
-                      background: getBarColor()
-                    }"
-                  >
-                    <div class="bar-tooltip">
-                      <span class="tooltip-value">{{ formatValue(getMetricValue(point)) }}</span>
-                    </div>
-                  </div>
-                </div>
-                <span class="bar-label">{{ formatPeriod(point.period) }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- 汇总数据 -->
+          <!-- 汇总数据 (移至上方) -->
           <div class="summary-row">
             <div class="summary-card">
               <span class="summary-label">总赢单金额</span>
@@ -90,6 +64,41 @@
             <div class="summary-card">
               <span class="summary-label">赢单数</span>
               <span class="summary-value">{{ summary?.totalWonCount || 0 }}</span>
+            </div>
+          </div>
+
+          <!-- 简化的柱状图 (移至下方) -->
+          <div class="bar-chart">
+            <!-- 背景网格线 -->
+            <div class="chart-bg-lines">
+              <div class="bg-line"></div>
+              <div class="bg-line"></div>
+              <div class="bg-line"></div>
+              <div class="bg-line"></div>
+              <div class="bg-line"></div>
+            </div>
+
+            <div class="chart-grid">
+              <div
+                v-for="(point, index) in trendPoints"
+                :key="point.period"
+                class="bar-item"
+              >
+                <div class="bar-wrapper">
+                  <div
+                    class="bar"
+                    :style="{
+                      height: getBarHeight(point) + '%',
+                      background: getBarColor()
+                    }"
+                  >
+                    <div class="bar-tooltip">
+                      <span class="tooltip-value">{{ formatValue(getMetricValue(point)) }}</span>
+                    </div>
+                  </div>
+                </div>
+                <span class="bar-label">{{ formatPeriod(point.period) }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -124,8 +133,8 @@ const emit = defineEmits<{
   (e: 'period-change', value: string): void
 }>()
 
-// 当前选中的指标
-const activeMetric = ref<'wonAmount' | 'paymentAmount' | 'opportunityCount'>('wonAmount')
+// 当前选中的指标 (默认为商机数量，因为赢单金额可能为0)
+const activeMetric = ref<'wonAmount' | 'paymentAmount' | 'opportunityCount'>('opportunityCount')
 
 // 周期选项
 const periodOptions = [
@@ -144,11 +153,11 @@ const metricOptions: Array<{ label: string; value: 'wonAmount' | 'paymentAmount'
 const getMetricValue = (point: TrendPoint) => {
   switch (activeMetric.value) {
     case 'wonAmount':
-      return point.wonAmount || 0
+      return Number(point.wonAmount) || 0
     case 'paymentAmount':
-      return point.paymentAmount || 0
+      return Number(point.paymentAmount) || 0
     case 'opportunityCount':
-      return point.newOpportunityCount || 0
+      return Number(point.newOpportunityCount) || 0
     default:
       return 0
   }
@@ -225,6 +234,9 @@ const handlePeriodChange = (value: string) => {
   border-radius: 16px;
   border: 1px solid #e2e8f0;
   padding: 24px;
+  height: 100%; /* 撑满父容器 */
+  display: flex;
+  flex-direction: column;
 }
 
 /* 图表头部 */
@@ -309,26 +321,48 @@ const handlePeriodChange = (value: string) => {
 /* 图表容器 */
 .chart-container {
   min-height: 300px;
+  flex: 1; /* 占据剩余空间 */
+  display: flex;
+  flex-direction: column;
+}
+
+:deep(.n-spin-container),
+:deep(.n-spin-content) {
+  height: 100% !important;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .chart-content {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  height: 100%; /* 继承高度 */
+  justify-content: space-between; /* 上下分布 */
 }
 
 /* 柱状图 */
 .bar-chart {
-  height: 200px;
+  /* 移除固定高度，改为 flex: 1 */
+  flex: 1;
+  min-height: 200px; /* 保持最小高度 */
   padding: 0 10px;
+  position: relative; /* 为绝对定位的网格线提供参考 */
+  display: flex;
+  flex-direction: column;
 }
 
 .chart-grid {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  height: 100%;
+  flex: 1; /* 使用 flex: 1 替代 height: 100% 以更稳定地填充 */
+  height: 100%; /* 双重保障 */
   gap: 8px;
+  position: relative;
+  z-index: 2; /* 提高层级，确保在网格线上方 */
+  padding-bottom: 4px; /* 微调底部留白 */
 }
 
 .bar-item {
@@ -338,32 +372,27 @@ const handlePeriodChange = (value: string) => {
   align-items: center;
   gap: 8px;
   max-width: 60px;
+  height: 100%; /* 撑满 */
+  justify-content: flex-end;
+  position: relative; /* 确保 z-index 生效 */
 }
 
 .bar-wrapper {
   width: 100%;
-  height: 160px;
+  flex: 1;
+  height: 100%; /* 显式高度 */
+  min-height: 0; /* 防止 flex item 溢出 */
   display: flex;
   align-items: flex-end;
   justify-content: center;
 }
 
-.bar {
-  width: 100%;
-  max-width: 40px;
-  border-radius: 6px 6px 0 0;
-  position: relative;
-  transition: all 0.3s ease;
-  min-height: 4px;
-}
-
-.bar:hover {
-  transform: scaleY(1.02);
-}
+/* ... existing bar, hover styles ... */
 
 .bar:hover .bar-tooltip {
   opacity: 1;
   visibility: visible;
+  transform: translateX(-50%) translateY(-4px);
 }
 
 .bar-tooltip {
@@ -380,7 +409,34 @@ const handlePeriodChange = (value: string) => {
   opacity: 0;
   visibility: hidden;
   transition: all 0.2s ease;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* 背景网格线 */
+.chart-bg-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 24px; /* 留出标签高度 */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bg-line {
+  width: 100%;
+  height: 1px;
+  background: transparent;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.bg-line:last-child {
+  border-top: 1px solid #e2e8f0; /* 底线实线 */
 }
 
 .bar-tooltip::after {
@@ -403,28 +459,40 @@ const handlePeriodChange = (value: string) => {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #f1f5f9;
+  padding-bottom: 24px; /* 改为底部间距 */
+  /* 移除 border-top */
 }
 
 .summary-card {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 12px;
+  justify-content: center; /* 垂直居中 */
+  gap: 8px;
+  padding: 20px; /* 增加内边距 */
   background: #f8fafc;
-  border-radius: 10px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  height: 100%; /* 确保高度撑满 */
+  border: 1px solid transparent;
+}
+
+.summary-card:hover {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
 }
 
 .summary-label {
-  font-size: 12px;
+  font-size: 13px;
   color: #64748b;
+  font-weight: 500;
 }
 
 .summary-value {
-  font-size: 18px;
+  font-size: 24px; /* 增大字体 */
   font-weight: 700;
   color: #0f172a;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 .summary-trend {

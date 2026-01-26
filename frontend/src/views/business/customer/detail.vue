@@ -1,46 +1,49 @@
 <template>
   <div class="customer-detail-page">
     <!-- 页面头部 -->
-    <div class="page-header">
-      <div class="header-left">
-        <n-button text @click="handleBack" class="back-btn">
-          <template #icon>
-            <n-icon><ArrowBackOutline /></n-icon>
-          </template>
-          返回列表
-        </n-button>
-        <div class="customer-title">
-          <h1 class="title-name">{{ customer360?.basicInfo?.name || '客户详情' }}</h1>
-          <div class="title-meta">
-            <span v-if="customer360?.basicInfo?.code" class="meta-code">
-              {{ customer360.basicInfo.code }}
-            </span>
-            <span v-if="customer360?.basicInfo?.level" class="meta-level" :class="`level-${customer360.basicInfo.level}`">
-              {{ customer360.basicInfo.level }}级客户
-            </span>
-          </div>
+    <n-page-header @back="handleBack">
+      <template #title>客户详情</template>
+      <template #extra>
+        <n-space>
+          <n-button @click="handleEdit">
+            <template #icon>
+              <n-icon><CreateOutline /></n-icon>
+            </template>
+            编辑
+          </n-button>
+          <n-popconfirm @positive-click="handleRelease">
+            <template #trigger>
+              <n-button>
+                <template #icon>
+                  <n-icon><CloudUploadOutline /></n-icon>
+                </template>
+                释放到公海
+              </n-button>
+            </template>
+            确定要将该客户释放到公海吗？
+          </n-popconfirm>
+        </n-space>
+      </template>
+    </n-page-header>
+
+    <!-- 客户基本标识信息 -->
+    <n-card :bordered="false" class="customer-info-card">
+      <div class="customer-title">
+        <h2 class="title-name">{{ customer360?.basicInfo?.name || '-' }}</h2>
+        <div class="title-meta">
+          <n-tag v-if="customer360?.basicInfo?.code" size="medium">
+            {{ customer360.basicInfo.code }}
+          </n-tag>
+          <n-tag 
+            v-if="customer360?.basicInfo?.level" 
+            type="primary" 
+            size="medium"
+          >
+            {{ customer360.basicInfo.level }}级客户
+          </n-tag>
         </div>
       </div>
-      <div class="header-actions">
-        <n-button @click="handleEdit" class="secondary-btn">
-          <template #icon>
-            <n-icon><CreateOutline /></n-icon>
-          </template>
-          编辑
-        </n-button>
-        <n-popconfirm @positive-click="handleRelease">
-          <template #trigger>
-            <n-button class="secondary-btn">
-              <template #icon>
-                <n-icon><CloudUploadOutline /></n-icon>
-              </template>
-              释放到公海
-            </n-button>
-          </template>
-          确定要将该客户释放到公海吗？
-        </n-popconfirm>
-      </div>
-    </div>
+    </n-card>
 
     <!-- 统计卡片 -->
     <div class="stats-row">
@@ -149,13 +152,11 @@
         </div>
 
         <!-- 联系人卡片 -->
-        <div class="info-card">
-          <contact-list
-            v-if="customerId"
-            ref="contactListRef"
-            :customer-id="customerId"
-          />
-        </div>
+        <contact-list
+          v-if="customerId"
+          ref="contactListRef"
+          :customer-id="customerId"
+        />
       </div>
 
       <!-- 右侧标签页 -->
@@ -451,107 +452,36 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* 页面容器 */
 .customer-detail-page {
   width: 100%;
   min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
 }
 
-/* 页面头部 */
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+/* 客户基本信息卡片 */
+.customer-info-card {
+  margin-bottom: 16px;
 }
 
-.header-left {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.back-btn {
-  color: #64748b;
-  font-size: 14px;
-}
-
-.back-btn:hover {
-  color: #2563eb;
-}
-
-.customer-title {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.title-name {
-  font-size: 28px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0;
-  letter-spacing: -0.02em;
-}
-
-.title-meta {
+.customer-info-card .customer-title {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.meta-code {
-  font-size: 13px;
-  color: #64748b;
-}
-
-.meta-level {
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 12px;
+.customer-info-card .title-name {
+  font-size: 20px;
   font-weight: 600;
+  color: #1f2937;
+  margin: 0;
 }
 
-.meta-level.level-A {
-  background: #fee2e2;
-  color: #ef4444;
-}
-
-.meta-level.level-B {
-  background: #fef3c7;
-  color: #f59e0b;
-}
-
-.meta-level.level-C {
-  background: #dbeafe;
-  color: #3b82f6;
-}
-
-.meta-level.level-D {
-  background: #f1f5f9;
-  color: #64748b;
-}
-
-.header-actions {
+.customer-info-card .title-meta {
   display: flex;
-  gap: 12px;
+  gap: 8px;
+  align-items: center;
 }
 
-.secondary-btn {
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 10px;
-  font-weight: 500;
-  background: white;
-  border: 1px solid #e2e8f0;
-  color: #475569;
-}
-
-.secondary-btn:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-}
 
 /* 统计卡片 */
 .stats-row {

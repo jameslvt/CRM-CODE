@@ -1,73 +1,68 @@
 <template>
   <div class="contract-detail">
     <!-- 页面标题 -->
-    <div class="page-header">
-      <div class="header-left">
-        <n-button text @click="handleBack" class="back-btn">
-          <template #icon>
-            <n-icon><ArrowBackOutline /></n-icon>
-          </template>
-          返回列表
-        </n-button>
-        <div class="header-content">
-          <h1 class="page-title">{{ contract?.name || '合同详情' }}</h1>
-          <div class="header-meta">
-            <span class="status-badge" :style="{ background: statusColor.bg, color: statusColor.color }">
-              {{ statusName }}
-            </span>
-            <span v-if="contract?.contractNo" class="meta-item">
-              <n-icon><DocumentTextOutline /></n-icon>
-              {{ contract.contractNo }}
-            </span>
-            <span class="meta-item">
-              <n-icon><PersonOutline /></n-icon>
-              {{ contract?.ownerName || '-' }}
-            </span>
-          </div>
+    <n-page-header @back="handleBack">
+      <template #title>合同详情</template>
+      <template #extra>
+        <n-space>
+          <n-button @click="handleEdit">
+            <template #icon>
+              <n-icon><CreateOutline /></n-icon>
+            </template>
+            编辑
+          </n-button>
+          <!-- 状态操作按钮 -->
+          <n-button
+            v-if="contract?.status === ContractStatus.DRAFT"
+            type="primary"
+            @click="handleSubmit"
+          >
+            提交审批
+          </n-button>
+          <n-button
+            v-if="contract?.status === ContractStatus.PENDING"
+            type="success"
+            @click="handleApprove"
+          >
+            审批通过
+          </n-button>
+          <n-button
+            v-if="contract?.status === ContractStatus.PENDING"
+            type="error"
+            @click="handleReject"
+          >
+            驳回
+          </n-button>
+          <n-button
+            v-if="contract?.status === ContractStatus.EXECUTING"
+            type="primary"
+            @click="handleComplete"
+          >
+            完成合同
+          </n-button>
+        </n-space>
+      </template>
+    </n-page-header>
+
+    <!-- 合同基本标识信息 -->
+    <n-card :bordered="false" class="contract-info-card">
+      <div class="contract-title">
+        <h2 class="title-name">{{ contract?.name || '-' }}</h2>
+        <div class="title-meta">
+          <n-tag :type="statusTagType" size="medium">
+            {{ statusName }}
+          </n-tag>
+          <span v-if="contract?.contractNo" class="meta-item">
+            <n-icon><DocumentTextOutline /></n-icon>
+            {{ contract.contractNo }}
+          </span>
+          <span class="meta-item">
+            <n-icon><PersonOutline /></n-icon>
+            {{ contract?.ownerName || '-' }}
+          </span>
         </div>
       </div>
-      <div class="header-actions">
-        <n-button @click="handleEdit" class="secondary-btn">
-          <template #icon>
-            <n-icon><CreateOutline /></n-icon>
-          </template>
-          编辑
-        </n-button>
-        <!-- 状态操作按钮 -->
-        <n-button
-          v-if="contract?.status === ContractStatus.DRAFT"
-          type="primary"
-          @click="handleSubmit"
-          class="primary-btn"
-        >
-          提交审批
-        </n-button>
-        <n-button
-          v-if="contract?.status === ContractStatus.PENDING"
-          type="success"
-          @click="handleApprove"
-          class="success-btn"
-        >
-          审批通过
-        </n-button>
-        <n-button
-          v-if="contract?.status === ContractStatus.PENDING"
-          type="error"
-          @click="handleReject"
-          class="error-btn"
-        >
-          驳回
-        </n-button>
-        <n-button
-          v-if="contract?.status === ContractStatus.EXECUTING"
-          type="primary"
-          @click="handleComplete"
-          class="primary-btn"
-        >
-          完成合同
-        </n-button>
-      </div>
-    </div>
+    </n-card>
 
     <!-- 加载状态 -->
     <div v-if="loading" class="loading-container">
@@ -248,11 +243,16 @@
               <span class="file-name">合同文件</span>
               <span class="file-url">{{ contract.fileUrl }}</span>
             </div>
-            <n-button text type="primary" @click="handleDownload">
+            <n-button
+              class="download-btn"
+              secondary
+              type="primary"
+              @click="handleDownload"
+            >
               <template #icon>
-                <n-icon><DownloadOutline /></n-icon>
+                <n-icon><CloudDownloadOutline /></n-icon>
               </template>
-              下载
+              下载附件
             </n-button>
           </div>
         </div>
@@ -288,6 +288,7 @@
     >
       <file-upload
         v-model="fileUrl"
+        upload-url="/api/files/upload/contract"
         accept=".pdf,.doc,.docx"
         :max-size="10"
         @success="handleUploadSuccess"
@@ -324,7 +325,7 @@ import {
   DocumentTextOutline,
   CloudUploadOutline,
   DocumentOutline,
-  DownloadOutline
+  CloudDownloadOutline
 } from '@vicons/ionicons5'
 import {
   getContractById,
@@ -364,6 +365,19 @@ const statusName = computed(() => {
 const statusColor = computed(() => {
   if (!contract.value) return { bg: '#f1f5f9', color: '#64748b' }
   return getContractStatusColor(contract.value.status)
+})
+
+// 状态标签类型映射
+const statusTagType = computed(() => {
+  if (!contract.value) return 'default'
+  const statusMap: Record<number, any> = {
+    [ContractStatus.DRAFT]: 'default',
+    [ContractStatus.PENDING]: 'warning',
+    [ContractStatus.EXECUTING]: 'info',
+    [ContractStatus.COMPLETED]: 'success',
+    [ContractStatus.TERMINATED]: 'error'
+  }
+  return statusMap[contract.value.status] || 'default'
 })
 
 // 回款进度
@@ -534,101 +548,36 @@ onMounted(() => {
   min-height: 100%;
 }
 
-/* 页面标题 */
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 24px;
+/* 合同基本信息卡片 */
+.contract-info-card {
+  margin-bottom: 16px;
 }
 
-.header-left {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.back-btn {
-  color: #64748b;
-  font-size: 13px;
-  padding: 0;
-}
-
-.back-btn:hover {
-  color: #2563eb;
-}
-
-.page-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0;
-  letter-spacing: -0.02em;
-}
-
-.header-meta {
+.contract-info-card .contract-title {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 12px;
-  border-radius: 6px;
-  font-size: 12px;
+.contract-info-card .title-name {
+  font-size: 20px;
   font-weight: 600;
+  color: #1f2937;
+  margin: 0;
 }
 
-.meta-item {
+.contract-info-card .title-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.contract-info-card .meta-item {
   display: flex;
   align-items: center;
   gap: 4px;
   font-size: 13px;
   color: #64748b;
-}
-
-.header-actions {
-  display: flex;
-  gap: 12px;
-}
-
-.secondary-btn {
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 10px;
-  font-weight: 500;
-  background: white;
-  border: 1px solid #e2e8f0;
-  color: #475569;
-}
-
-.primary-btn {
-  height: 40px;
-  padding: 0 20px;
-  border-radius: 10px;
-  font-weight: 500;
-  background: #2563eb;
-  border: none;
-}
-
-.success-btn {
-  height: 40px;
-  padding: 0 20px;
-  border-radius: 10px;
-  font-weight: 500;
-  background: #22c55e;
-  border: none;
-}
-
-.error-btn {
-  height: 40px;
-  padding: 0 20px;
-  border-radius: 10px;
-  font-weight: 500;
-  background: #ef4444;
-  border: none;
 }
 
 /* 加载状态 */
@@ -854,6 +803,23 @@ onMounted(() => {
 
 .file-icon {
   color: #2563eb;
+}
+
+.download-btn {
+  font-weight: 500;
+  padding: 0 16px;
+  height: 32px;
+  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.download-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+}
+
+.download-btn:active {
+  transform: translateY(0);
 }
 
 .file-info {

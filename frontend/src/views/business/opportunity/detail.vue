@@ -1,51 +1,49 @@
 <template>
   <div class="opportunity-detail">
     <!-- 页面标题 -->
-    <div class="page-header">
-      <div class="header-left">
-        <n-button text @click="handleBack" class="back-btn">
-          <template #icon>
-            <n-icon><ArrowBackOutline /></n-icon>
-          </template>
-          返回列表
-        </n-button>
-        <div class="header-content">
-          <h1 class="page-title">{{ opportunity?.name || '商机详情' }}</h1>
-          <div class="header-meta">
-            <span class="stage-badge" :style="{ background: stageColor.bg, color: stageColor.color }">
-              {{ stageName }}
-            </span>
-            <span class="meta-item">
-              <n-icon><PersonOutline /></n-icon>
-              {{ opportunity?.ownerName || '-' }}
-            </span>
-            <span class="meta-item">
-              <n-icon><TimeOutline /></n-icon>
-              {{ opportunity?.createTime || '-' }}
-            </span>
-          </div>
+    <n-page-header @back="handleBack">
+      <template #title>商机详情</template>
+      <template #extra>
+        <n-space>
+          <n-button @click="handleEdit">
+            <template #icon>
+              <n-icon><CreateOutline /></n-icon>
+            </template>
+            编辑
+          </n-button>
+          <n-button
+            v-if="opportunity?.stage !== 'WON' && opportunity?.stage !== 'LOST'"
+            type="primary"
+            @click="showStageModal = true"
+          >
+            <template #icon>
+              <n-icon><ArrowForwardOutline /></n-icon>
+            </template>
+            推进阶段
+          </n-button>
+        </n-space>
+      </template>
+    </n-page-header>
+
+    <!-- 商机基本标识信息 -->
+    <n-card :bordered="false" class="opportunity-info-card">
+      <div class="opportunity-title">
+        <h2 class="title-name">{{ opportunity?.name || '-' }}</h2>
+        <div class="title-meta">
+          <n-tag :type="stageTagType" size="medium">
+            {{ stageName }}
+          </n-tag>
+          <span class="meta-item">
+            <n-icon><PersonOutline /></n-icon>
+            {{ opportunity?.ownerName || '-' }}
+          </span>
+          <span class="meta-item">
+            <n-icon><TimeOutline /></n-icon>
+            {{ opportunity?.createTime || '-' }}
+          </span>
         </div>
       </div>
-      <div class="header-actions">
-        <n-button @click="handleEdit" class="secondary-btn">
-          <template #icon>
-            <n-icon><CreateOutline /></n-icon>
-          </template>
-          编辑
-        </n-button>
-        <n-button
-          v-if="opportunity?.stage !== 'WON' && opportunity?.stage !== 'LOST'"
-          type="primary"
-          @click="showStageModal = true"
-          class="primary-btn"
-        >
-          <template #icon>
-            <n-icon><ArrowForwardOutline /></n-icon>
-          </template>
-          推进阶段
-        </n-button>
-      </div>
-    </div>
+    </n-card>
 
     <!-- 加载状态 -->
     <div v-if="loading" class="loading-container">
@@ -364,6 +362,19 @@ const stageColor = computed(() => {
   return stageColorMap[opportunity.value.stage] || stageColorMap.REQUIREMENT
 })
 
+// 阶段标签类型映射
+const stageTagType = computed(() => {
+  if (!opportunity.value) return 'default'
+  const stageMap: Record<string, any> = {
+    'REQUIREMENT': 'info',
+    'QUOTATION': 'warning',
+    'NEGOTIATION': 'primary',
+    'WON': 'success',
+    'LOST': 'error'
+  }
+  return stageMap[opportunity.value.stage] || 'default'
+})
+
 // 产品总金额
 const productTotalAmount = computed(() => {
   if (!opportunity.value?.products) return 0
@@ -468,88 +479,42 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* 页面容器 */
 .opportunity-detail {
   width: 100%;
   min-height: 100%;
 }
 
-/* 页面标题 */
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 24px;
+/* 商机基本信息卡片 */
+.opportunity-info-card {
+  margin-bottom: 16px;
 }
 
-.header-left {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.back-btn {
-  color: #64748b;
-  font-size: 13px;
-  padding: 0;
-}
-
-.back-btn:hover {
-  color: #2563eb;
-}
-
-.page-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0;
-  letter-spacing: -0.02em;
-}
-
-.header-meta {
+.opportunity-info-card .opportunity-title {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
-.stage-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 12px;
-  border-radius: 6px;
-  font-size: 12px;
+.opportunity-info-card .title-name {
+  font-size: 20px;
   font-weight: 600;
+  color: #1f2937;
+  margin: 0;
 }
 
-.meta-item {
+.opportunity-info-card .title-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.opportunity-info-card .meta-item {
   display: flex;
   align-items: center;
   gap: 4px;
   font-size: 13px;
   color: #64748b;
-}
-
-.header-actions {
-  display: flex;
-  gap: 12px;
-}
-
-.secondary-btn {
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 10px;
-  font-weight: 500;
-  background: white;
-  border: 1px solid #e2e8f0;
-  color: #475569;
-}
-
-.primary-btn {
-  height: 40px;
-  padding: 0 20px;
-  border-radius: 10px;
-  font-weight: 500;
-  background: #2563eb;
-  border: none;
 }
 
 /* 加载状态 */

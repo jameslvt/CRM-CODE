@@ -3,7 +3,7 @@
     <!-- 页面标题 -->
     <div class="page-header">
       <div class="header-content">
-        <h1 class="page-title">产品管理</h1>
+        <h1 class="page-title">产品目录</h1>
         <p class="page-subtitle">管理产品目录，维护产品信息和定价</p>
       </div>
       <div class="header-actions">
@@ -467,10 +467,11 @@ onMounted(() => {
 
 .product-page {
   width: 100%;
-  min-height: 100%;
+  height: calc(100vh - 120px);
   display: flex;
   flex-direction: column;
   gap: 20px;
+  overflow: hidden;
 }
 
 /* ========================================

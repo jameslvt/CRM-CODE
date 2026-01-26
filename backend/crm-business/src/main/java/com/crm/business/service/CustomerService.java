@@ -39,6 +39,7 @@ public class CustomerService {
 
     private final CustomerMapper customerMapper;
     private final ContactMapper contactMapper;
+    private final com.crm.system.service.UserService userService;
 
     /**
      * 客户状态映射
@@ -72,6 +73,9 @@ public class CustomerService {
         List<CustomerDTO> dtoList = customerPage.getRecords().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+
+        // 批量填充负责人名称
+        populateOwnerNames(dtoList);
 
         return new PageResult<>(
                 dtoList,
@@ -176,7 +180,9 @@ public class CustomerService {
      */
     @Transactional(rollbackFor = Exception.class)
     public Long createFromLead(Long leadId, String customerName, String customerType, String customerLevel,
-            Long ownerId) {
+            Long ownerId, String industry, String scale, String source, String customerPhone,
+            String contactName, String contactPhone, String contactEmail, String contactPosition,
+            Integer contactGender) {
         Customer customer = new Customer();
         // 删除手动设置ID,由MyBatis-Plus自动生成
         customer.setName(customerName);
@@ -185,10 +191,29 @@ public class CustomerService {
         customer.setOwnerId(ownerId);
         customer.setType(customerType);
         customer.setLevel(customerLevel);
+        customer.setIndustry(industry);
+        customer.setScale(scale);
+        customer.setSource(source);
+        customer.setPhone(customerPhone); // 添加联系电话
         customer.setStatus(1); // 正常
 
         customerMapper.insert(customer);
         log.info("从线索创建客户成功,线索ID: {}, 客户ID: {}, 级别: {}", leadId, customer.getId(), customerLevel);
+
+        // 自动创建联系人（如果提供了联系人信息）
+        if (StringUtils.hasText(contactName) || StringUtils.hasText(contactPhone)) {
+            Contact contact = new Contact();
+            contact.setCustomerId(customer.getId());
+            contact.setName(contactName);
+            contact.setPhone(contactPhone);
+            contact.setEmail(contactEmail);
+            contact.setPosition(contactPosition);
+            contact.setGender(contactGender); // 添加性别
+            contact.setIsPrimary(1); // 设置为主要联系人
+            contactMapper.insert(contact);
+            log.info("从线索创建联系人成功,客户ID: {}, 联系人姓名: {}", customer.getId(), contactName);
+        }
+
         return customer.getId();
     }
 
@@ -367,7 +392,13 @@ public class CustomerService {
         // 设置状态名称
         dto.setStatusName(STATUS_MAP.get(customer.getStatus()));
 
-        // TODO: 查询负责人姓名（需要关联用户表）
+        // 查询负责人姓名（单个查询时使用，列表查询使用批量填充）
+        if (customer.getOwnerId() != null) {
+            com.crm.system.dto.UserDTO user = userService.getUserById(customer.getOwnerId());
+            if (user != null) {
+                dto.setOwnerName(StringUtils.hasText(user.getNickname()) ? user.getNickname() : user.getUsername());
+            }
+        }
 
         return dto;
     }
@@ -385,5 +416,42 @@ public class CustomerService {
         }
 
         return dto;
+    }
+
+    /**
+     * 批量填充负责人名称
+     * 用于列表查询场景，避免N+1查询问题
+     *
+     * @param dtoList 客户DTO列表
+     */
+    private void populateOwnerNames(List<CustomerDTO> dtoList) {
+        if (dtoList == null || dtoList.isEmpty()) {
+            return;
+        }
+
+        // 收集所有负责人ID
+        List<Long> ownerIds = dtoList.stream()
+                .map(CustomerDTO::getOwnerId)
+                .filter(id -> id != null)
+                .distinct()
+                .collect(Collectors.toList());
+
+        if (ownerIds.isEmpty()) {
+            return;
+        }
+
+        // 批量查询用户信息
+        List<com.crm.system.dto.UserDTO> users = userService.getUsersByIds(ownerIds);
+        Map<Long, String> userMap = users.stream().collect(
+                Collectors.toMap(
+                        com.crm.system.dto.UserDTO::getId,
+                        u -> StringUtils.hasText(u.getNickname()) ? u.getNickname() : u.getUsername()));
+
+        // 填充负责人名称
+        dtoList.forEach(dto -> {
+            if (dto.getOwnerId() != null) {
+                dto.setOwnerName(userMap.get(dto.getOwnerId()));
+            }
+        });
     }
 }

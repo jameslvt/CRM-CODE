@@ -124,94 +124,146 @@
         </n-grid>
       </div>
 
-      <!-- 产品信息 -->
-      <div class="form-section">
-        <div class="section-header">
-          <div class="section-title">产品信息</div>
-          <n-button text type="primary" @click="handleAddProduct">
+      <!-- 产品信息 - Premium Redesign -->
+      <div class="product-section">
+        <div class="product-section-header">
+          <div class="product-section-title">
+            <n-icon :component="CubeOutline" class="title-icon" />
+            <span>产品明细</span>
+          </div>
+          <n-button 
+            type="primary" 
+            size="small"
+            class="add-product-btn"
+            @click="handleAddProduct"
+          >
             <template #icon>
-              <n-icon><AddOutline /></n-icon>
+              <n-icon :component="AddCircleOutline" />
             </template>
             添加产品
           </n-button>
         </div>
 
-        <div v-if="formData.products && formData.products.length > 0" class="product-list">
-          <div
-            v-for="(product, index) in formData.products"
-            :key="`prod-${index}`"
-            class="product-item"
-          >
-            <n-grid :cols="24" :x-gap="12">
-              <n-gi :span="6">
-                <n-select
-                  v-model:value="product.productId"
-                  placeholder="选择产品"
-                  :options="productOptions"
-                  filterable
-                  @update:value="(val) => handleProductChange(index, val)"
-                />
-              </n-gi>
-              <n-gi :span="4">
-                <n-input-number
-                  v-model:value="product.quantity"
-                  placeholder="数量"
-                  :min="1"
-                  @update:value="() => calculateProductAmount(index)"
-                />
-              </n-gi>
-              <n-gi :span="5">
-                <n-input-number
-                  v-model:value="product.price"
-                  placeholder="单价"
-                  :min="0"
-                  :precision="2"
-                  @update:value="() => calculateProductAmount(index)"
-                >
-                  <template #prefix>¥</template>
-                </n-input-number>
-              </n-gi>
-              <n-gi :span="4">
-                <n-input-number
-                  v-model:value="product.discount"
-                  placeholder="折扣"
-                  :min="0"
-                  :max="100"
-                  @update:value="() => calculateProductAmount(index)"
-                >
-                  <template #suffix>%</template>
-                </n-input-number>
-              </n-gi>
-              <n-gi :span="4">
-                <n-input
-                  :value="formatAmount(product.amount)"
-                  placeholder="金额"
-                  disabled
-                />
-              </n-gi>
-              <n-gi :span="1">
-                <n-button
-                  text
-                  type="error"
-                  @click="handleRemoveProduct(index)"
-                >
-                  <n-icon size="18"><TrashOutline /></n-icon>
-                </n-button>
-              </n-gi>
-            </n-grid>
+        <div class="product-section-body">
+          <div v-if="formData.products && formData.products.length > 0" class="product-table">
+            <!-- 表头 -->
+            <div class="product-table-header">
+              <div class="col col-product">产品名称</div>
+              <div class="col col-qty">数量</div>
+              <div class="col col-price">单价</div>
+              <div class="col col-discount">折扣</div>
+              <div class="col col-subtotal">小计</div>
+              <div class="col col-action"></div>
+            </div>
+            
+            <!-- 产品行 -->
+            <div class="product-table-body">
+              <div
+                v-for="(product, index) in formData.products"
+                :key="`prod-${index}`"
+                class="product-row"
+              >
+                <div class="col col-product">
+                  <n-select
+                    v-model:value="product.productId"
+                    placeholder="选择产品"
+                    :options="productOptions"
+                    filterable
+                    size="small"
+                    @update:value="(val) => handleProductChange(index, val)"
+                  />
+                </div>
+                <div class="col col-qty">
+                  <n-input-number
+                    v-model:value="product.quantity"
+                    placeholder="数量"
+                    :min="1"
+                    size="small"
+                    :show-button="false"
+                    @update:value="() => calculateProductAmount(index)"
+                  />
+                </div>
+                <div class="col col-price">
+                  <n-input-number
+                    v-model:value="product.price"
+                    placeholder="单价"
+                    :min="0"
+                    :precision="2"
+                    size="small"
+                    :show-button="false"
+                    @update:value="() => calculateProductAmount(index)"
+                  >
+                    <template #prefix>¥</template>
+                  </n-input-number>
+                </div>
+                <div class="col col-discount">
+                  <n-input-number
+                    v-model:value="product.discount"
+                    placeholder="折扣"
+                    :min="0"
+                    :max="100"
+                    size="small"
+                    :show-button="false"
+                    @update:value="() => calculateProductAmount(index)"
+                  >
+                    <template #suffix>%</template>
+                  </n-input-number>
+                </div>
+                <div class="col col-subtotal">
+                  <span class="subtotal-value">{{ formatAmount(product.amount) }}</span>
+                </div>
+                <div class="col col-action">
+                  <n-button
+                    quaternary
+                    circle
+                    size="small"
+                    class="delete-btn"
+                    @click="handleRemoveProduct(index)"
+                  >
+                    <template #icon>
+                      <n-icon :component="TrashOutline" />
+                    </template>
+                  </n-button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 总计 -->
+            <div class="product-table-footer">
+              <div class="total-row">
+                <span class="total-label">产品总金额</span>
+                <span class="total-value">¥{{ totalProductAmount.toLocaleString() }}</span>
+              </div>
+            </div>
           </div>
 
-          <div class="product-total">
-            <span class="total-label">产品总金额：</span>
-            <span class="total-value">¥{{ totalProductAmount.toLocaleString() }}</span>
+          <!-- 空状态 - Premium Empty State -->
+          <div v-else class="empty-product-state">
+            <div class="empty-illustration">
+              <div class="empty-icon-wrapper">
+                <n-icon :component="LayersOutline" size="36" />
+              </div>
+              <div class="empty-circles">
+                <span class="circle circle-1"></span>
+                <span class="circle circle-2"></span>
+                <span class="circle circle-3"></span>
+              </div>
+            </div>
+            <p class="empty-title">暂无产品明细</p>
+            <p class="empty-desc">添加产品以计算商机预估金额</p>
+            <n-button 
+              type="primary" 
+              ghost 
+              size="medium"
+              class="empty-add-btn"
+              @click="handleAddProduct"
+            >
+              <template #icon>
+                <n-icon :component="AddCircleOutline" />
+              </template>
+              添加第一个产品
+            </n-button>
           </div>
-        </div>
-
-        <div v-else class="no-products">
-          <span class="no-products-text">暂无产品</span>
-          <n-button text size="small" type="primary" @click="handleAddProduct">
-            添加产品
-          </n-button>
         </div>
       </div>
     </n-form>
@@ -227,7 +279,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, computed } from 'vue'
+import { ref, reactive, watch, computed, onMounted } from 'vue'
 import {
   NForm,
   NFormItem,
@@ -243,9 +295,17 @@ import {
   type FormInst,
   type FormRules
 } from 'naive-ui'
-import { AddOutline, TrashOutline } from '@vicons/ionicons5'
+import { 
+  AddOutline, 
+  TrashOutline, 
+  CubeOutline, 
+  AddCircleOutline,
+  LayersOutline
+} from '@vicons/ionicons5'
 import { createOpportunity, updateOpportunity } from '@/api/business/opportunity'
 import { pageCustomers } from '@/api/business/customer'
+import { pageContacts } from '@/api/business/contact'
+import { getEnabledProducts } from '@/api/business/product'
 import type { Opportunity, OpportunityFormData, OpportunityProduct } from '@/types/business/opportunity'
 
 const props = defineProps<{
@@ -295,19 +355,32 @@ const sourceOptions = [
 ]
 
 // 客户选项
-const customerOptions = ref<{ label: string; value: number }[]>([])
+const customerOptions = ref<{ label: string; value: number | string }[]>([])
 
 // 联系人选项
-const contactOptions = ref<{ label: string; value: number }[]>([])
+const contactOptions = ref<{ label: string; value: number | string }[]>([])
 
-// 产品选项（模拟数据）
-const productOptions = ref([
-  { label: 'CRM基础版', value: 1, price: 9800 },
-  { label: 'CRM专业版', value: 2, price: 19800 },
-  { label: 'CRM企业版', value: 3, price: 49800 },
-  { label: '数据分析模块', value: 4, price: 5800 },
-  { label: 'AI智能助手', value: 5, price: 8800 }
-])
+// 产品选项
+const productOptions = ref<{ label: string; value: number | string; price: number }[]>([])
+
+// 加载产品列表
+const loadProducts = async () => {
+  try {
+    const products = await getEnabledProducts()
+    productOptions.value = products.map(p => ({
+      label: p.name,
+      value: p.id,
+      price: p.price
+    }))
+  } catch (error) {
+    console.error('加载产品列表失败', error)
+  }
+}
+
+// 在 onMounted 时调用
+onMounted(() => {
+  loadProducts()
+})
 
 // 表单验证规则
 const rules: FormRules = {
@@ -316,7 +389,7 @@ const rules: FormRules = {
     { min: 2, max: 200, message: '商机名称长度为2-200个字符', trigger: 'blur' }
   ],
   customerId: [
-    { required: true, type: 'number', message: '请选择客户', trigger: 'change' }
+    { required: true, message: '请选择客户', trigger: 'change' }
   ],
   stage: [
     { required: true, message: '请选择商机阶段', trigger: 'change' }
@@ -331,7 +404,7 @@ const totalProductAmount = computed(() => {
 
 // 格式化金额
 const formatAmount = (amount: number | undefined) => {
-  if (!amount) return ''
+  if (!amount) return '¥0'
   return `¥${amount.toLocaleString()}`
 }
 
@@ -352,6 +425,25 @@ const resetForm = () => {
   })
 }
 
+// 加载联系人列表
+const loadContacts = async (customerId: number | string) => {
+  if (!customerId) {
+    contactOptions.value = []
+    formData.contactId = undefined
+    return
+  }
+  
+  try {
+    const result = await pageContacts(String(customerId), undefined, 1, 100)
+    contactOptions.value = result.records.map((c: any) => ({
+      label: c.name,
+      value: c.id
+    }))
+  } catch (error) {
+    console.error('加载联系人失败', error)
+  }
+}
+
 // 监听外部数据变化
 watch(
   () => props.formData,
@@ -370,9 +462,11 @@ watch(
         remark: newVal.remark || '',
         products: newVal.products ? [...newVal.products] : []
       })
-      // 加载客户选项
       if (newVal.customerId && newVal.customerName) {
         customerOptions.value = [{ label: newVal.customerName, value: newVal.customerId }]
+      }
+      if (newVal.customerId) {
+        loadContacts(newVal.customerId)
       }
     } else {
       resetForm()
@@ -397,6 +491,18 @@ const handleCustomerSearch = async (query: string) => {
     customerLoading.value = false
   }
 }
+
+// 监听客户ID变化
+watch(
+  () => formData.customerId,
+  (newVal) => {
+    if (newVal) {
+      loadContacts(newVal)
+    } else {
+      contactOptions.value = []
+    }
+  }
+)
 
 // 添加产品
 const handleAddProduct = () => {
@@ -436,15 +542,12 @@ const calculateProductAmount = (index: number) => {
   product.amount = quantity * price * (1 - discount / 100)
 }
 
-
-
 // 提交表单
 const handleSubmit = async () => {
   try {
     await formRef.value?.validate()
     submitting.value = true
 
-    // 自动计算总金额
     if (totalProductAmount.value > 0) {
       formData.amount = totalProductAmount.value
     }
@@ -489,13 +592,6 @@ defineExpose({
   margin-bottom: 24px;
 }
 
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
 .section-title {
   font-size: 15px;
   font-weight: 600;
@@ -503,10 +599,6 @@ defineExpose({
   padding-left: 12px;
   border-left: 3px solid #2563eb;
   margin-bottom: 16px;
-}
-
-.section-header .section-title {
-  margin-bottom: 0;
 }
 
 .opportunity-form :deep(.n-form-item) {
@@ -526,62 +618,258 @@ defineExpose({
   --n-border-radius: 8px;
 }
 
-/* 产品列表 */
-.product-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.product-item {
-  padding: 12px 16px;
-  background: #f8fafc;
-  border-radius: 8px;
+/* ========================================
+   产品信息区域 - Premium Design
+   ======================================== */
+.product-section {
+  background: white;
+  border-radius: 12px;
   border: 1px solid #e2e8f0;
+  overflow: hidden;
+  margin-bottom: 24px;
 }
 
-.product-item :deep(.n-input-number),
-.product-item :deep(.n-select),
-.product-item :deep(.n-input) {
+.product-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.product-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.title-icon {
+  color: #2563eb;
+  font-size: 20px;
+}
+
+.add-product-btn {
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.15);
+  transition: all 0.2s ease;
+}
+
+.add-product-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(37, 99, 235, 0.25);
+}
+
+.product-section-body {
+  padding: 0;
+}
+
+/* 产品表格 */
+.product-table {
   width: 100%;
 }
 
-.product-total {
+.product-table-header {
+  display: flex;
+  padding: 12px 20px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.product-table-body {
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.product-row {
+  display: flex;
+  padding: 14px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  align-items: center;
+  transition: background 0.15s ease;
+}
+
+.product-row:hover {
+  background: #fafbfc;
+}
+
+.product-row:last-child {
+  border-bottom: none;
+}
+
+.col {
+  padding: 0 6px;
+}
+
+.col-product { flex: 0 0 28%; }
+.col-qty { flex: 0 0 14%; }
+.col-price { flex: 0 0 18%; }
+.col-discount { flex: 0 0 14%; }
+.col-subtotal { flex: 0 0 18%; }
+.col-action { flex: 0 0 8%; text-align: center; }
+
+.subtotal-value {
+  display: inline-block;
+  padding: 6px 12px;
+  background: #f1f5f9;
+  border-radius: 6px;
+  font-weight: 600;
+  color: #334155;
+  font-size: 13px;
+}
+
+.delete-btn {
+  color: #94a3b8;
+  transition: all 0.2s;
+}
+
+.delete-btn:hover {
+  color: #ef4444;
+  background: #fef2f2;
+}
+
+/* 总计行 */
+.product-table-footer {
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-top: 1px solid #bfdbfe;
+}
+
+.total-row {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background: #dbeafe;
-  border-radius: 8px;
-  margin-top: 8px;
+  gap: 16px;
 }
 
 .total-label {
   font-size: 14px;
   color: #475569;
+  font-weight: 500;
 }
 
 .total-value {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 700;
   color: #2563eb;
+  letter-spacing: -0.02em;
 }
 
-.no-products {
+/* 空状态 - Premium */
+.empty-product-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.empty-illustration {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.empty-icon-wrapper {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 24px;
-  background: #f8fafc;
-  border-radius: 8px;
-  border: 1px dashed #e2e8f0;
+  color: #2563eb;
+  position: relative;
+  z-index: 2;
 }
 
-.no-products-text {
+.empty-circles {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+}
+
+.circle {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.circle-1 {
+  width: 90px;
+  height: 90px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation-delay: 0s;
+}
+
+.circle-2 {
+  width: 110px;
+  height: 110px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation-delay: 0.4s;
+}
+
+.circle-3 {
+  width: 130px;
+  height: 130px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation-delay: 0.8s;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.1;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+}
+
+.empty-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #334155;
+  margin: 0 0 6px 0;
+}
+
+.empty-desc {
   font-size: 14px;
   color: #94a3b8;
+  margin: 0 0 20px 0;
+}
+
+.empty-add-btn {
+  height: 38px;
+  padding: 0 20px;
+  border-radius: 10px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.empty-add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
 
 /* 表单操作按钮 */

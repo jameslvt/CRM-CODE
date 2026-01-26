@@ -52,10 +52,10 @@ public class PaymentService {
     /**
      * 回款计划状态常量
      */
-    public static final Integer STATUS_PENDING = 1;      // 待回款
-    public static final Integer STATUS_PARTIAL = 2;      // 部分回款
-    public static final Integer STATUS_COMPLETED = 3;    // 已回款
-    public static final Integer STATUS_OVERDUE = 4;      // 逾期
+    public static final Integer STATUS_PENDING = 1; // 待回款
+    public static final Integer STATUS_PARTIAL = 2; // 部分回款
+    public static final Integer STATUS_COMPLETED = 3; // 已回款
+    public static final Integer STATUS_OVERDUE = 4; // 逾期
 
     /**
      * 状态名称映射
@@ -71,14 +71,14 @@ public class PaymentService {
     /**
      * 分页查询回款计划列表
      *
-     * @param pageNum 页码
-     * @param pageSize 每页数量
+     * @param pageNum    页码
+     * @param pageSize   每页数量
      * @param contractId 合同ID
-     * @param status 状态
+     * @param status     状态
      * @return 分页结果
      */
     public IPage<PaymentPlanDTO> getPaymentPlanPage(Integer pageNum, Integer pageSize,
-                                                     Long contractId, Integer status) {
+            Long contractId, Integer status) {
         Page<PaymentPlan> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<PaymentPlan> wrapper = new LambdaQueryWrapper<>();
 
@@ -105,7 +105,7 @@ public class PaymentService {
     public List<PaymentPlanDTO> getPaymentPlansByContractId(Long contractId) {
         LambdaQueryWrapper<PaymentPlan> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(PaymentPlan::getContractId, contractId)
-               .orderByAsc(PaymentPlan::getPeriod);
+                .orderByAsc(PaymentPlan::getPeriod);
         List<PaymentPlan> plans = paymentPlanMapper.selectList(wrapper);
         return plans.stream()
                 .map(this::convertPlanToDTO)
@@ -146,7 +146,7 @@ public class PaymentService {
         // 检查期数是否重复
         LambdaQueryWrapper<PaymentPlan> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(PaymentPlan::getContractId, formData.getContractId())
-               .eq(PaymentPlan::getPeriod, formData.getPeriod());
+                .eq(PaymentPlan::getPeriod, formData.getPeriod());
         if (paymentPlanMapper.selectCount(wrapper) > 0) {
             throw new BusinessException("该期数的回款计划已存在");
         }
@@ -172,7 +172,7 @@ public class PaymentService {
      * 批量创建回款计划
      *
      * @param contractId 合同ID
-     * @param plans 回款计划列表
+     * @param plans      回款计划列表
      */
     @Transactional(rollbackFor = Exception.class)
     public void batchCreatePaymentPlans(Long contractId, List<PaymentPlanDTO> plans) {
@@ -199,7 +199,7 @@ public class PaymentService {
     /**
      * 更新回款计划
      *
-     * @param id 回款计划ID
+     * @param id       回款计划ID
      * @param formData 表单数据
      */
     @Transactional(rollbackFor = Exception.class)
@@ -254,7 +254,7 @@ public class PaymentService {
     public List<PaymentRecordDTO> getPaymentRecordsByPlanId(Long planId) {
         LambdaQueryWrapper<PaymentRecord> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(PaymentRecord::getPlanId, planId)
-               .orderByDesc(PaymentRecord::getPaymentDate);
+                .orderByDesc(PaymentRecord::getPaymentDate);
         List<PaymentRecord> records = paymentRecordMapper.selectList(wrapper);
         return records.stream()
                 .map(this::convertRecordToDTO)
@@ -374,7 +374,7 @@ public class PaymentService {
     public void checkAndUpdateOverdueStatus() {
         LambdaQueryWrapper<PaymentPlan> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(PaymentPlan::getStatus, STATUS_PENDING)
-               .lt(PaymentPlan::getPlanDate, LocalDate.now());
+                .lt(PaymentPlan::getPlanDate, LocalDate.now());
 
         List<PaymentPlan> overduePlans = paymentPlanMapper.selectList(wrapper);
 
@@ -473,19 +473,29 @@ public class PaymentService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         statistics.put("totalActualAmount", totalActualAmount);
 
-        // 未回款金额
-        BigDecimal unpaidAmount = totalPlanAmount.subtract(totalActualAmount);
-        statistics.put("unpaidAmount", unpaidAmount);
+        // 待回款金额 (所有未还金额，包括逾期)
+        BigDecimal pendingAmount = totalPlanAmount.subtract(totalActualAmount);
+        statistics.put("pendingAmount", pendingAmount);
+
+        // 逾期金额
+        BigDecimal overdueAmount = plans.stream()
+                .filter(p -> STATUS_OVERDUE.equals(p.getStatus()))
+                .map(p -> p.getPlanAmount().subtract(p.getActualAmount()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        statistics.put("overdueAmount", overdueAmount);
 
         // 各状态数量
-        Map<String, Long> statusCount = new HashMap<>();
-        for (Map.Entry<Integer, String> entry : STATUS_NAME_MAP.entrySet()) {
-            long count = plans.stream()
-                    .filter(p -> entry.getKey().equals(p.getStatus()))
-                    .count();
-            statusCount.put(entry.getValue(), count);
-        }
-        statistics.put("statusCount", statusCount);
+        long pendingCount = plans.stream().filter(p -> STATUS_PENDING.equals(p.getStatus())).count();
+        statistics.put("pendingCount", pendingCount);
+
+        long partialCount = plans.stream().filter(p -> STATUS_PARTIAL.equals(p.getStatus())).count();
+        statistics.put("partialCount", partialCount);
+
+        long completedCount = plans.stream().filter(p -> STATUS_COMPLETED.equals(p.getStatus())).count();
+        statistics.put("completedCount", completedCount);
+
+        long overdueCount = plans.stream().filter(p -> STATUS_OVERDUE.equals(p.getStatus())).count();
+        statistics.put("overdueCount", overdueCount);
 
         return statistics;
     }

@@ -33,7 +33,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableAsync
 @MapperScan({"com.crm.system.mapper", "com.crm.business.mapper"})
 public class CrmApplication {
-
+ 
     public static void main(String[] args) {
         SpringApplication.run(CrmApplication.class, args);
         System.out.println("\n" +

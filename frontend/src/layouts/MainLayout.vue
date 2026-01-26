@@ -126,19 +126,11 @@
             </n-icon>
           </button>
 
-          <!-- 面包屑导航 -->
-          <nav v-if="!appStore.isMobile" class="breadcrumb-nav">
-            <template v-for="(item, index) in appStore.breadcrumbs" :key="index">
-              <span
-                class="breadcrumb-item"
-                :class="{ clickable: !!item.path, active: index === appStore.breadcrumbs.length - 1 }"
-                @click="item.path && router.push(item.path)"
-              >
-                {{ item.title }}
-              </span>
-              <span v-if="index < appStore.breadcrumbs.length - 1" class="breadcrumb-separator">/</span>
-            </template>
-          </nav>
+          <!-- 个性化欢迎语 (全站统一显示) -->
+          <div class="header-greeting">
+            <span class="greeting-text">{{ greeting }}，{{ userStore.realName || userStore.username }}</span>
+            <span class="greeting-date">{{ currentDate }}</span>
+          </div>
         </div>
 
         <div class="header-right">
@@ -211,7 +203,8 @@ import {
   SettingsOutline,
   LogOutOutline,
   PersonCircleOutline,
-  EllipsisVertical
+  EllipsisVertical,
+  BarChartOutline
 } from '@vicons/ionicons5'
 import { useUserStore } from '@/stores/user'
 import { useAppStore } from '@/stores/app'
@@ -236,6 +229,29 @@ const cachedViews = computed(() => {
   return views
 })
 
+// 移除 isDashboardPage 计算属性
+
+
+// 计算欢迎语
+const greeting = computed(() => {
+  const hour = new Date().getHours()
+  if (hour < 6) return '夜深了'
+  if (hour < 12) return '早上好'
+  if (hour < 14) return '中午好'
+  if (hour < 18) return '下午好'
+  return '晚上好'
+})
+
+// 当前日期
+const currentDate = computed(() => {
+  const date = new Date()
+  return date.toLocaleDateString('zh-CN', { 
+    month: 'long', 
+    day: 'numeric', 
+    weekday: 'long' 
+  })
+})
+
 function renderIcon(icon: any) {
   return () => h(NIcon, null, { default: () => h(icon) })
 }
@@ -243,9 +259,14 @@ function renderIcon(icon: any) {
 const menuOptions = computed<MenuOption[]>(() => {
   const options: MenuOption[] = [
     {
-      label: '仪表盘',
+      label: '工作台',
       key: '/dashboard',
       icon: renderIcon(HomeOutline)
+    },
+    {
+      label: 'L2C数据分析',
+      key: '/business/dashboard',
+      icon: renderIcon(BarChartOutline)
     },
     {
       label: '线索管理',
@@ -674,6 +695,25 @@ async function handleUserMenuSelect(key: string) {
 .menu-trigger:hover {
   background: #f1f5f9;
   color: #0f172a;
+}
+
+/* 欢迎语 */
+.header-greeting {
+  display: flex;
+  align-items: baseline; /* 改为baseline让日期和文字底部对齐 */
+  gap: 12px;
+}
+
+.greeting-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.greeting-date {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 400;
 }
 
 /* 面包屑 */
