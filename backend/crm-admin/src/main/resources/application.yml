@@ -210,9 +210,9 @@ crm:
   ai:
     enabled: true
     openai:
-      base-url: https://api.openai.com/v1
-      api-key: sk-proj-2024-please-change-in-production
-      model: gpt-3.5-turbo
+      base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+      api-key: sk-7477da33cd4e490f92957154338e4077
+      model: qwen-plus-2025-07-28
       timeout: 60
-      max-tokens: 2000
+      max-tokens: 20000
       temperature: 0.7

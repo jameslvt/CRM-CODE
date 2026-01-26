@@ -330,6 +330,11 @@ const handleDateRangeChange = (value: { type: string; startDate?: string; endDat
 // 周期变化
 const handlePeriodChange = (value: string) => {
   trendParams.periodType = value
+  if (value === 'quarter') {
+    trendParams.months = 4 // 最近4个季度
+  } else {
+    trendParams.months = 12 // 最近12个月
+  }
   loadTrendData()
 }
 

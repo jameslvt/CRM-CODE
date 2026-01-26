@@ -190,8 +190,18 @@ const getBarColor = () => {
 }
 
 // 格式化周期标签
+// 格式化周期标签
 const formatPeriod = (period: string) => {
   if (!period) return ''
+  
+  // 处理季度格式 2024-Q1
+  if (period.includes('Q')) {
+    const parts = period.split('-')
+    if (parts.length === 2) {
+      return `${parts[0].slice(2)}年${parts[1]}`
+    }
+  }
+
   // 假设格式为 2024-01
   const parts = period.split('-')
   if (parts.length === 2) {
@@ -388,6 +398,19 @@ const handlePeriodChange = (value: string) => {
 }
 
 /* ... existing bar, hover styles ... */
+
+.bar {
+  width: 20px;
+  border-radius: 4px 4px 0 0;
+  transition: height 0.3s ease, background 0.3s ease;
+  position: relative;
+  cursor: pointer;
+  min-height: 2px;
+}
+
+.bar:hover {
+  filter: brightness(0.95);
+}
 
 .bar:hover .bar-tooltip {
   opacity: 1;

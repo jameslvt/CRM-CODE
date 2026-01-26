@@ -110,7 +110,7 @@ public class DashboardService {
             monthWrapper.eq(Lead::getOwnerId, ownerId);
         }
         monthWrapper.ge(Lead::getCreateTime, monthStart)
-                    .le(Lead::getCreateTime, monthEnd);
+                .le(Lead::getCreateTime, monthEnd);
         stats.setMonthNewCount(leadMapper.selectCount(monthWrapper));
 
         // 待跟进数（状态为新建或跟进中）
@@ -145,7 +145,8 @@ public class DashboardService {
     /**
      * 获取客户统计
      */
-    private DashboardDTO.CustomerStats getCustomerStats(Long ownerId, LocalDateTime monthStart, LocalDateTime monthEnd) {
+    private DashboardDTO.CustomerStats getCustomerStats(Long ownerId, LocalDateTime monthStart,
+            LocalDateTime monthEnd) {
         DashboardDTO.CustomerStats stats = new DashboardDTO.CustomerStats();
 
         LambdaQueryWrapper<Customer> baseWrapper = new LambdaQueryWrapper<>();
@@ -162,7 +163,7 @@ public class DashboardService {
             monthWrapper.eq(Customer::getOwnerId, ownerId);
         }
         monthWrapper.ge(Customer::getCreateTime, monthStart)
-                    .le(Customer::getCreateTime, monthEnd);
+                .le(Customer::getCreateTime, monthEnd);
         stats.setMonthNewCount(customerMapper.selectCount(monthWrapper));
 
         // 公海池数量
@@ -186,7 +187,8 @@ public class DashboardService {
     /**
      * 获取商机统计
      */
-    private DashboardDTO.OpportunityStats getOpportunityStats(Long ownerId, LocalDateTime monthStart, LocalDateTime monthEnd) {
+    private DashboardDTO.OpportunityStats getOpportunityStats(Long ownerId, LocalDateTime monthStart,
+            LocalDateTime monthEnd) {
         DashboardDTO.OpportunityStats stats = new DashboardDTO.OpportunityStats();
 
         LambdaQueryWrapper<Opportunity> baseWrapper = new LambdaQueryWrapper<>();
@@ -203,7 +205,7 @@ public class DashboardService {
             monthWrapper.eq(Opportunity::getOwnerId, ownerId);
         }
         monthWrapper.ge(Opportunity::getCreateTime, monthStart)
-                    .le(Opportunity::getCreateTime, monthEnd);
+                .le(Opportunity::getCreateTime, monthEnd);
         stats.setMonthNewCount(opportunityMapper.selectCount(monthWrapper));
 
         // 进行中数量
@@ -261,7 +263,8 @@ public class DashboardService {
     /**
      * 获取合同统计
      */
-    private DashboardDTO.ContractStats getContractStats(Long ownerId, LocalDateTime monthStart, LocalDateTime monthEnd) {
+    private DashboardDTO.ContractStats getContractStats(Long ownerId, LocalDateTime monthStart,
+            LocalDateTime monthEnd) {
         DashboardDTO.ContractStats stats = new DashboardDTO.ContractStats();
 
         LambdaQueryWrapper<Contract> baseWrapper = new LambdaQueryWrapper<>();
@@ -278,7 +281,7 @@ public class DashboardService {
             monthWrapper.eq(Contract::getOwnerId, ownerId);
         }
         monthWrapper.ge(Contract::getCreateTime, monthStart)
-                    .le(Contract::getCreateTime, monthEnd);
+                .le(Contract::getCreateTime, monthEnd);
         stats.setMonthNewCount(contractMapper.selectCount(monthWrapper));
 
         // 执行中数量
@@ -302,7 +305,7 @@ public class DashboardService {
             monthSignedWrapper.eq(Contract::getOwnerId, ownerId);
         }
         monthSignedWrapper.ge(Contract::getSignDate, monthStart.toLocalDate())
-                          .le(Contract::getSignDate, monthEnd.toLocalDate());
+                .le(Contract::getSignDate, monthEnd.toLocalDate());
         List<Contract> monthSignedContracts = contractMapper.selectList(monthSignedWrapper);
         BigDecimal monthSignedAmount = monthSignedContracts.stream()
                 .map(Contract::getAmount)
@@ -336,7 +339,7 @@ public class DashboardService {
         // 本月回款金额
         LambdaQueryWrapper<PaymentRecord> monthRecordWrapper = new LambdaQueryWrapper<>();
         monthRecordWrapper.ge(PaymentRecord::getPaymentDate, monthStart.toLocalDate())
-                          .le(PaymentRecord::getPaymentDate, monthEnd.toLocalDate());
+                .le(PaymentRecord::getPaymentDate, monthEnd.toLocalDate());
         List<PaymentRecord> monthRecords = paymentRecordMapper.selectList(monthRecordWrapper);
         BigDecimal monthActualAmount = monthRecords.stream()
                 .map(PaymentRecord::getAmount)
@@ -455,9 +458,9 @@ public class DashboardService {
     /**
      * 获取业绩趋势数据
      *
-     * @param ownerId 负责人ID（可选）
+     * @param ownerId    负责人ID（可选）
      * @param periodType 周期类型: month、quarter
-     * @param months 查询月数
+     * @param months     查询月数
      * @return 业绩趋势数据
      */
     public PerformanceTrendDTO getPerformanceTrend(Long ownerId, String periodType, int months) {
@@ -479,93 +482,141 @@ public class DashboardService {
         summary.setTotalPaymentAmount(BigDecimal.ZERO);
 
         LocalDate today = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
+        DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("yyyy-MM");
 
-        for (int i = months - 1; i >= 0; i--) {
-            LocalDate monthDate = today.minusMonths(i);
-            LocalDateTime monthStart = monthDate.withDayOfMonth(1).atStartOfDay();
-            LocalDateTime monthEnd = monthDate.with(TemporalAdjusters.lastDayOfMonth()).atTime(23, 59, 59);
+        if ("quarter".equalsIgnoreCase(periodType)) {
+            // 按季度查询
+            for (int i = months - 1; i >= 0; i--) {
+                // 计算当前季度的结束日期（基于今天倒推i个季度）
+                // 逻辑：当前日期减去 (i*3) 个月，然后调整到该所在季度的范围
+                // 简化逻辑：以当前季度为基准，倒推 i 个季度
 
-            PerformanceTrendDTO.TrendPoint point = new PerformanceTrendDTO.TrendPoint();
-            point.setPeriod(monthDate.format(formatter));
+                // 计算基准日：当前日期减去 i * 3 个月
+                LocalDate baseDate = today.minusMonths(i * 3L);
 
-            // 新增线索数
-            LambdaQueryWrapper<Lead> leadWrapper = new LambdaQueryWrapper<>();
-            if (ownerId != null) {
-                leadWrapper.eq(Lead::getOwnerId, ownerId);
+                // 计算该基准日所在季度的第一天和最后一天
+                // (month - 1) / 3 * 3 + 1
+                int currentMonth = baseDate.getMonthValue();
+                int quarterStartMonth = (currentMonth - 1) / 3 * 3 + 1;
+
+                LocalDateTime periodStart = baseDate.withMonth(quarterStartMonth).withDayOfMonth(1).atStartOfDay();
+                LocalDateTime periodEnd = baseDate.withMonth(quarterStartMonth + 2)
+                        .with(TemporalAdjusters.lastDayOfMonth()).atTime(23, 59, 59);
+
+                String periodLabel = baseDate.getYear() + "-Q" + ((quarterStartMonth - 1) / 3 + 1);
+
+                PerformanceTrendDTO.TrendPoint point = calculateTrendPoint(ownerId, periodStart, periodEnd,
+                        periodLabel);
+                trendPoints.add(point);
+                accumulateSummary(summary, point);
             }
-            leadWrapper.ge(Lead::getCreateTime, monthStart).le(Lead::getCreateTime, monthEnd);
-            long newLeadCount = leadMapper.selectCount(leadWrapper);
-            point.setNewLeadCount(newLeadCount);
-            summary.setTotalNewLeadCount(summary.getTotalNewLeadCount() + newLeadCount);
+        } else {
+            // 默认按月查询
+            for (int i = months - 1; i >= 0; i--) {
+                LocalDate monthDate = today.minusMonths(i);
+                LocalDateTime periodStart = monthDate.withDayOfMonth(1).atStartOfDay();
+                LocalDateTime periodEnd = monthDate.with(TemporalAdjusters.lastDayOfMonth()).atTime(23, 59, 59);
 
-            // 新增客户数
-            LambdaQueryWrapper<Customer> customerWrapper = new LambdaQueryWrapper<>();
-            if (ownerId != null) {
-                customerWrapper.eq(Customer::getOwnerId, ownerId);
+                String periodLabel = monthDate.format(monthFormatter);
+
+                PerformanceTrendDTO.TrendPoint point = calculateTrendPoint(ownerId, periodStart, periodEnd,
+                        periodLabel);
+                trendPoints.add(point);
+                accumulateSummary(summary, point);
             }
-            customerWrapper.ge(Customer::getCreateTime, monthStart).le(Customer::getCreateTime, monthEnd);
-            long newCustomerCount = customerMapper.selectCount(customerWrapper);
-            point.setNewCustomerCount(newCustomerCount);
-            summary.setTotalNewCustomerCount(summary.getTotalNewCustomerCount() + newCustomerCount);
-
-            // 新增商机数和金额
-            LambdaQueryWrapper<Opportunity> oppWrapper = new LambdaQueryWrapper<>();
-            if (ownerId != null) {
-                oppWrapper.eq(Opportunity::getOwnerId, ownerId);
-            }
-            oppWrapper.ge(Opportunity::getCreateTime, monthStart).le(Opportunity::getCreateTime, monthEnd);
-            List<Opportunity> newOpps = opportunityMapper.selectList(oppWrapper);
-            point.setNewOpportunityCount((long) newOpps.size());
-            BigDecimal oppAmount = newOpps.stream().map(Opportunity::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-            point.setOpportunityAmount(oppAmount);
-            summary.setTotalNewOpportunityCount(summary.getTotalNewOpportunityCount() + newOpps.size());
-            summary.setTotalOpportunityAmount(summary.getTotalOpportunityAmount().add(oppAmount));
-
-            // 赢单数和金额（按更新时间判断）
-            LambdaQueryWrapper<Opportunity> wonWrapper = new LambdaQueryWrapper<>();
-            if (ownerId != null) {
-                wonWrapper.eq(Opportunity::getOwnerId, ownerId);
-            }
-            wonWrapper.eq(Opportunity::getStage, "赢单")
-                      .ge(Opportunity::getUpdateTime, monthStart)
-                      .le(Opportunity::getUpdateTime, monthEnd);
-            List<Opportunity> wonOpps = opportunityMapper.selectList(wonWrapper);
-            point.setWonCount((long) wonOpps.size());
-            BigDecimal wonAmount = wonOpps.stream().map(Opportunity::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-            point.setWonAmount(wonAmount);
-            summary.setTotalWonCount(summary.getTotalWonCount() + wonOpps.size());
-            summary.setTotalWonAmount(summary.getTotalWonAmount().add(wonAmount));
-
-            // 签约合同数和金额
-            LambdaQueryWrapper<Contract> contractWrapper = new LambdaQueryWrapper<>();
-            if (ownerId != null) {
-                contractWrapper.eq(Contract::getOwnerId, ownerId);
-            }
-            contractWrapper.ge(Contract::getSignDate, monthStart.toLocalDate())
-                           .le(Contract::getSignDate, monthEnd.toLocalDate());
-            List<Contract> signedContracts = contractMapper.selectList(contractWrapper);
-            point.setSignedContractCount((long) signedContracts.size());
-            BigDecimal signedAmount = signedContracts.stream().map(Contract::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-            point.setSignedAmount(signedAmount);
-            summary.setTotalSignedContractCount(summary.getTotalSignedContractCount() + signedContracts.size());
-            summary.setTotalSignedAmount(summary.getTotalSignedAmount().add(signedAmount));
-
-            // 回款金额
-            LambdaQueryWrapper<PaymentRecord> paymentWrapper = new LambdaQueryWrapper<>();
-            paymentWrapper.ge(PaymentRecord::getPaymentDate, monthStart.toLocalDate())
-                          .le(PaymentRecord::getPaymentDate, monthEnd.toLocalDate());
-            List<PaymentRecord> payments = paymentRecordMapper.selectList(paymentWrapper);
-            BigDecimal paymentAmount = payments.stream().map(PaymentRecord::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-            point.setPaymentAmount(paymentAmount);
-            summary.setTotalPaymentAmount(summary.getTotalPaymentAmount().add(paymentAmount));
-
-            trendPoints.add(point);
         }
 
         trend.setTrendPoints(trendPoints);
         trend.setSummary(summary);
 
         return trend;
+    }
+
+    /**
+     * 计算单个时间段的趋势数据
+     */
+    private PerformanceTrendDTO.TrendPoint calculateTrendPoint(Long ownerId, LocalDateTime startTime,
+            LocalDateTime endTime, String periodLabel) {
+        PerformanceTrendDTO.TrendPoint point = new PerformanceTrendDTO.TrendPoint();
+        point.setPeriod(periodLabel);
+
+        // 新增线索数
+        LambdaQueryWrapper<Lead> leadWrapper = new LambdaQueryWrapper<>();
+        if (ownerId != null) {
+            leadWrapper.eq(Lead::getOwnerId, ownerId);
+        }
+        leadWrapper.ge(Lead::getCreateTime, startTime).le(Lead::getCreateTime, endTime);
+        point.setNewLeadCount(leadMapper.selectCount(leadWrapper));
+
+        // 新增客户数
+        LambdaQueryWrapper<Customer> customerWrapper = new LambdaQueryWrapper<>();
+        if (ownerId != null) {
+            customerWrapper.eq(Customer::getOwnerId, ownerId);
+        }
+        customerWrapper.ge(Customer::getCreateTime, startTime).le(Customer::getCreateTime, endTime);
+        point.setNewCustomerCount(customerMapper.selectCount(customerWrapper));
+
+        // 新增商机数和金额
+        LambdaQueryWrapper<Opportunity> oppWrapper = new LambdaQueryWrapper<>();
+        if (ownerId != null) {
+            oppWrapper.eq(Opportunity::getOwnerId, ownerId);
+        }
+        oppWrapper.ge(Opportunity::getCreateTime, startTime).le(Opportunity::getCreateTime, endTime);
+        List<Opportunity> newOpps = opportunityMapper.selectList(oppWrapper);
+        point.setNewOpportunityCount((long) newOpps.size());
+        BigDecimal oppAmount = newOpps.stream().map(Opportunity::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        point.setOpportunityAmount(oppAmount);
+
+        // 赢单数和金额（按更新时间判断）
+        LambdaQueryWrapper<Opportunity> wonWrapper = new LambdaQueryWrapper<>();
+        if (ownerId != null) {
+            wonWrapper.eq(Opportunity::getOwnerId, ownerId);
+        }
+        wonWrapper.eq(Opportunity::getStage, "赢单")
+                .ge(Opportunity::getUpdateTime, startTime)
+                .le(Opportunity::getUpdateTime, endTime);
+        List<Opportunity> wonOpps = opportunityMapper.selectList(wonWrapper);
+        point.setWonCount((long) wonOpps.size());
+        BigDecimal wonAmount = wonOpps.stream().map(Opportunity::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        point.setWonAmount(wonAmount);
+
+        // 签约合同数和金额
+        LambdaQueryWrapper<Contract> contractWrapper = new LambdaQueryWrapper<>();
+        if (ownerId != null) {
+            contractWrapper.eq(Contract::getOwnerId, ownerId);
+        }
+        contractWrapper.ge(Contract::getSignDate, startTime.toLocalDate())
+                .le(Contract::getSignDate, endTime.toLocalDate());
+        List<Contract> signedContracts = contractMapper.selectList(contractWrapper);
+        point.setSignedContractCount((long) signedContracts.size());
+        BigDecimal signedAmount = signedContracts.stream().map(Contract::getAmount).reduce(BigDecimal.ZERO,
+                BigDecimal::add);
+        point.setSignedAmount(signedAmount);
+
+        // 回款金额
+        LambdaQueryWrapper<PaymentRecord> paymentWrapper = new LambdaQueryWrapper<>();
+        paymentWrapper.ge(PaymentRecord::getPaymentDate, startTime.toLocalDate())
+                .le(PaymentRecord::getPaymentDate, endTime.toLocalDate());
+        List<PaymentRecord> payments = paymentRecordMapper.selectList(paymentWrapper);
+        BigDecimal paymentAmount = payments.stream().map(PaymentRecord::getAmount).reduce(BigDecimal.ZERO,
+                BigDecimal::add);
+        point.setPaymentAmount(paymentAmount);
+
+        return point;
+    }
+
+    /**
+     * 累加汇总数据
+     */
+    private void accumulateSummary(PerformanceTrendDTO.TrendSummary summary, PerformanceTrendDTO.TrendPoint point) {
+        summary.setTotalNewLeadCount(summary.getTotalNewLeadCount() + point.getNewLeadCount());
+        summary.setTotalNewCustomerCount(summary.getTotalNewCustomerCount() + point.getNewCustomerCount());
+        summary.setTotalNewOpportunityCount(summary.getTotalNewOpportunityCount() + point.getNewOpportunityCount());
+        summary.setTotalOpportunityAmount(summary.getTotalOpportunityAmount().add(point.getOpportunityAmount()));
+        summary.setTotalWonCount(summary.getTotalWonCount() + point.getWonCount());
+        summary.setTotalWonAmount(summary.getTotalWonAmount().add(point.getWonAmount()));
+        summary.setTotalSignedContractCount(summary.getTotalSignedContractCount() + point.getSignedContractCount());
+        summary.setTotalSignedAmount(summary.getTotalSignedAmount().add(point.getSignedAmount()));
+        summary.setTotalPaymentAmount(summary.getTotalPaymentAmount().add(point.getPaymentAmount()));
     }
 }

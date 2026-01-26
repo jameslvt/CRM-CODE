@@ -222,11 +222,15 @@ const activeTab = ref<number | null>(null)
 
 // 状态标签
 const statusTabs = computed(() => [
-  { label: '全部', value: null, count: (statistics.value.pendingCount || 0) + (statistics.value.partialCount || 0) + (statistics.value.completedCount || 0) + (statistics.value.overdueCount || 0) },
-  { label: '待回款', value: PaymentPlanStatus.PENDING, count: statistics.value.pendingCount || 0 },
-  { label: '部分回款', value: PaymentPlanStatus.PARTIAL, count: statistics.value.partialCount || 0 },
-  { label: '已回款', value: PaymentPlanStatus.COMPLETED, count: statistics.value.completedCount || 0 },
-  { label: '逾期', value: PaymentPlanStatus.OVERDUE, count: statistics.value.overdueCount || 0 }
+  { 
+    label: '全部', 
+    value: null, 
+    count: Number(statistics.value.pendingCount || 0) + Number(statistics.value.partialCount || 0) + Number(statistics.value.completedCount || 0) + Number(statistics.value.overdueCount || 0) 
+  },
+  { label: '待回款', value: PaymentPlanStatus.PENDING, count: Number(statistics.value.pendingCount || 0) },
+  { label: '部分回款', value: PaymentPlanStatus.PARTIAL, count: Number(statistics.value.partialCount || 0) },
+  { label: '已回款', value: PaymentPlanStatus.COMPLETED, count: Number(statistics.value.completedCount || 0) },
+  { label: '逾期', value: PaymentPlanStatus.OVERDUE, count: Number(statistics.value.overdueCount || 0) }
 ])
 
 const loading = ref(false)
@@ -512,10 +516,11 @@ onMounted(() => {
 
 .payment-page {
   width: 100%;
-  min-height: 100%;
+  height: calc(100vh - 120px);
   display: flex;
   flex-direction: column;
   gap: 20px;
+  overflow: hidden;
 }
 
 /* ========================================
