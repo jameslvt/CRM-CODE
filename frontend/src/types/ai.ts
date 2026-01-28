@@ -19,6 +19,76 @@ export interface AiStatusInfo {
   baseUrl: string
 }
 
+/**
+ * 查询条件
+ */
+export interface QueryCondition {
+  /** 过滤条件列表 */
+  filters: QueryFilter[]
+  /** 排序字段 */
+  orderBy?: string
+  /** 排序方向 */
+  orderDirection?: 'asc' | 'desc'
+}
+
+/**
+ * 查询过滤条件
+ */
+export interface QueryFilter {
+  /** 字段名 */
+  field: string
+  /** 操作符 */
+  operator: QueryOperator
+  /** 值 */
+  value: any
+}
+
+/**
+ * 查询操作符
+ */
+export type QueryOperator = 'eq' | 'like' | 'gt' | 'lt' | 'gte' | 'lte' | 'in' | 'between'
+
+// ==================== AI 助手功能类型 ====================
+
+/**
+ * AI 助手功能类型
+ */
+export type AiFeatureType =
+  | 'chat'           // 智能对话
+  | 'extract'        // 智能提取
+  | 'duplicate'      // 智能查重
+  | 'query'          // 自然语言查询
+
+/**
+ * AI 助手功能配置
+ */
+export interface AiFeatureConfig {
+  /** 功能类型 */
+  type: AiFeatureType
+  /** 功能名称 */
+  name: string
+  /** 功能描述 */
+  description: string
+  /** 图标 */
+  icon: string
+  /** 是否启用 */
+  enabled: boolean
+}
+
+/**
+ * 快捷提示模板
+ */
+export interface QuickPrompt {
+  /** 模板ID */
+  id: string
+  /** 模板标题 */
+  title: string
+  /** 模板内容 */
+  content: string
+  /** 适用场景 */
+  category: 'lead' | 'customer' | 'opportunity' | 'contract' | 'general'
+}
+
 // ==================== 对话相关 ====================
 
 /**
@@ -153,82 +223,14 @@ export interface NLQueryRequest {
   query: string
 }
 
+// ... (skip lines)
+
 /**
  * 实体类型
  */
-export type EntityType = 'lead' | 'customer' | 'opportunity' | 'contract'
+export type EntityType = 'lead' | 'customer' | 'opportunity' | 'contract' | 'contact' | 'product' | 'payment'
 
-/**
- * 查询条件
- */
-export interface QueryCondition {
-  /** 过滤条件列表 */
-  filters: QueryFilter[]
-  /** 排序字段 */
-  orderBy?: string
-  /** 排序方向 */
-  orderDirection?: 'asc' | 'desc'
-}
-
-/**
- * 查询过滤条件
- */
-export interface QueryFilter {
-  /** 字段名 */
-  field: string
-  /** 操作符 */
-  operator: QueryOperator
-  /** 值 */
-  value: any
-}
-
-/**
- * 查询操作符
- */
-export type QueryOperator = 'eq' | 'like' | 'gt' | 'lt' | 'gte' | 'lte' | 'in' | 'between'
-
-// ==================== AI 助手功能类型 ====================
-
-/**
- * AI 助手功能类型
- */
-export type AiFeatureType =
-  | 'chat'           // 智能对话
-  | 'extract'        // 智能提取
-  | 'duplicate'      // 智能查重
-  | 'query'          // 自然语言查询
-
-/**
- * AI 助手功能配置
- */
-export interface AiFeatureConfig {
-  /** 功能类型 */
-  type: AiFeatureType
-  /** 功能名称 */
-  name: string
-  /** 功能描述 */
-  description: string
-  /** 图标 */
-  icon: string
-  /** 是否启用 */
-  enabled: boolean
-}
-
-/**
- * 快捷提示模板
- */
-export interface QuickPrompt {
-  /** 模板ID */
-  id: string
-  /** 模板标题 */
-  title: string
-  /** 模板内容 */
-  content: string
-  /** 适用场景 */
-  category: 'lead' | 'customer' | 'opportunity' | 'contract' | 'general'
-}
-
-// ==================== 常量定义 ====================
+// ... (skip lines)
 
 /**
  * 实体类型选项
@@ -237,7 +239,10 @@ export const ENTITY_TYPE_OPTIONS = [
   { label: '线索', value: 'lead' },
   { label: '客户', value: 'customer' },
   { label: '商机', value: 'opportunity' },
-  { label: '合同', value: 'contract' }
+  { label: '合同', value: 'contract' },
+  { label: '联系人', value: 'contact' },
+  { label: '产品', value: 'product' },
+  { label: '回款', value: 'payment' }
 ] as const
 
 /**

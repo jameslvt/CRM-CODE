@@ -21,6 +21,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.crm.business.service.OpportunityService.*;
+
 /**
  * 仪表盘服务
  * 提供销售数据汇总统计、漏斗分析、趋势分析等功能
@@ -44,19 +46,31 @@ public class DashboardService {
      * 商机阶段定义（按顺序）
      */
     private static final String[] OPPORTUNITY_STAGES = {
-            "需求确认", "方案报价", "商务谈判", "赢单", "输单"
+            STAGE_REQUIREMENT, STAGE_PROPOSAL, STAGE_NEGOTIATION, STAGE_WON, STAGE_LOST
     };
+
+    /**
+     * 阶段显示名称映射
+     */
+    private static final Map<String, String> STAGE_NAME_MAP = new LinkedHashMap<>();
+    static {
+        STAGE_NAME_MAP.put(STAGE_REQUIREMENT, "需求确认");
+        STAGE_NAME_MAP.put(STAGE_PROPOSAL, "方案报价");
+        STAGE_NAME_MAP.put(STAGE_NEGOTIATION, "商务谈判");
+        STAGE_NAME_MAP.put(STAGE_WON, "赢单");
+        STAGE_NAME_MAP.put(STAGE_LOST, "输单");
+    }
 
     /**
      * 阶段概率映射
      */
     private static final Map<String, Integer> STAGE_PROBABILITY = new LinkedHashMap<>();
     static {
-        STAGE_PROBABILITY.put("需求确认", 10);
-        STAGE_PROBABILITY.put("方案报价", 30);
-        STAGE_PROBABILITY.put("商务谈判", 60);
-        STAGE_PROBABILITY.put("赢单", 100);
-        STAGE_PROBABILITY.put("输单", 0);
+        STAGE_PROBABILITY.put(STAGE_REQUIREMENT, 20);
+        STAGE_PROBABILITY.put(STAGE_PROPOSAL, 40);
+        STAGE_PROBABILITY.put(STAGE_NEGOTIATION, 60);
+        STAGE_PROBABILITY.put(STAGE_WON, 100);
+        STAGE_PROBABILITY.put(STAGE_LOST, 0);
     }
 
     /**
@@ -173,7 +187,7 @@ public class DashboardService {
 
         // 活跃客户数（有商机的客户）
         LambdaQueryWrapper<Opportunity> oppWrapper = new LambdaQueryWrapper<>();
-        oppWrapper.notIn(Opportunity::getStage, "赢单", "输单");
+        oppWrapper.notIn(Opportunity::getStage, STAGE_WON, STAGE_LOST);
         List<Opportunity> activeOpps = opportunityMapper.selectList(oppWrapper);
         long activeCount = activeOpps.stream()
                 .map(Opportunity::getCustomerId)
@@ -213,7 +227,7 @@ public class DashboardService {
         if (ownerId != null) {
             ongoingWrapper.eq(Opportunity::getOwnerId, ownerId);
         }
-        ongoingWrapper.notIn(Opportunity::getStage, "赢单", "输单");
+        ongoingWrapper.notIn(Opportunity::getStage, STAGE_WON, STAGE_LOST);
         stats.setOngoingCount(opportunityMapper.selectCount(ongoingWrapper));
 
         // 赢单数量
@@ -221,7 +235,7 @@ public class DashboardService {
         if (ownerId != null) {
             wonWrapper.eq(Opportunity::getOwnerId, ownerId);
         }
-        wonWrapper.eq(Opportunity::getStage, "赢单");
+        wonWrapper.eq(Opportunity::getStage, STAGE_WON);
         stats.setWonCount(opportunityMapper.selectCount(wonWrapper));
 
         // 输单数量
@@ -229,7 +243,7 @@ public class DashboardService {
         if (ownerId != null) {
             lostWrapper.eq(Opportunity::getOwnerId, ownerId);
         }
-        lostWrapper.eq(Opportunity::getStage, "输单");
+        lostWrapper.eq(Opportunity::getStage, STAGE_LOST);
         stats.setLostCount(opportunityMapper.selectCount(lostWrapper));
 
         // 赢单率
@@ -399,22 +413,25 @@ public class DashboardService {
         Long previousCount = null;
 
         // 按阶段统计（排除输单）
-        for (String stageName : OPPORTUNITY_STAGES) {
-            if ("输单".equals(stageName)) {
-                continue; // 漏斗不显示输单
+        for (String stageKey : OPPORTUNITY_STAGES) {
+            // 注意：STAGE_LOST 是输单，不在漏斗中显示
+            if (STAGE_LOST.equals(stageKey)) {
+                continue;
             }
 
             SalesFunnelDTO.FunnelStage stage = new SalesFunnelDTO.FunnelStage();
-            stage.setStageName(stageName);
-            stage.setStageCode(stageName);
-            stage.setProbability(STAGE_PROBABILITY.get(stageName));
+            // 阶段代码使用英文Key
+            stage.setStageCode(stageKey);
+            // 阶段名称使用中文显示名
+            stage.setStageName(STAGE_NAME_MAP.getOrDefault(stageKey, stageKey));
+            stage.setProbability(STAGE_PROBABILITY.get(stageKey));
 
-            // 统计该阶段的商机
+            // 统计该阶段的商机（使用英文Key匹配）
             long stageCount = allOpps.stream()
-                    .filter(o -> stageName.equals(o.getStage()))
+                    .filter(o -> stageKey.equals(o.getStage()))
                     .count();
             BigDecimal stageAmount = allOpps.stream()
-                    .filter(o -> stageName.equals(o.getStage()))
+                    .filter(o -> stageKey.equals(o.getStage()))
                     .map(Opportunity::getAmount)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
@@ -487,18 +504,9 @@ public class DashboardService {
         if ("quarter".equalsIgnoreCase(periodType)) {
             // 按季度查询
             for (int i = months - 1; i >= 0; i--) {
-                // 计算当前季度的结束日期（基于今天倒推i个季度）
-                // 逻辑：当前日期减去 (i*3) 个月，然后调整到该所在季度的范围
-                // 简化逻辑：以当前季度为基准，倒推 i 个季度
-
-                // 计算基准日：当前日期减去 i * 3 个月
                 LocalDate baseDate = today.minusMonths(i * 3L);
-
-                // 计算该基准日所在季度的第一天和最后一天
-                // (month - 1) / 3 * 3 + 1
                 int currentMonth = baseDate.getMonthValue();
                 int quarterStartMonth = (currentMonth - 1) / 3 * 3 + 1;
-
                 LocalDateTime periodStart = baseDate.withMonth(quarterStartMonth).withDayOfMonth(1).atStartOfDay();
                 LocalDateTime periodEnd = baseDate.withMonth(quarterStartMonth + 2)
                         .with(TemporalAdjusters.lastDayOfMonth()).atTime(23, 59, 59);
@@ -572,7 +580,7 @@ public class DashboardService {
         if (ownerId != null) {
             wonWrapper.eq(Opportunity::getOwnerId, ownerId);
         }
-        wonWrapper.eq(Opportunity::getStage, "赢单")
+        wonWrapper.eq(Opportunity::getStage, STAGE_WON)
                 .ge(Opportunity::getUpdateTime, startTime)
                 .le(Opportunity::getUpdateTime, endTime);
         List<Opportunity> wonOpps = opportunityMapper.selectList(wonWrapper);
@@ -618,5 +626,56 @@ public class DashboardService {
         summary.setTotalSignedContractCount(summary.getTotalSignedContractCount() + point.getSignedContractCount());
         summary.setTotalSignedAmount(summary.getTotalSignedAmount().add(point.getSignedAmount()));
         summary.setTotalPaymentAmount(summary.getTotalPaymentAmount().add(point.getPaymentAmount()));
+    }
+
+    /**
+     * 获取商机统计数据
+     */
+    public Map<String, Object> getOpportunityStatistics(Long ownerId) {
+        Map<String, Object> statistics = new LinkedHashMap<>();
+
+        LambdaQueryWrapper<Opportunity> wrapper = new LambdaQueryWrapper<>();
+        if (ownerId != null) {
+            wrapper.eq(Opportunity::getOwnerId, ownerId);
+        }
+
+        // 总商机数
+        Long totalCount = opportunityMapper.selectCount(wrapper);
+        statistics.put("totalCount", totalCount);
+
+        // 各阶段商机数
+        Map<String, Long> stageCount = new LinkedHashMap<>();
+        for (String stageKey : STAGE_PROBABILITY.keySet()) {
+            LambdaQueryWrapper<Opportunity> stageWrapper = new LambdaQueryWrapper<>();
+            stageWrapper.eq(Opportunity::getStage, stageKey);
+            if (ownerId != null) {
+                stageWrapper.eq(Opportunity::getOwnerId, ownerId);
+            }
+            // 使用中文名作为Key返回给前端
+            String stageName = STAGE_NAME_MAP.getOrDefault(stageKey, stageKey);
+            stageCount.put(stageName, opportunityMapper.selectCount(stageWrapper));
+        }
+        statistics.put("stageCount", stageCount);
+
+        // 总金额
+        List<Opportunity> opportunities = opportunityMapper.selectList(wrapper);
+        BigDecimal totalAmount = opportunities.stream()
+                .map(Opportunity::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        statistics.put("totalAmount", totalAmount);
+
+        // 赢单金额
+        LambdaQueryWrapper<Opportunity> wonWrapper = new LambdaQueryWrapper<>();
+        wonWrapper.eq(Opportunity::getStage, STAGE_WON);
+        if (ownerId != null) {
+            wonWrapper.eq(Opportunity::getOwnerId, ownerId);
+        }
+        List<Opportunity> wonOpportunities = opportunityMapper.selectList(wonWrapper);
+        BigDecimal wonAmount = wonOpportunities.stream()
+                .map(Opportunity::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        statistics.put("wonAmount", wonAmount);
+
+        return statistics;
     }
 }

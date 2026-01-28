@@ -250,7 +250,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, markRaw } from 'vue'
 import { useRouter } from 'vue-router'
 import { 
   NButton, NIcon, NTabs, NTabPane, NList, NListItem, NCheckbox, NTag,
@@ -304,10 +304,10 @@ const approvalTodos = ref([
 
 // 模拟数据：最近足迹
 const recentRecords = ref([
-  { id: 1, type: 'lead', name: '李经理 - 采购意向', desc: '线索', time: '10分钟前', icon: PersonOutline, path: '/business/lead/1' },
-  { id: 2, type: 'customer', name: '上海网络科技有限公司', desc: '客户', time: '30分钟前', icon: PeopleOutline, path: '/business/customer/1' },
-  { id: 3, type: 'opportunity', name: 'Q1季度服务器采购', desc: '商机', time: '2小时前', icon: BriefcaseOutline, path: '/business/opportunity/1' },
-  { id: 4, type: 'contract', name: '年度运维服务合同', desc: '合同', time: '昨天', icon: DocumentTextOutline, path: '/business/contract/1' },
+  { id: 1, type: 'lead', name: '李经理 - 采购意向', desc: '线索', time: '10分钟前', icon: markRaw(PersonOutline), path: '/business/lead/1' },
+  { id: 2, type: 'customer', name: '上海网络科技有限公司', desc: '客户', time: '30分钟前', icon: markRaw(PeopleOutline), path: '/business/customer/1' },
+  { id: 3, type: 'opportunity', name: 'Q1季度服务器采购', desc: '商机', time: '2小时前', icon: markRaw(BriefcaseOutline), path: '/business/opportunity/1' },
+  { id: 4, type: 'contract', name: '年度运维服务合同', desc: '合同', time: '昨天', icon: markRaw(DocumentTextOutline), path: '/business/contract/1' },
 ])
 
 const handleAction = (item: any) => {

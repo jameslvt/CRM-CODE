@@ -97,7 +97,7 @@ public class NLQueryService {
      * 通用自然语言查询解析
      *
      * @param entityType 实体类型
-     * @param query 自然语言查询
+     * @param query      自然语言查询
      * @return 查询条件
      */
     public QueryCondition parseQuery(String entityType, String query) {
@@ -110,9 +110,60 @@ public class NLQueryService {
                 return parseOpportunityQuery(query);
             case "contract":
                 return parseContractQuery(query);
+            case "contact":
+                return parseContactQuery(query);
+            case "product":
+                return parseProductQuery(query);
+            case "payment":
+                return parsePaymentQuery(query);
             default:
                 throw new BusinessException("不支持的实体类型: " + entityType);
         }
+    }
+
+    /**
+     * 解析自然语言查询为联系人查询条件
+     *
+     * @param query 自然语言查询
+     * @return 查询条件
+     */
+    public QueryCondition parseContactQuery(String query) {
+        if (!aiService.isEnabled()) {
+            throw new BusinessException("AI feature is disabled");
+        }
+        String systemPrompt = buildContactQueryPrompt();
+        String response = aiService.chat(systemPrompt, query);
+        return parseQueryCondition(response);
+    }
+
+    /**
+     * 解析自然语言查询为产品查询条件
+     *
+     * @param query 自然语言查询
+     * @return 查询条件
+     */
+    public QueryCondition parseProductQuery(String query) {
+        if (!aiService.isEnabled()) {
+            throw new BusinessException("AI feature is disabled");
+        }
+        String systemPrompt = buildProductQueryPrompt();
+        String response = aiService.chat(systemPrompt, query);
+        return parseQueryCondition(response);
+    }
+
+    /**
+     * 解析自然语言查询为回款查询条件
+     *
+     * @param query 自然语言查询
+     * @return 查询条件
+     */
+    public QueryCondition parsePaymentQuery(String query) {
+        if (!aiService.isEnabled()) {
+            throw new BusinessException("AI feature is disabled");
+        }
+        String systemPrompt = buildPaymentQueryPrompt();
+        String response = aiService.chat(systemPrompt, query);
+        return parseQueryCondition(response);
     }
 
     /**
@@ -131,11 +182,12 @@ public class NLQueryService {
                 "\n" +
                 "请以 JSON 格式返回：\n" +
                 "{\n" +
-                "  \"filters\": [{\"field\": \"字段名\", \"operator\": \"eq/like/gt/lt/gte/lte/in/between\", \"value\": \"值\"}],\n" +
+                "  \"filters\": [{\"field\": \"字段名\", \"operator\": \"eq/like/gt/lt/gte/lte/in/between\", \"value\": \"值\"}],\n"
+                +
                 "  \"orderBy\": \"排序字段\",\n" +
                 "  \"orderDirection\": \"asc/desc\"\n" +
                 "}\n" +
-                "只返回 JSON，不要包含其他文字。";
+                "only return JSON, do not include other text.";
     }
 
     /**
@@ -154,11 +206,12 @@ public class NLQueryService {
                 "\n" +
                 "请以 JSON 格式返回：\n" +
                 "{\n" +
-                "  \"filters\": [{\"field\": \"字段名\", \"operator\": \"eq/like/gt/lt/gte/lte/in/between\", \"value\": \"值\"}],\n" +
+                "  \"filters\": [{\"field\": \"字段名\", \"operator\": \"eq/like/gt/lt/gte/lte/in/between\", \"value\": \"值\"}],\n"
+                +
                 "  \"orderBy\": \"排序字段\",\n" +
                 "  \"orderDirection\": \"asc/desc\"\n" +
                 "}\n" +
-                "只返回 JSON，不要包含其他文字。";
+                "only return JSON, do not include other text.";
     }
 
     /**
@@ -177,11 +230,12 @@ public class NLQueryService {
                 "\n" +
                 "请以 JSON 格式返回：\n" +
                 "{\n" +
-                "  \"filters\": [{\"field\": \"字段名\", \"operator\": \"eq/like/gt/lt/gte/lte/in/between\", \"value\": \"值\"}],\n" +
+                "  \"filters\": [{\"field\": \"字段名\", \"operator\": \"eq/like/gt/lt/gte/lte/in/between\", \"value\": \"值\"}],\n"
+                +
                 "  \"orderBy\": \"排序字段\",\n" +
                 "  \"orderDirection\": \"asc/desc\"\n" +
                 "}\n" +
-                "只返回 JSON，不要包含其他文字。";
+                "only return JSON, do not include other text.";
     }
 
     /**
@@ -200,11 +254,85 @@ public class NLQueryService {
                 "\n" +
                 "请以 JSON 格式返回：\n" +
                 "{\n" +
-                "  \"filters\": [{\"field\": \"字段名\", \"operator\": \"eq/like/gt/lt/gte/lte/in/between\", \"value\": \"值\"}],\n" +
+                "  \"filters\": [{\"field\": \"字段名\", \"operator\": \"eq/like/gt/lt/gte/lte/in/between\", \"value\": \"值\"}],\n"
+                +
                 "  \"orderBy\": \"排序字段\",\n" +
                 "  \"orderDirection\": \"asc/desc\"\n" +
                 "}\n" +
-                "只返回 JSON，不要包含其他文字。";
+                "only return JSON, do not include other text.";
+    }
+
+    /**
+     * 构建联系人查询提示词
+     */
+    private String buildContactQueryPrompt() {
+        return "You are a CRM system query assistant. Please convert the user's natural language query into structured query conditions.\n"
+                +
+                "Queryable fields for Contact include:\n" +
+                "- name: Name (supports fuzzy match)\n" +
+                "- phone: Phone\n" +
+                "- customerId: Customer ID\n" +
+                "- position: Position\n" +
+                "- email: Email\n" +
+                "- ownerId: Owner ID\n" +
+                "- createTimeStart/createTimeEnd: Creation time range\n" +
+                "\n" +
+                "Please return in JSON format:\n" +
+                "{\n" +
+                "  \"filters\": [{\"field\": \"fieldName\", \"operator\": \"eq/like/gt/lt/gte/lte/in/between\", \"value\": \"value\"}],\n"
+                +
+                "  \"orderBy\": \"sortField\",\n" +
+                "  \"orderDirection\": \"asc/desc\"\n" +
+                "}\n" +
+                "Only return JSON, do not include other text.";
+    }
+
+    /**
+     * 构建产品查询提示词
+     */
+    private String buildProductQueryPrompt() {
+        return "You are a CRM system query assistant. Please convert the user's natural language query into structured query conditions.\n"
+                +
+                "Queryable fields for Product include:\n" +
+                "- name: Product Name (supports fuzzy match)\n" +
+                "- code: Product Code\n" +
+                "- category: Category\n" +
+                "- status: Status (1-On Shelves, 0-Off Shelves)\n" +
+                "- priceMin/priceMax: Price range\n" +
+                "- createTimeStart/createTimeEnd: Creation time range\n" +
+                "\n" +
+                "Please return in JSON format:\n" +
+                "{\n" +
+                "  \"filters\": [{\"field\": \"fieldName\", \"operator\": \"eq/like/gt/lt/gte/lte/in/between\", \"value\": \"value\"}],\n"
+                +
+                "  \"orderBy\": \"sortField\",\n" +
+                "  \"orderDirection\": \"asc/desc\"\n" +
+                "}\n" +
+                "Only return JSON, do not include other text.";
+    }
+
+    /**
+     * 构建回款查询提示词
+     */
+    private String buildPaymentQueryPrompt() {
+        return "You are a CRM system query assistant. Please convert the user's natural language query into structured query conditions.\n"
+                +
+                "Queryable fields for Payment include:\n" +
+                "- contractId: Contract ID\n" +
+                "- customerId: Customer ID\n" +
+                "- payDateStart/payDateEnd: Payment date range\n" +
+                "- status: Status (0-Unpaid, 1-Partial, 2-Paid)\n" +
+                "- amountMin/amountMax: Amount range\n" +
+                "- ownerId: Owner ID\n" +
+                "\n" +
+                "Please return in JSON format:\n" +
+                "{\n" +
+                "  \"filters\": [{\"field\": \"fieldName\", \"operator\": \"eq/like/gt/lt/gte/lte/in/between\", \"value\": \"value\"}],\n"
+                +
+                "  \"orderBy\": \"sortField\",\n" +
+                "  \"orderDirection\": \"asc/desc\"\n" +
+                "}\n" +
+                "Only return JSON, do not include other text.";
     }
 
     /**

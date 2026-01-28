@@ -605,7 +605,7 @@ async function loadDepartmentTree() {
 function convertDepartmentTree(departments: Department[]): any[] {
   return departments.map((dept) => ({
     label: dept.name,
-    value: dept.id,
+    key: dept.id,
     children: dept.children ? convertDepartmentTree(dept.children) : undefined
   }))
 }

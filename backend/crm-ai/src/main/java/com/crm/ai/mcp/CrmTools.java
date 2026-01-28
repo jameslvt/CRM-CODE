@@ -45,7 +45,25 @@ public class CrmTools {
         tools.add(buildGetDashboardTool());
         tools.add(buildGetSalesFunnelTool());
 
+        // 数据库工具
+        tools.add(buildGetDatabaseSchemaTool());
+
         return tools;
+    }
+
+    /**
+     * 获取数据库表结构工具
+     */
+    private static ToolDefinition buildGetDatabaseSchemaTool() {
+        ToolDefinition tool = new ToolDefinition();
+        tool.setName("get_database_schema");
+        tool.setDescription("获取数据库表结构信息。支持查询所有表或通过 tableName 参数查询指定表。返回建表语句(DDL)或列定义。");
+
+        Map<String, ParameterDefinition> params = new HashMap<>();
+        params.put("tableName", new ParameterDefinition("string", "表名(可选)，如果为空则返回所有表的摘要信息，如果指定则返回该表的详细 DDL", false));
+        tool.setParameters(params);
+
+        return tool;
     }
 
     /**
@@ -64,8 +82,7 @@ public class CrmTools {
         params.put("pageSize", new ParameterDefinition("integer", "每页数量，默认10", false));
         tool.setParameters(params);
 
-        return tool;
-    }
+        return too
 
     /**
      * 创建线索工具
@@ -274,7 +291,8 @@ public class CrmTools {
          */
         private boolean required;
 
-        public ParameterDefinition() {}
+        public ParameterDefinition() {
+        }
 
         public ParameterDefinition(String type, String description, boolean required) {
             this.type = type;

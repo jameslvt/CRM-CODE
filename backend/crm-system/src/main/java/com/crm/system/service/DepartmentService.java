@@ -247,7 +247,13 @@ public class DepartmentService {
         List<DepartmentDTO> tree = new ArrayList<>();
 
         for (Department department : departments) {
-            if (department.getParentId().equals(parentId)) {
+            // Handle null parentId as 0 (root)
+            Long deptParentId = department.getParentId();
+            if (deptParentId == null) {
+                deptParentId = 0L;
+            }
+
+            if (deptParentId.equals(parentId)) {
                 DepartmentDTO dto = convertToDTO(department);
                 dto.setChildren(buildDepartmentTree(departments, department.getId()));
                 tree.add(dto);
